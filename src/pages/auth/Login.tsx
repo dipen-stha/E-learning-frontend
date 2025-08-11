@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/Input"
 import { Label } from "@/components/ui/Label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/Card"
 import { Checkbox } from "@/components/ui/Checkbox"
-import { useUserStore } from "@/stores/User/Auth"
+import { useAuthStore } from "@/stores/User/Auth"
 
 const LoginPage: React.FC = () => {
   // const [formData, setFormData] = useState({
@@ -31,7 +31,7 @@ const LoginPage: React.FC = () => {
   //   // Handle login logic here
   // }
 
-  const { loginDetails, setLoginDetails, login, hasError } = useUserStore();
+  const { loginDetails, setLoginDetails, login, hasError } = useAuthStore();
   const [loginPayload, setLoginPaylod] = useState(loginDetails);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
