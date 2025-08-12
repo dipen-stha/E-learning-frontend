@@ -9,30 +9,15 @@ import { Label } from "@/components/ui/Label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/Card"
 import { Checkbox } from "@/components/ui/Checkbox"
 import { useAuthStore } from "@/stores/User/Auth"
+import { useNavigate } from "react-router-dom"
+import { useUserStore } from "@/stores/User/User"
 
 const LoginPage: React.FC = () => {
-  // const [formData, setFormData] = useState({
-  //   username: "",
-  //   password: "",
-  //   remember: false,
-  // })
 
-  // const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const { name, value, type, checked } = e.target
-  //   setFormData((prev) => ({
-  //     ...prev,
-  //     [name]: type === "checkbox" ? checked : value,
-  //   }))
-  // }
-
-  // const handleSubmit = (e: React.FormEvent) => {
-  //   e.preventDefault()
-  //   console.log("Login form submitted:", formData)
-  //   // Handle login logic here
-  // }
-
-  const { loginDetails, setLoginDetails, login, hasError } = useAuthStore();
+  const { loginDetails, setLoginDetails, login } = useAuthStore();
+  const { fetchSelf, isAuthenticated } = useUserStore();
   const [loginPayload, setLoginPaylod] = useState(loginDetails);
+  const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -43,7 +28,13 @@ const LoginPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await login();
+    const loggedIn = await login();
+    if(loggedIn){
+      fetchSelf();
+      if(isAuthenticated){
+        navigate("/dashboard");
+      }
+    }
   }
 
   return (

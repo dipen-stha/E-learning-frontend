@@ -1,55 +1,84 @@
 @import "tailwindcss";
 
-@theme {
-  --color-background: hsl(0 0% 100%);
-  --color-foreground: hsl(222.2 84% 4.9%);
-  --color-card: hsl(0 0% 100%);
-  --color-card-foreground: hsl(222.2 84% 4.9%);
-  --color-popover: hsl(0 0% 100%);
-  --color-popover-foreground: hsl(222.2 84% 4.9%);
-  --color-primary: hsl(222.2 47.4% 11.2%);
-  --color-primary-foreground: hsl(210 40% 98%);
-  --color-secondary: hsl(210 40% 96%);
-  --color-secondary-foreground: hsl(222.2 47.4% 11.2%);
-  --color-muted: hsl(210 40% 96%);
-  --color-muted-foreground: hsl(215.4 16.3% 46.9%);
-  --color-accent: hsl(210 40% 96%);
-  --color-accent-foreground: hsl(222.2 47.4% 11.2%);
-  --color-destructive: hsl(0 84.2% 60.2%);
-  --color-destructive-foreground: hsl(210 40% 98%);
-  --color-border: hsl(214.3 31.8% 91.4%);
-  --color-input: hsl(214.3 31.8% 91.4%);
-  --color-ring: hsl(222.2 84% 4.9%);
+@theme inline {
+  /* Updated color system for Tailwind CSS v4 */
+  --color-background: oklch(100% 0 0);
+  --color-foreground: oklch(9% 0.024 285.8);
+  --color-card: oklch(100% 0 0);
+  --color-card-foreground: oklch(9% 0.024 285.8);
+  --color-popover: oklch(100% 0 0);
+  --color-popover-foreground: oklch(9% 0.024 285.8);
+  --color-primary: oklch(11.2% 0.024 285.8);
+  --color-primary-foreground: oklch(98% 0.004 285.8);
+  --color-secondary: oklch(96% 0.004 285.8);
+  --color-secondary-foreground: oklch(11.2% 0.024 285.8);
+  --color-muted: oklch(96% 0.004 285.8);
+  --color-muted-foreground: oklch(46.9% 0.016 285.8);
+  --color-accent: oklch(96% 0.004 285.8);
+  --color-accent-foreground: oklch(11.2% 0.024 285.8);
+  --color-destructive: oklch(60.2% 0.177 29.2);
+  --color-destructive-foreground: oklch(98% 0.004 285.8);
+  --color-border: oklch(91.4% 0.008 285.8);
+  --color-input: oklch(91.4% 0.008 285.8);
+  --color-ring: oklch(9% 0.024 285.8);
+
+  /* Added violet and cyan colors for the learning platform theme */
+  /* --color-violet-50: oklch(97% 0.013 308);
+  --color-violet-100: oklch(93% 0.031 308);
+  --color-violet-200: oklch(87% 0.063 308);
+  --color-violet-300: oklch(78% 0.094 308);
+  --color-violet-400: oklch(68% 0.125 308);
+  --color-violet-500: oklch(58% 0.156 308);
+  --color-violet-600: oklch(48% 0.156 308);
+  --color-violet-700: oklch(38% 0.125 308);
+  --color-violet-800: oklch(28% 0.094 308);
+  --color-violet-900: oklch(18% 0.063 308);
+
+  --color-cyan-50: oklch(97% 0.013 195);
+  --color-cyan-100: oklch(93% 0.031 195);
+  --color-cyan-200: oklch(87% 0.063 195);
+  --color-cyan-300: oklch(78% 0.094 195);
+  --color-cyan-400: oklch(68% 0.125 195);
+  --color-cyan-500: oklch(58% 0.156 195);
+  --color-cyan-600: oklch(48% 0.156 195);
+  --color-cyan-700: oklch(38% 0.125 195);
+  --color-cyan-800: oklch(28% 0.094 195);
+  --color-cyan-900: oklch(18% 0.063 195); */
+
   --radius: 0.5rem;
 }
 
-@theme .dark {
-  --color-background: hsl(222.2 84% 4.9%);
-  --color-foreground: hsl(210 40% 98%);
-  --color-card: hsl(222.2 84% 4.9%);
-  --color-card-foreground: hsl(210 40% 98%);
-  --color-popover: hsl(222.2 84% 4.9%);
-  --color-popover-foreground: hsl(210 40% 98%);
-  --color-primary: hsl(210 40% 98%);
-  --color-primary-foreground: hsl(222.2 47.4% 11.2%);
-  --color-secondary: hsl(217.2 32.6% 17.5%);
-  --color-secondary-foreground: hsl(210 40% 98%);
-  --color-muted: hsl(217.2 32.6% 17.5%);
-  --color-muted-foreground: hsl(215 20.2% 65.1%);
-  --color-accent: hsl(217.2 32.6% 17.5%);
-  --color-accent-foreground: hsl(210 40% 98%);
-  --color-destructive: hsl(0 62.8% 30.6%);
-  --color-destructive-foreground: hsl(210 40% 98%);
-  --color-border: hsl(217.2 32.6% 17.5%);
-  --color-input: hsl(217.2 32.6% 17.5%);
-  --color-ring: hsl(212.7 26.8% 83.9%);
+@media (prefers-color-scheme: dark) {
+  @theme inline {
+    /* Dark mode colors for Tailwind CSS v4 */
+    --color-background: oklch(9% 0.024 285.8);
+    --color-foreground: oklch(98% 0.004 285.8);
+    --color-card: oklch(9% 0.024 285.8);
+    --color-card-foreground: oklch(98% 0.004 285.8);
+    --color-popover: oklch(9% 0.024 285.8);
+    --color-popover-foreground: oklch(98% 0.004 285.8);
+    --color-primary: oklch(98% 0.004 285.8);
+    --color-primary-foreground: oklch(11.2% 0.024 285.8);
+    --color-secondary: oklch(17.5% 0.016 285.8);
+    --color-secondary-foreground: oklch(98% 0.004 285.8);
+    --color-muted: oklch(17.5% 0.016 285.8);
+    --color-muted-foreground: oklch(65.1% 0.008 285.8);
+    --color-accent: oklch(17.5% 0.016 285.8);
+    --color-accent-foreground: oklch(98% 0.004 285.8);
+    --color-destructive: oklch(30.6% 0.177 29.2);
+    --color-destructive-foreground: oklch(98% 0.004 285.8);
+    --color-border: oklch(17.5% 0.016 285.8);
+    --color-input: oklch(17.5% 0.016 285.8);
+    --color-ring: oklch(83.9% 0.008 285.8);
+  }
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
+/* Updated base styles for Tailwind CSS v4 */
+/* * {
+  border-color: var(--color-border);
+} */
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
 }

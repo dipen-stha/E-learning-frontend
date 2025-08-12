@@ -12,8 +12,9 @@ export interface AuthState {
 
   setLoginDetails: (details: LoginDetails) => void;
   hasLoginError: () => void;
-  login: () => Promise<void>;
+  login: () => Promise<boolean>;
   refresh: () => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 
@@ -34,8 +35,10 @@ export interface UserState {
   userDetail: UserDetail | null;
   isAuthenticated: boolean;
   hasError: boolean;
+  isLoading: boolean;
   hasFetchingError: () => void;
   setUserUnauthenticated: () => void;
   setUserDetails: (userDetail: UserDetail) => void;
+  completeLoader: () => void;
   fetchSelf: () => void;
 }

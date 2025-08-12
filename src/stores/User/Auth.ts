@@ -3,6 +3,7 @@ import {create} from "zustand";
 import api from "@/services/api/interceptor";
 import { authAPI } from "@/services/api/endpoints/user";
 
+
 export const useAuthStore = create<AuthState>((set, get) => ({
     loginDetails: {username: "", password: "", remember: false},
     hasError: false,
@@ -26,8 +27,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             set({accessToken, refreshToken, hasError: false});
             localStorage.setItem("access", accessToken)
             localStorage.setItem("refresh", refreshToken)
+            return true;
         } catch {
             get().hasLoginError();
+            return false;
         }
     },
     refresh: async() => {
@@ -45,4 +48,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             get().hasLoginError();
         }
     },
+    logout: async() => {
+        try{
+            localStorage.removeItem("access")
+            localStorage.removeItem("refresh")
+            set({accessToken: null, refreshToken: null, loginDetails: {username: "", password: "", remember: false}})
+        } catch (e) {
+            console.log("There was an error logging out")
+        }
+    }
 }))
