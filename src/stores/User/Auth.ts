@@ -1,9 +1,10 @@
-import { LoginDetails, UserState } from "@/services/types/user";
+import { LoginDetails, AuthState } from "@/services/types/user";
 import {create} from "zustand";
 import api from "@/services/api/interceptor";
+import { authAPI } from "@/services/api/endpoints/user";
 
 
-export const useUserStore = create<UserState>((set, get) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
     loginDetails: {username: "", password: "", remember: false},
     hasError: false,
     accessToken: null,
@@ -26,8 +27,34 @@ export const useUserStore = create<UserState>((set, get) => ({
             set({accessToken, refreshToken, hasError: false});
             localStorage.setItem("access", accessToken)
             localStorage.setItem("refresh", refreshToken)
+            return true;
         } catch {
             get().hasLoginError();
+            return false;
+        }
+    },
+    refresh: async() => {
+        const token = localStorage.getItem("refresh")
+        try{
+            const response = await api.post(authAPI.refresh, {refresh_token: token}, {
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                }
+            });
+            const accessToken = response.data.access_token
+            set({accessToken, hasError: false});
+            localStorage.setItem("access", accessToken);
+        } catch {
+            get().hasLoginError();
+        }
+    },
+    logout: async() => {
+        try{
+            localStorage.removeItem("access")
+            localStorage.removeItem("refresh")
+            set({accessToken: null, refreshToken: null, loginDetails: {username: "", password: "", remember: false}})
+        } catch (e) {
+            console.log("There was an error logging out")
         }
     }
 }))

@@ -4,7 +4,7 @@ export interface LoginDetails {
   remember: boolean | undefined;
 }
 
-export interface UserState {
+export interface AuthState {
   loginDetails: LoginDetails;
   hasError: boolean;
   accessToken?: string | null;
@@ -12,5 +12,33 @@ export interface UserState {
 
   setLoginDetails: (details: LoginDetails) => void;
   hasLoginError: () => void;
-  login: () => Promise<void>;
+  login: () => Promise<boolean>;
+  refresh: () => Promise<void>;
+  logout: () => Promise<void>;
+}
+
+
+export interface Profile {
+  name: string;
+  dob: Date;
+  gender: string;
+}
+
+export interface UserDetail {
+  id: number;
+  profile: Profile;
+  email: string;
+  username: string;
+}
+
+export interface UserState {
+  userDetail: UserDetail | null;
+  isAuthenticated: boolean;
+  hasError: boolean;
+  isLoading: boolean;
+  hasFetchingError: () => void;
+  setUserUnauthenticated: () => void;
+  setUserDetails: (userDetail: UserDetail) => void;
+  completeLoader: () => void;
+  fetchSelf: () => void;
 }

@@ -1,5 +1,5 @@
-import { useUserStore } from "@/stores/User/Auth";
-import axios,  {AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
+import { useAuthStore } from "@/stores/User/Auth";
+import axios,  {AxiosError, AxiosInstance } from "axios";
 
 const apiUrl: string = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000"
 
@@ -12,7 +12,7 @@ const api: AxiosInstance = axios.create({
 
 api.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem("access");
         if (token && config.headers) {
             config.headers.Authorization = `Bearer ${token}`
         }
@@ -34,7 +34,8 @@ api.interceptors.response.use(
         const originalRequest = config;
         if (status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
-            const userStore = useUserStore();
+            const userStore = useAuthStore();
+            console.log(userStore.accessToken)
             if(userStore.refreshToken){
                 try{
                 await axios.post(apiUrl + "/auth/refresh", {
