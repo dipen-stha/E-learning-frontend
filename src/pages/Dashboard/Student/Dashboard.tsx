@@ -18,6 +18,7 @@ import { Badge } from "@/components/ui/Badge";
 import Navigation from "@/components/Navigation";
 import { useUserStore } from "@/stores/User/User";
 import { useUserCourseStore } from "@/stores/UserCourses/UserCourse";
+import { useCourseStore } from "@/stores/Courses/Course";
 
 // Mock data for courses
 const latestCourses = [
@@ -107,21 +108,23 @@ export default function Dashboard() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const { userDetail } = useUserStore();
   const {fetchUserCourseDetails} = useUserCourseStore();
+  const { fetchCourseDetails, courseDetails } = useCourseStore();
   const userName = userDetail?.profile.name;
   const userId = userDetail?.id
 
   const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % latestCourses.length);
+    setCurrentSlide((prev) => (prev + 1) % courseDetails.length);
   };
 
   const prevSlide = () => {
     setCurrentSlide(
-      (prev) => (prev - 1 + latestCourses.length) % latestCourses.length
+      (prev) => (prev - 1 + courseDetails.length) % courseDetails.length
     );
   };
 
   useEffect(() => {
     if(userId) fetchUserCourseDetails(userId)
+    fetchCourseDetails();
   }, []);
 
   return (
@@ -165,9 +168,9 @@ export default function Dashboard() {
                     className="flex transition-transform duration-500 ease-in-out w-full"
                     style={{ transform: `translateX(-${currentSlide * 100}%)` }}
                   >
-                    {latestCourses.map((course) => (
+                    {courseDetails.map((course) => (
                       <div
-                        key={course.id}
+                        key={`${course.id}`}
                         className="w-full flex-shrink-0 flex"
                       >
                         <div className="w-1/2 p-8 flex flex-col justify-center">
@@ -177,23 +180,23 @@ export default function Dashboard() {
                           <h3 className="text-2xl font-bold text-gray-800 mb-2">
                             {course.title}
                           </h3>
-                          <p className="text-gray-600 mb-4">
+                          {/* <p className="text-gray-600 mb-4">
                             by {course.instructor}
-                          </p>
+                          </p> */}
                           <div className="flex items-center gap-4 mb-6 text-sm text-gray-500">
                             <span className="flex items-center gap-1">
                               <Clock className="w-4 h-4" />
-                              {course.duration}
+                              {`${course.completion_time} hours`}
                             </span>
-                            <span className="flex items-center gap-1">
+                            {/* <span className="flex items-center gap-1">
                               <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                               {course.rating}
-                            </span>
-                            <span>{course.students} students</span>
+                            </span> */}
+                            {/* <span>{course.students} students</span> */}
                           </div>
                           <div className="flex items-center gap-4">
                             <Button className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-700 hover:to-cyan-700">
-                              Enroll Now - {course.price}
+                              {`Enroll Now - $ ${course.price}`}
                             </Button>
                             <Button
                               // variant="link"
@@ -204,11 +207,11 @@ export default function Dashboard() {
                           </div>
                         </div>
                         <div className="w-1/2 p-8">
-                          <img
+                          {/* <img
                             src={course.image || "/placeholder.svg"}
                             alt={course.title}
                             className="w-full h-full object-cover rounded-lg shadow-lg"
-                          />
+                          /> */}
                         </div>
                       </div>
                     ))}

@@ -34,12 +34,12 @@ api.interceptors.response.use(
         const originalRequest = config;
         if (status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
-            const userStore = useAuthStore();
-            console.log(userStore.accessToken)
-            if(userStore.refreshToken){
+            const { refreshToken } = useAuthStore();
+            // console.log(accessToken)
+            if(refreshToken){
                 try{
                 await axios.post(apiUrl + "/auth/refresh", {
-                    refresh_token: userStore.refreshToken
+                    refresh_token: refreshToken
                 })
                 } catch (e) {
                     console.error("Token Refresh Failed", e)
