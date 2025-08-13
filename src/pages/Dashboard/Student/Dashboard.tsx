@@ -19,83 +19,9 @@ import Navigation from "@/components/Navigation";
 import { useUserStore } from "@/stores/User/User";
 import { useUserCourseStore } from "@/stores/UserCourses/UserCourse";
 import { useCourseStore } from "@/stores/Courses/Course";
+import { Link } from "react-router";
 
 // Mock data for courses
-const latestCourses = [
-  {
-    id: 1,
-    title: "Advanced React Development",
-    instructor: "Sarah Johnson",
-    duration: "8 hours",
-    rating: 4.8,
-    students: 1234,
-    image: "/react-course-thumbnail.png",
-    price: "$89",
-  },
-  {
-    id: 2,
-    title: "UI/UX Design Fundamentals",
-    instructor: "Mike Chen",
-    duration: "12 hours",
-    rating: 4.9,
-    students: 2156,
-    image: "/ui-ux-course-thumbnail.png",
-    price: "$79",
-  },
-  {
-    id: 3,
-    title: "Python for Data Science",
-    instructor: "Dr. Emily Rodriguez",
-    duration: "15 hours",
-    rating: 4.7,
-    students: 3421,
-    image: "/placeholder-6k3se.png",
-    price: "$99",
-  },
-  {
-    id: 4,
-    title: "Digital Marketing Strategy",
-    instructor: "Alex Thompson",
-    duration: "6 hours",
-    rating: 4.6,
-    students: 987,
-    image: "/digital-marketing-course-thumbnail.png",
-    price: "$69",
-  },
-];
-
-const enrolledCourses = [
-  {
-    id: 1,
-    title: "JavaScript Fundamentals",
-    instructor: "John Smith",
-    progress: 75,
-    totalLessons: 24,
-    completedLessons: 18,
-    nextLesson: "Async/Await Patterns",
-    image: "/javascript-course-icon.png",
-  },
-  {
-    id: 2,
-    title: "CSS Grid & Flexbox",
-    instructor: "Lisa Wang",
-    progress: 45,
-    totalLessons: 16,
-    completedLessons: 7,
-    nextLesson: "Grid Template Areas",
-    image: "/css-course-icon.png",
-  },
-  {
-    id: 3,
-    title: "Node.js Backend Development",
-    instructor: "David Kumar",
-    progress: 30,
-    totalLessons: 32,
-    completedLessons: 10,
-    nextLesson: "Express Middleware",
-    image: "/nodejs-course-icon.png",
-  },
-];
 
 const achievements = [
   { title: "First Course Completed", icon: Award, earned: true },
@@ -107,7 +33,7 @@ const achievements = [
 export default function Dashboard() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const { userDetail } = useUserStore();
-  const {fetchUserCourseDetails} = useUserCourseStore();
+  const {fetchUserCourseDetails, fetchUserCourseStats, userCourseDetails, userCourseStats} = useUserCourseStore();
   const { fetchCourseDetails, courseDetails } = useCourseStore();
   const userName = userDetail?.profile.name;
   const userId = userDetail?.id
@@ -123,7 +49,10 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    if(userId) fetchUserCourseDetails(userId)
+    if(userId) {
+      fetchUserCourseDetails(2)
+      fetchUserCourseStats(2)
+    }
     fetchCourseDetails();
   }, []);
 
@@ -180,23 +109,28 @@ export default function Dashboard() {
                           <h3 className="text-2xl font-bold text-gray-800 mb-2">
                             {course.title}
                           </h3>
-                          {/* <p className="text-gray-600 mb-4">
-                            by {course.instructor}
-                          </p> */}
+                          <p className="text-gray-600 mb-4">
+                            by {`${course.instructor}`}
+                          </p>
                           <div className="flex items-center gap-4 mb-6 text-sm text-gray-500">
                             <span className="flex items-center gap-1">
                               <Clock className="w-4 h-4" />
                               {`${course.completion_time} hours`}
                             </span>
-                            {/* <span className="flex items-center gap-1">
+                            <span className="flex items-center gap-1">
+                              {course.course_rating ?
+                              (
+                              <>
                               <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                              {course.rating}
-                            </span> */}
-                            {/* <span>{course.students} students</span> */}
+                               {`${course.course_rating}`} 
+                               </>
+                              ) :  `Not Rated`}
+                            </span>
+                            <span>{`${course.student_count}`} students</span>
                           </div>
                           <div className="flex items-center gap-4">
                             <Button className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-700 hover:to-cyan-700">
-                              {`Enroll Now - $ ${course.price}`}
+                              {`Enroll Now - $${course.price}`}
                             </Button>
                             <Button
                               // variant="link"
@@ -207,11 +141,11 @@ export default function Dashboard() {
                           </div>
                         </div>
                         <div className="w-1/2 p-8">
-                          {/* <img
-                            src={course.image || "/placeholder.svg"}
+                          <img
+                            src={course.image_url || "/placeholder.svg"}
                             alt={course.title}
                             className="w-full h-full object-cover rounded-lg shadow-lg"
-                          /> */}
+                          />
                         </div>
                       </div>
                     ))}
@@ -238,7 +172,7 @@ export default function Dashboard() {
 
             {/* Slide Indicators */}
             <div className="flex justify-center mt-4 gap-2">
-              {latestCourses.map((_, index) => (
+              {courseDetails.map((_, index) => (
                 <button
                   key={index}
                   className={`w-3 h-3 rounded-full transition-colors ${
@@ -257,44 +191,44 @@ export default function Dashboard() {
         <section className="mb-12">
           <h2 className="text-3xl font-bold text-gray-800 mb-6">My Courses</h2>
           <div className="grid gap-6">
-            {enrolledCourses.map((course) => (
+            {userCourseDetails.map((userCourse) => (
               <Card
-                key={course.id}
+                key={userCourse.course.id}
                 className="bg-white/90 backdrop-blur-sm border-violet-200 hover:shadow-lg transition-shadow"
               >
                 <CardContent className="p-6">
                   <div className="flex items-center gap-6">
                     <img
-                      src={course.image || "/placeholder.svg"}
-                      alt={course.title}
+                      src={userCourse.course.image_url || "/placeholder.svg"}
+                      alt={userCourse.course.title}
                       className="w-20 h-20 rounded-lg object-cover"
                     />
                     <div className="flex-1">
                       <h3 className="text-xl font-semibold text-gray-800 mb-1">
-                        {course.title}
+                        <Link to={`/course-detail/${userCourse.course.id}`}>{userCourse.course.title}</Link>
                       </h3>
                       <p className="text-gray-600 mb-3">
-                        by {course.instructor}
+                        by {userCourse.course.instructor}
                       </p>
                       <div className="flex items-center gap-4 mb-3">
                         <div className="flex-1">
                           <div className="flex justify-between text-sm text-gray-600 mb-1">
                             <span>Progress</span>
                             <span>
-                              {course.completedLessons}/{course.totalLessons}{" "}
+                              {userCourse.completed_subjects}/{userCourse.total_subjects}{" "}
                               lessons
                             </span>
                           </div>
-                          <Progress value={course.progress} className="h-2" />
+                          <Progress value={userCourse.completion_percent} className="h-2" />
                         </div>
                         <div className="text-right">
                           <div className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-cyan-600 bg-clip-text text-transparent">
-                            {course.progress}%
+                            {userCourse.completion_percent}%
                           </div>
                         </div>
                       </div>
                       <p className="text-sm text-gray-500 mb-4">
-                        Next: {course.nextLesson}
+                        Next: {userCourse.next_subject}
                       </p>
                     </div>
                     <Button className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-700 hover:to-cyan-700">
@@ -321,7 +255,7 @@ export default function Dashboard() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="text-center p-4 bg-gradient-to-br from-violet-50 to-cyan-50 rounded-lg">
                   <div className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-cyan-600 bg-clip-text text-transparent">
-                    12
+                    {userCourseStats?.courses_enrolled}
                   </div>
                   <div className="text-sm text-gray-600">Courses Enrolled</div>
                 </div>
@@ -333,7 +267,7 @@ export default function Dashboard() {
                 </div>
                 <div className="text-center p-4 bg-gradient-to-br from-violet-50 to-cyan-50 rounded-lg">
                   <div className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-cyan-600 bg-clip-text text-transparent">
-                    3
+                    {userCourseStats?.completed_courses}
                   </div>
                   <div className="text-sm text-gray-600">Completed</div>
                 </div>

@@ -23,6 +23,7 @@ export default function Navigation() {
   const userName = userDetail?.profile.name // This would come from auth context
   const userEmail = userDetail?.email // This would come from auth context
 
+  console.log("name", userName, "email", userEmail)
   const handleLogout = () => {
     // Handle logout logic here
     logout();
@@ -73,16 +74,16 @@ export default function Navigation() {
                 <DropdownMenuSeparator className="bg-violet-200" />
                 <DropdownMenuItem className="hover:bg-violet-50 focus:bg-violet-50">
                   <User className="mr-2 h-4 w-4 text-violet-600" />
-                  <span>Profile</span>
+                  <span className="text-violet-600">Profile</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem className="hover:bg-violet-50 focus:bg-violet-50">
                   <BookOpen className="mr-2 h-4 w-4 text-violet-600" />
-                  <span>My Courses</span>
+                  <span className="text-violet-600">My Courses</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-violet-200" />
                 <DropdownMenuItem className="hover:bg-red-50 focus:bg-red-50 text-red-600" onClick={handleLogout}>
                   <LogOut className="mr-2 h-4 w-4" />
-                  <span>Logout</span>
+                  <span className="text-red-400">Logout</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

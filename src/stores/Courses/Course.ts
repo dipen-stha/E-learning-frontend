@@ -5,8 +5,10 @@ import { courseAPI } from "@/services/api/endpoints/courses";
 
 export const useCourseStore = create<CourseState>((set, get) => ({
     courseDetails: [],
+    courseItem: null,
     isLoading: false,
     setCourseDetails: (detailList: CourseDetail[]) => set({courseDetails: detailList}),
+    setCourseItem: (courseItem: CourseDetail) => set({courseItem: courseItem}),
     fetchCourseDetails: async () => {
         try{
             get().isLoading = true;
@@ -18,5 +20,15 @@ export const useCourseStore = create<CourseState>((set, get) => ({
         } catch {
 
         }
-    }
+    },
+    fetchCourseById: async(courseId: number) => {
+        try{
+            const response = await api.get(courseAPI.fetchById(courseId))
+            if(response.data){
+                get().setCourseItem(response.data)
+            }
+        } catch {
+
+        }
+    },
 }))

@@ -1,5 +1,4 @@
 import { Routes, Route, Navigate } from "react-router-dom"
-import RootLayout from "./components/layouts/AuthLayout"
 import HomePage from "@/pages/Index"
 import LoginPage from "@/pages/auth/Login"
 import SignupPage from "@/pages/auth/Signup"
@@ -9,6 +8,7 @@ import { useEffect, useRef } from "react"
 import { useUserStore } from "./stores/User/User"
 import GuestRoute from "./components/GuestRoute"
 import Dashboard from "@/pages/Dashboard/Student/Dashboard"
+import CourseDetails from "./pages/Course/CourseDetail"
 
 
 function App() {
@@ -39,6 +39,7 @@ function App() {
         <Route path="/signup" element={<GuestRoute><SignupPage /></GuestRoute>} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard/></ProtectedRoute>} />
+        <Route path="/course-detail/:course_id" element={<ProtectedRoute><CourseDetails/></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </div>
