@@ -7,8 +7,8 @@ import { authAPI } from "@/services/api/endpoints/user";
 export const useAuthStore = create<AuthState>((set, get) => ({
     loginDetails: {username: "", password: "", remember: false},
     hasError: false,
-    accessToken: null,
-    refreshToken: null,
+    accessToken: localStorage.getItem("access") || null,
+    refreshToken: localStorage.getItem("refresh") || null,
 
     setLoginDetails: (details: LoginDetails) => set({loginDetails: details}),
     hasLoginError: () => set({hasError: true}),
