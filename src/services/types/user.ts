@@ -22,6 +22,7 @@ export interface Profile {
   name: string;
   dob: Date;
   gender: string;
+  avatar: string;
 }
 
 export interface UserDetail {

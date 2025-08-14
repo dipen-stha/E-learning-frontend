@@ -1,15 +1,26 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { ArrowLeft, Play, Clock, Users, Star, CheckCircle, Circle, BookOpen, Award, Download } from "lucide-react"
-import { Button } from "@/components/ui/Button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card"
-import { Progress } from "@/components/ui/Progress"
-import { Badge } from "@/components/ui/Badge"
-import Navigation from "@/components/Navigation"
-import { useParams } from "react-router-dom";
-import { useCourseStore } from "@/stores/Courses/Course"
-import { useUserCourseStore } from "@/stores/UserCourses/UserCourse"
+import { useState, useEffect } from "react";
+import {
+  ArrowLeft,
+  Play,
+  Clock,
+  Users,
+  Star,
+  CheckCircle,
+  Circle,
+  BookOpen,
+  Award,
+  Download,
+} from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { Progress } from "@/components/ui/Progress";
+import { Badge } from "@/components/ui/Badge";
+import Navigation from "@/components/Navigation";
+import { useNavigate, useParams } from "react-router-dom";
+import { useCourseStore } from "@/stores/Courses/Course";
+import { useUserCourseStore } from "@/stores/UserCourses/UserCourse";
 
 // Mock course data with detailed units
 const courseData = {
@@ -36,7 +47,12 @@ const courseData = {
       completedLessons: 4,
       duration: "2 hours",
       progress: 100,
-      topics: ["Variables and Data Types", "Basic Operators", "Control Structures", "Functions Basics"],
+      topics: [
+        "Variables and Data Types",
+        "Basic Operators",
+        "Control Structures",
+        "Functions Basics",
+      ],
     },
     {
       id: 2,
@@ -45,7 +61,13 @@ const courseData = {
       completedLessons: 5,
       duration: "3 hours",
       progress: 100,
-      topics: ["Array Methods", "Object Properties", "Destructuring", "Spread Operator", "Rest Parameters"],
+      topics: [
+        "Array Methods",
+        "Object Properties",
+        "Destructuring",
+        "Spread Operator",
+        "Rest Parameters",
+      ],
     },
     {
       id: 3,
@@ -70,7 +92,13 @@ const courseData = {
       completedLessons: 3,
       duration: "3.5 hours",
       progress: 60,
-      topics: ["Callbacks", "Promises", "Async/Await", "Fetch API", "Error Handling"],
+      topics: [
+        "Callbacks",
+        "Promises",
+        "Async/Await",
+        "Fetch API",
+        "Error Handling",
+      ],
     },
     {
       id: 5,
@@ -87,34 +115,47 @@ const courseData = {
     unit: "DOM Manipulation",
     duration: "25 min",
   },
-}
+};
 
 export default function CourseDetails() {
-  const [activeUnit, setActiveUnit] = useState<number | null>(null)
+  const [activeUnit, setActiveUnit] = useState<number | null>(null);
   const { course_id } = useParams();
-  const { fetchCourseById, courseItem} = useCourseStore();
-  const { fetchUserCourseByCourse, userCourseItem } = useUserCourseStore();
+  const navigate = useNavigate();
+
+  const { fetchCourseById, courseItem } = useCourseStore();
+  const { fetchUserCourseByCourse, userCourseItem, isEnrolledToCourse } =
+    useUserCourseStore();
 
   const handleBackToDashboard = () => {
     // This would handle navigation back to dashboard
-    console.log("Navigate back to dashboard")
-  }
+    navigate("/dashboard");
+  };
 
-  const handleStartLesson = (unitId: number) => {
-    // This would handle starting a lesson
-    console.log(`Starting lesson in unit ${unitId}`)
-  }
+  const mergedSubjects = isEnrolledToCourse
+    ? courseItem?.subjects.map((subject) => {
+        const enrolledSubject = userCourseItem?.subjects.find(
+          (s) => s.id === subject.id
+        );
+        return enrolledSubject
+          ? { ...subject, ...enrolledSubject } // overwrite with enrolled data
+          : subject;
+      })
+    : courseItem?.subjects;
+
+  const handleStartLesson = (subjectId: number) => {
+    
+  };
 
   const toggleUnit = (unitId: number) => {
-    setActiveUnit(activeUnit === unitId ? null : unitId)
-  }
+    setActiveUnit(activeUnit === unitId ? null : unitId);
+  };
 
   useEffect(() => {
-    if(course_id) {
+    if (course_id) {
       fetchCourseById(Number(course_id));
       fetchUserCourseByCourse(Number(course_id));
     }
-  }, [])
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-violet-100 via-rose-50 to-cyan-100">
@@ -138,9 +179,15 @@ export default function CourseDetails() {
           <div className="flex flex-col lg:flex-row gap-8">
             <div className="lg:w-2/3">
               <div className="flex items-center gap-2 mb-3">
-                <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200">In Progress</Badge>
-                <Badge variant="outline" className="border-amber-300 text-amber-700 bg-amber-50">
-                  {userCourseItem?.completed_subjects}/{userCourseItem?.total_subjects} Lessons
+                <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200">
+                  In Progress
+                </Badge>
+                <Badge
+                  variant="outline"
+                  className="border-amber-300 text-amber-700 bg-amber-50"
+                >
+                  {userCourseItem?.completed_subjects}/
+                  {userCourseItem?.total_subjects} Lessons
                 </Badge>
               </div>
 
@@ -151,11 +198,11 @@ export default function CourseDetails() {
               <div className="flex items-center gap-6 mb-4 text-gray-600">
                 <div className="flex items-center gap-2">
                   <img
-                    src={courseData.instructorImage || "/placeholder.svg"}
-                    alt={courseData.instructor}
+                    src={courseItem?.instructor?.avatar || "/placeholder.svg"}
+                    alt={courseItem?.instructor?.name}
                     className="w-8 h-8 rounded-full border-2 border-indigo-200"
                   />
-                  <span>by {courseItem?.instructor}</span>
+                  <span>by {courseItem?.instructor?.name}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Clock className="w-4 h-4 text-indigo-500" />
@@ -163,7 +210,11 @@ export default function CourseDetails() {
                 </div>
                 <div className="flex items-center gap-1">
                   <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                  <span>{courseItem?.course_rating}</span>
+                  <span>
+                    {courseItem?.course_rating
+                      ? courseItem.course_rating
+                      : "Not Rated"}
+                  </span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Users className="w-4 h-4 text-emerald-500" />
@@ -176,15 +227,23 @@ export default function CourseDetails() {
               {/* Overall Progress */}
               <div className="bg-gradient-to-r from-white/80 to-rose-50/80 backdrop-blur-sm rounded-lg p-4 mb-6 border border-rose-200">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="font-semibold text-gray-800">Course Progress</span>
+                  <span className="font-semibold text-gray-800">
+                    Course Progress
+                  </span>
                   <span className="text-2xl font-bold bg-gray-700 bg-clip-text text-transparent">
                     {userCourseItem?.completion_percent}%
                   </span>
                 </div>
-                <Progress value={userCourseItem?.completion_percent} className="h-3 mb-2" />
+                <Progress
+                  value={userCourseItem?.completion_percent}
+                  className="h-3 mb-2"
+                />
                 <p className="text-sm text-gray-600">
-                  Next: <span className="text-emerald-600 font-medium">{courseData.nextLesson.title}</span> in{" "}
-                  {courseData.nextLesson.unit}
+                  Next:{" "}
+                  <span className="text-emerald-600 font-medium">
+                    {userCourseItem?.next_subject}
+                  </span>{" "}
+                  in {userCourseItem?.course.title}
                 </p>
               </div>
             </div>
@@ -194,8 +253,8 @@ export default function CourseDetails() {
                 <div className="bg-white/95 rounded-lg">
                   <CardContent className="p-6">
                     <img
-                      src={courseData.image || "/placeholder.svg"}
-                      alt={courseData.title}
+                      src={courseItem?.image_url || "/placeholder.svg"}
+                      alt={courseItem?.title}
                       className="w-full h-48 object-cover rounded-lg mb-4 border-2 border-indigo-100"
                     />
                     <Button
@@ -227,95 +286,110 @@ export default function CourseDetails() {
             Course Content
           </h2>
           <div className="space-y-4">
-            {courseData.units.map((unit, index) => (
+            {mergedSubjects?.map((subject) => (
               <Card
-                key={unit.id}
+                key={subject.id}
                 className="bg-white/90 backdrop-blur-sm border-violet-200 hover:shadow-lg transition-all duration-300"
               >
                 <CardHeader
                   className="cursor-pointer hover:bg-gradient-to-r hover:from-violet-50/50 hover:to-cyan-50/50 transition-all duration-300"
-                  onClick={() => toggleUnit(unit.id)}
+                  onClick={() => toggleUnit(subject.id)}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                      <div
-                        className={`flex items-center justify-center w-10 h-10 rounded-full ${
-                          unit.progress === 100
-                            ? "bg-gradient-to-r from-emerald-100 to-emerald-200 border-2 border-emerald-300"
-                            : unit.progress > 50
-                              ? "bg-gradient-to-r from-amber-100 to-amber-200 border-2 border-amber-300"
-                              : "bg-gradient-to-r from-rose-100 to-rose-200 border-2 border-rose-300"
-                        }`}
-                      >
-                        {unit.progress === 100 ? (
-                          <CheckCircle className="w-5 h-5 text-emerald-600" />
-                        ) : (
-                          <Circle className={`w-5 h-5 ${unit.progress > 50 ? "text-amber-600" : "text-rose-500"}`} />
+                      {isEnrolledToCourse &&
+                        subject.completion_percent != null && (
+                          <div
+                            className={`flex items-center justify-center w-10 h-10 rounded-full ${
+                              subject.completion_percent === 100
+                                ? "bg-gradient-to-r from-emerald-100 to-emerald-200 border-2 border-emerald-300"
+                                : subject.completion_percent > 50
+                                ? "bg-gradient-to-r from-amber-100 to-amber-200 border-2 border-amber-300"
+                                : "bg-gradient-to-r from-rose-100 to-rose-200 border-2 border-rose-300"
+                            }`}
+                          >
+                            {subject.completion_percent === 100 ? (
+                              <CheckCircle className="w-5 h-5 text-emerald-600" />
+                            ) : (
+                              <Circle
+                                className={`w-5 h-5 ${
+                                  subject.completion_percent > 50
+                                    ? "text-amber-600"
+                                    : "text-rose-500"
+                                }`}
+                              />
+                            )}
+                          </div>
                         )}
-                      </div>
                       <div>
                         <CardTitle className="text-lg bg-gradient-to-r from-violet-600 to-cyan-600 bg-clip-text text-transparent">
-                          {unit.title}
+                          {subject.title}
                         </CardTitle>
                         <div className="flex items-center gap-4 text-sm text-gray-600 mt-1">
                           <span className="flex items-center gap-1">
                             <BookOpen className="w-3 h-3 text-indigo-500" />
-                            {unit.lessons} lessons
+                            {subject.total_units} lessons
                           </span>
                           <span className="flex items-center gap-1">
                             <Clock className="w-3 h-3 text-emerald-500" />
-                            {unit.duration}
+                            {`${subject.completion_time} hours`}
                           </span>
-                          <span className="text-amber-600 font-medium">
-                            {unit.completedLessons}/{unit.lessons} completed
-                          </span>
+                          {isEnrolledToCourse && (
+                            <span className="text-amber-600 font-medium">
+                              {subject.completed_units}/{subject.total_units}{" "}
+                              completed
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div
-                        className={`text-lg font-bold bg-clip-text text-transparent mb-1 ${
-                          unit.progress === 100
-                            ? "bg-gradient-to-r from-emerald-500 to-emerald-600"
-                            : unit.progress > 50
-                              ? "bg-gradient-to-r from-amber-500 to-orange-500"
-                              : "bg-gradient-to-r from-rose-500 to-pink-500"
-                        }`}
-                      >
-                        {unit.progress}%
-                      </div>
-                      <Progress value={unit.progress} className="w-24 h-2" />
-                    </div>
+                    {isEnrolledToCourse &&
+                      subject.completion_percent != null && (
+                        <div className="text-right">
+                          <div
+                            className={`text-lg font-bold bg-clip-text text-transparent mb-1 ${
+                              subject.completion_percent === 100
+                                ? "bg-gradient-to-r from-emerald-500 to-emerald-600"
+                                : subject.completion_percent > 50
+                                ? "bg-gradient-to-r from-amber-500 to-orange-500"
+                                : "bg-gradient-to-r from-rose-500 to-pink-500"
+                            }`}
+                          >
+                            {subject.completion_percent}%
+                          </div>
+                          <Progress
+                            value={subject.completion_percent}
+                            className="w-24 h-2 bg-gray-200"
+                          />
+                        </div>
+                      )}
                   </div>
                 </CardHeader>
 
-                {activeUnit === unit.id && (
+                {activeUnit === subject.id && (
                   <CardContent className="pt-0">
                     <div className="border-t border-gradient-to-r from-violet-100 to-cyan-100 pt-4">
                       <h4 className="font-semibold bg-gradient-to-r from-violet-600 to-cyan-600 bg-clip-text text-transparent mb-3">
                         Topics Covered:
                       </h4>
                       <div className="grid gap-2">
-                        {unit.topics.map((topic, topicIndex) => (
+                        {subject.units.map((unit, topicIndex) => (
                           <div
                             key={topicIndex}
                             className={`flex items-center gap-3 p-3 rounded-lg transition-all duration-200 ${
-                              topicIndex < unit.completedLessons
+                              unit?.is_completed
                                 ? "hover:bg-emerald-50/70 border border-emerald-200/50"
                                 : "hover:bg-rose-50/70 border border-rose-200/50"
                             }`}
+                            // className="flex items-center gap-3 p-3 rounded-lg transition-all duration-200 hover:bg-rose-50/70 border border-rose-200/50"
                           >
-                            {topicIndex < unit.completedLessons ? (
+                            {unit?.is_completed ? (
                               <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                             ) : (
                               <Circle className="w-4 h-4 text-rose-400 flex-shrink-0" />
                             )}
-                            <span
-                              className={`text-sm ${
-                                topicIndex < unit.completedLessons ? "text-emerald-800 font-medium" : "text-gray-600"
-                              }`}
-                            >
-                              {topic}
+                            <span className="text-sm text-gray-600">
+                              {unit?.title}
                             </span>
                           </div>
                         ))}
@@ -323,14 +397,16 @@ export default function CourseDetails() {
                       <div className="mt-4 pt-4 border-t border-indigo-100">
                         <Button
                           className={`${
-                            unit.progress === 100
+                            subject.completion_percent === 100
                               ? "bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700"
                               : "bg-gradient-to-r from-rose-500 to-violet-600 hover:from-rose-600 hover:to-violet-700"
                           } shadow-lg`}
-                          onClick={() => handleStartLesson(unit.id)}
+                          onClick={() => handleStartLesson(subject.id)}
                         >
                           <Play className="w-4 h-4 mr-2" />
-                          {unit.progress === 100 ? "Review Unit" : "Continue Unit"}
+                          {subject.completion_percent === 100
+                            ? "Review Unit"
+                            : "Continue Unit"}
                         </Button>
                       </div>
                     </div>
@@ -355,7 +431,9 @@ export default function CourseDetails() {
                 <div className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent mb-1">
                   {courseData.completedLessons}
                 </div>
-                <div className="text-sm text-emerald-700 font-medium">Lessons Completed</div>
+                <div className="text-sm text-emerald-700 font-medium">
+                  Lessons Completed
+                </div>
               </CardContent>
             </Card>
 
@@ -367,7 +445,9 @@ export default function CourseDetails() {
                 <div className="text-2xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent mb-1">
                   18h
                 </div>
-                <div className="text-sm text-amber-700 font-medium">Time Invested</div>
+                <div className="text-sm text-amber-700 font-medium">
+                  Time Invested
+                </div>
               </CardContent>
             </Card>
 
@@ -379,12 +459,14 @@ export default function CourseDetails() {
                 <div className="text-2xl font-bold bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent mb-1">
                   3
                 </div>
-                <div className="text-sm text-rose-700 font-medium">Units Completed</div>
+                <div className="text-sm text-rose-700 font-medium">
+                  Units Completed
+                </div>
               </CardContent>
             </Card>
           </div>
         </section>
       </main>
     </div>
-  )
+  );
 }

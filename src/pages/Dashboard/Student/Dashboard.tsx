@@ -50,8 +50,8 @@ export default function Dashboard() {
 
   useEffect(() => {
     if(userId) {
-      fetchUserCourseDetails(2)
-      fetchUserCourseStats(2)
+      fetchUserCourseDetails(userId)
+      fetchUserCourseStats(userId)
     }
     fetchCourseDetails();
   }, []);
@@ -110,7 +110,7 @@ export default function Dashboard() {
                             {course.title}
                           </h3>
                           <p className="text-gray-600 mb-4">
-                            by {`${course.instructor}`}
+                            by {`${course.instructor?.name}`}
                           </p>
                           <div className="flex items-center gap-4 mb-6 text-sm text-gray-500">
                             <span className="flex items-center gap-1">
@@ -188,12 +188,13 @@ export default function Dashboard() {
         </section>
 
         {/* My Courses Progress */}
+        
         <section className="mb-12">
           <h2 className="text-3xl font-bold text-gray-800 mb-6">My Courses</h2>
           <div className="grid gap-6">
-            {userCourseDetails.map((userCourse) => (
+            {userCourseDetails.map((userCourse, index) => (
               <Card
-                key={userCourse.course.id}
+                key={index}
                 className="bg-white/90 backdrop-blur-sm border-violet-200 hover:shadow-lg transition-shadow"
               >
                 <CardContent className="p-6">
@@ -208,7 +209,7 @@ export default function Dashboard() {
                         <Link to={`/course-detail/${userCourse.course.id}`}>{userCourse.course.title}</Link>
                       </h3>
                       <p className="text-gray-600 mb-3">
-                        by {userCourse.course.instructor}
+                        by {userCourse.course.instructor?.name}
                       </p>
                       <div className="flex items-center gap-4 mb-3">
                         <div className="flex-1">
