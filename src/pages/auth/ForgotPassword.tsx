@@ -14,7 +14,6 @@ const ForgotPasswordPage: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    console.log("Password reset requested for:", email)
     setIsSubmitted(true)
     // Handle password reset logic here
   }

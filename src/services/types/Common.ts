@@ -1,4 +1,4 @@
-import { CourseDetail } from "./Course";
+import { CourseDetail, SubjectDetail } from "./Course";
 
 export interface UserCourseDetail {
     user_name: string,
@@ -10,6 +10,7 @@ export interface UserCourseDetail {
     completion_percent: number
     total_subjects: number | null;
     completed_subjects: number | null;
+    subjects: SubjectDetail[] | [];
 }
 
 export interface UserCourseStats {

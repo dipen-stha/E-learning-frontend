@@ -23,7 +23,6 @@ export default function Navigation() {
   const userName = userDetail?.profile.name // This would come from auth context
   const userEmail = userDetail?.email // This would come from auth context
 
-  console.log("name", userName, "email", userEmail)
   const handleLogout = () => {
     // Handle logout logic here
     logout();

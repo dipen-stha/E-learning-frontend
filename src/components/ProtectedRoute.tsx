@@ -13,8 +13,6 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     if(isLoading) {
         return(<div>Loading.....</div>)
     }
-    console.log("Protected Loading:", isLoading)
-    console.log("Authenticated:", isAuthenticated)
     if(!isLoading && !isAuthenticated){
         return <Navigate to="/login" state={{ from: location }} replace />;
     }

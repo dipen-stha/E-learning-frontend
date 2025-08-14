@@ -37,7 +37,6 @@ const SignupPage: React.FC = () => {
       alert("Please accept the terms and conditions!")
       return
     }
-    console.log("Signup form submitted:", formData)
     // Handle signup logic here
   }
 
