@@ -10,7 +10,10 @@ import GuestRoute from "./components/GuestRoute"
 import Dashboard from "@/pages/Dashboard/Student/Dashboard"
 import CourseDetails from "./pages/Course/CourseDetail"
 import ContentPage from "./pages/Content/ContentPage"
-
+import AdminLoginPage from "./pages/Admin/Auth/Login"
+import AdminDashboard from "./pages/Admin/Dashboard/Dashboard"
+import AdminLayout from "./components/layouts/AdminLayout"
+import UsersPage from "./pages/Admin/User/User";
 
 function App() {
   const {fetchSelf, isLoading } = useUserStore();
@@ -38,6 +41,9 @@ function App() {
         <Route path="/course-detail/:course_id" element={<ProtectedRoute><CourseDetails/></ProtectedRoute>} />
         <Route path="/subject/:subject_id/contents" element={<ProtectedRoute><ContentPage /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="/admin/login" element={<AdminLoginPage />}/>
+        <Route path="/admin/dashboard" element={<AdminLayout><AdminDashboard /></AdminLayout>} />
+        <Route path="/admin/users" element={<AdminLayout><UsersPage /></AdminLayout>} />
       </Routes>
     </div>
   )
