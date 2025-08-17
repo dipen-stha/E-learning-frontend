@@ -14,6 +14,7 @@ import AdminLoginPage from "./pages/Admin/Auth/Login"
 import AdminDashboard from "./pages/Admin/Dashboard/Dashboard"
 import AdminLayout from "./components/layouts/AdminLayout"
 import UsersPage from "./pages/Admin/User/User";
+import CoursesPage from "./pages/Admin/Course/Course"
 
 function App() {
   const {fetchSelf, isLoading } = useUserStore();
@@ -44,6 +45,7 @@ function App() {
         <Route path="/admin/login" element={<AdminLoginPage />}/>
         <Route path="/admin/dashboard" element={<AdminLayout><AdminDashboard /></AdminLayout>} />
         <Route path="/admin/users" element={<AdminLayout><UsersPage /></AdminLayout>} />
+        <Route path="/admin/courses" element={<AdminLayout><CoursesPage/></AdminLayout>} />
       </Routes>
     </div>
   )

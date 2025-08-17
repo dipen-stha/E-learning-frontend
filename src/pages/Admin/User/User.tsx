@@ -30,10 +30,13 @@ import {
   Download,
   Calendar,
 } from "lucide-react"
+import { CreateModal } from "@/components/Modal"
+import { CreateUserForm } from "@/components/Admin/User"
 
 export default function UsersPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedFilter, setSelectedFilter] = useState("all")
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
 
   const users = [
     {
@@ -124,6 +127,13 @@ export default function UsersPage() {
     }
   }
 
+
+  const handleCreateUser = (userData: any) => {
+    console.log("Creating user:", userData)
+    // Here you would typically make an API call to create the user
+    setIsCreateModalOpen(false)
+  }
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -137,7 +147,7 @@ export default function UsersPage() {
             <Download className="mr-2 h-4 w-4" />
             Export
           </Button>
-          <Button className="bg-cyan-600 hover:bg-cyan-700 text-white">
+                    <Button className="bg-cyan-600 hover:bg-cyan-700 text-white" onClick={() => setIsCreateModalOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
             Add User
           </Button>
@@ -310,6 +320,11 @@ export default function UsersPage() {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Create User Modal */}
+      <CreateModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} title="Create New User">
+        <CreateUserForm onSubmit={handleCreateUser} onCancel={() => setIsCreateModalOpen(false)} />
+      </CreateModal>
     </div>
   )
 }
