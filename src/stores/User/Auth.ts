@@ -33,6 +33,23 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             return false;
         }
     },
+    adminLogin: async() => {
+        try{
+            const { loginDetails } = get();
+            const response = await api.post(authAPI.adminLogin, loginDetails ,{
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                }
+            })
+            set({accessToken: response.data.access_token, refreshToken: response.data.refresh_token, hasError: false})
+            localStorage.setItem("access", response.data.access_token)
+            localStorage.setItem("access", response.data.access_token)
+            return true;
+        } catch {
+            get().hasLoginError();
+            return false;
+        }
+    },
     refresh: async() => {
         const token = localStorage.getItem("refresh")
         try{

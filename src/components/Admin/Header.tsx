@@ -1,4 +1,4 @@
-"use client"
+
 
 import { Button } from "@/components/ui/Button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar"

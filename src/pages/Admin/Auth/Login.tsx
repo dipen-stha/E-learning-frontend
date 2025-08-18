@@ -1,38 +1,49 @@
-"use client"
+import type React from "react";
 
-import type React from "react"
-
-import { useState } from "react"
-import { Button } from "@/components/ui/Button"
-import { Input } from "@/components/ui/Input"
-import { Label } from "@/components/ui/Label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card"
+import { useState } from "react";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { Label } from "@/components/ui/Label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/Card";
 // import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Eye, EyeOff, GraduationCap } from "lucide-react"
+import { Eye, EyeOff, GraduationCap } from "lucide-react";
+import { useAuthStore } from "@/stores/User/Auth";
+import { useUserStore } from "@/stores/User/User";
+import { useNavigate } from "react-router-dom";
 
 export default function AdminLoginPage() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState("")
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const { loginDetails, setLoginDetails, adminLogin } = useAuthStore();
+  const { fetchAdminSelf, isAdminAuthenticated } = useUserStore();
+  const [loginPayload, setLoginPayload] = useState(loginDetails);
+  const navigate = useNavigate();
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    const updatedDetails = { ...loginPayload, [name]: value };
+    setLoginPayload(updatedDetails);
+    setLoginDetails(updatedDetails);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError("")
-
-    // Simulate login process
-    setTimeout(() => {
-      if (email === "admin@example.com" && password === "admin123") {
-        // Redirect to admin dashboard
-        window.location.href = "/admin/dashboard"
-      } else {
-        setError("Invalid email or password. Please try again.")
+    e.preventDefault();
+    const loggedIn = await adminLogin();
+    if (loggedIn) {
+      fetchAdminSelf();
+      if (isAdminAuthenticated) {
+        navigate("/admin/dashboard");
       }
-      setIsLoading(false)
-    }, 1000)
-  }
+    }
+    setIsLoading(true);
+    setError("");
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
@@ -46,14 +57,18 @@ export default function AdminLoginPage() {
           </div>
           <div className="space-y-2">
             <h1 className="text-3xl font-bold text-gray-900">Admin Portal</h1>
-            <p className="text-gray-600">Sign in to manage your learning platform</p>
+            <p className="text-gray-600">
+              Sign in to manage your learning platform
+            </p>
           </div>
         </div>
 
         {/* Login Form */}
         <Card className="border-gray-200 shadow-lg bg-white">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center text-gray-900">Welcome back</CardTitle>
+            <CardTitle className="text-2xl text-center text-gray-900">
+              Welcome back
+            </CardTitle>
             <CardDescription className="text-center text-gray-600">
               Enter your credentials to access the admin dashboard
             </CardDescription>
@@ -67,17 +82,19 @@ export default function AdminLoginPage() {
               )} */}
 
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-gray-700">
-                  Email address
+                <Label htmlFor="text" className="text-gray-700">
+                  Username
                 </Label>
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="admin@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
+                  id="userName"
+                  name="username"
+                  type="text"
+                  autoComplete="username"
+                  placeholder="Enter your username"
+                  value={loginPayload.username}
+                  onChange={handleChange}
                   className="bg-white border-gray-300 focus:ring-cyan-500 focus:border-cyan-500"
+                  required
                 />
               </div>
 
@@ -88,14 +105,17 @@ export default function AdminLoginPage() {
                 <div className="relative">
                   <Input
                     id="password"
-                    type={showPassword ? "text" : "password"}
+                    type="password"
+                    name="password"
+                    autoComplete="current-password"
+                    // type={showPassword ? "text" : "password"}
                     placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    value={loginPayload.password}
+                    onChange={handleChange}
                     required
                     className="bg-white border-gray-300 focus:ring-cyan-500 focus:border-cyan-500 pr-10"
                   />
-                  <Button
+                  {/* <Button
                     type="button"
                     variant="ghost"
                     size="sm"
@@ -107,7 +127,7 @@ export default function AdminLoginPage() {
                     ) : (
                       <Eye className="h-4 w-4 text-gray-500" />
                     )}
-                  </Button>
+                  </Button> */}
                 </div>
               </div>
 
@@ -122,19 +142,26 @@ export default function AdminLoginPage() {
                     Remember me
                   </Label>
                 </div>
-                <Button variant="link" className="px-0 text-cyan-600 hover:text-cyan-700">
+                <Button
+                  variant="link"
+                  className="px-0 text-cyan-600 hover:text-cyan-700"
+                >
                   Forgot password?
                 </Button>
               </div>
 
-              <Button type="submit" className="w-full bg-cyan-600 hover:bg-cyan-700 text-white" disabled={isLoading}>
+              <Button
+                type="submit"
+                className="w-full bg-cyan-600 hover:bg-cyan-700 text-white"
+                disabled={isLoading}
+              >
                 {isLoading ? "Signing in..." : "Sign in"}
               </Button>
             </form>
 
-            <div className="mt-6 text-center">
+            {/* <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">Demo credentials: admin@example.com / admin123</p>
-            </div>
+            </div> */}
           </CardContent>
         </Card>
 
@@ -144,5 +171,5 @@ export default function AdminLoginPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

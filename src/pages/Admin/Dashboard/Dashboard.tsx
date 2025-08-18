@@ -59,7 +59,7 @@ export default function AdminDashboard() {
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 ">
-        <Card className="bg-white">
+        <Card className="bg-white border-none">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
               Total Users
@@ -124,7 +124,7 @@ export default function AdminDashboard() {
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Recent Enrollments */}
-        <Card className="lg:col-span-2 bg-white ">
+        <Card className="lg:col-span-2 bg-white border-none">
           <CardHeader>
             <CardTitle className="text-gray-600">Recent Enrollments</CardTitle>
             <CardDescription>
@@ -134,7 +134,7 @@ export default function AdminDashboard() {
           <CardContent>
             <Table>
               <TableHeader>
-                <TableRow>
+                <TableRow className="border-gray-200">
                   <TableHead className="text-gray-600">Student</TableHead>
                   <TableHead className="text-gray-600">Course</TableHead>
                   <TableHead className="text-gray-600">Status</TableHead>
@@ -142,7 +142,7 @@ export default function AdminDashboard() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <TableRow>
+                <TableRow className="border-gray-200">
                   <TableCell className="flex items-center space-x-2">
                     <Avatar className="h-8 w-8">
                       <AvatarImage src="/diverse-students-studying.png" />
@@ -164,7 +164,7 @@ export default function AdminDashboard() {
                   </TableCell>
                   <TableCell className="text-gray-600">2 hours ago</TableCell>
                 </TableRow>
-                <TableRow>
+                <TableRow className="border-gray-200">
                   <TableCell className="flex items-center space-x-2">
                     <Avatar className="h-8 w-8">
                       <AvatarImage src="/diverse-students-studying.png" />
@@ -186,7 +186,7 @@ export default function AdminDashboard() {
                   </TableCell>
                   <TableCell className="text-gray-600">5 hours ago</TableCell>
                 </TableRow>
-                <TableRow>
+                <TableRow className="border-gray-200">
                   <TableCell className="flex items-center space-x-2">
                     <Avatar className="h-8 w-8">
                       <AvatarImage src="/diverse-students-studying.png" />
@@ -461,7 +461,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Quick Actions */}
-      <Card className="bg-white">
+      <Card className="bg-white border-none text-gray-600">
         <CardHeader>
           <CardTitle>Quick Actions</CardTitle>
           <CardDescription>
