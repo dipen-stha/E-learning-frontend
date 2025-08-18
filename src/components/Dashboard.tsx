@@ -1,4 +1,4 @@
-"use client"
+
 
 import { useState, useEffect } from "react"
 import { ChevronLeft, ChevronRight, BookOpen, Clock, Award, TrendingUp, Play, Star } from "lucide-react"

@@ -1,4 +1,4 @@
-"use client";
+;
 
 import { useState } from "react";
 import {
@@ -198,7 +198,7 @@ export default function CoursesPage() {
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="bg-white">
+        <Card className="bg-white border-none">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
               Total Courses
@@ -211,7 +211,7 @@ export default function CoursesPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-white">
+        <Card className="bg-white border-none">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
               Published
@@ -224,7 +224,7 @@ export default function CoursesPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-white">
+        <Card className="bg-white border-none">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
               Total Students
@@ -237,7 +237,7 @@ export default function CoursesPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-white">
+        <Card className="bg-white border-none">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
               Avg. Rating
@@ -252,7 +252,7 @@ export default function CoursesPage() {
       </div>
 
       {/* Courses Table */}
-      <Card className="bg-white">
+      <Card className="bg-white border-none">
         <CardHeader>
           <CardTitle className="text-gray-600">Courses</CardTitle>
           <CardDescription>
@@ -281,7 +281,7 @@ export default function CoursesPage() {
                   Filter
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-white">
+              <DropdownMenuContent className="bg-white border-none">
                 <DropdownMenuLabel className="text-gray-600">
                   Filter by Status
                 </DropdownMenuLabel>
@@ -316,7 +316,7 @@ export default function CoursesPage() {
 
           <Table>
             <TableHeader>
-              <TableRow>
+              <TableRow className="border-gray-300">
                 <TableHead className="text-gray-600">Course</TableHead>
                 <TableHead className="text-gray-600">Instructor</TableHead>
                 <TableHead className="text-gray-600">Category</TableHead>
@@ -329,7 +329,7 @@ export default function CoursesPage() {
             </TableHeader>
             <TableBody>
               {courses.map((course) => (
-                <TableRow key={course.id}>
+                <TableRow key={course.id} className="border-gray-200">
                   <TableCell>
                     <div className="space-y-1">
                       <p className="text-sm font-medium text-gray-900">
@@ -421,7 +421,7 @@ export default function CoursesPage() {
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
+                      <DropdownMenuContent align="end" className="border-none">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem>
@@ -466,6 +466,7 @@ export default function CoursesPage() {
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         title="Create New Course"
+        width="4xl"
       >
         <CreateCourseForm
           onSubmit={handleCreateCourse}

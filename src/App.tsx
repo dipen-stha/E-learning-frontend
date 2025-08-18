@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from "react-router-dom"
+import { Routes, Route, Navigate, useLocation } from "react-router-dom"
 import HomePage from "@/pages/Index"
 import LoginPage from "@/pages/auth/Login"
 import SignupPage from "@/pages/auth/Signup"
@@ -17,13 +17,18 @@ import UsersPage from "./pages/Admin/User/User";
 import CoursesPage from "./pages/Admin/Course/Course"
 
 function App() {
-  const {fetchSelf, isLoading } = useUserStore();
+  const {fetchSelf, fetchAdminSelf, isLoading } = useUserStore();
   const hasFetched = useRef(false);
+  const location = useLocation()
  
     useEffect(() => {
       if (!hasFetched.current) {
         hasFetched.current = true;
-        fetchSelf();
+        if(location.pathname.includes("/admin")){
+          fetchAdminSelf();
+        } else{
+          fetchSelf();
+        }
       }
     }, []);
 
@@ -42,10 +47,10 @@ function App() {
         <Route path="/course-detail/:course_id" element={<ProtectedRoute><CourseDetails/></ProtectedRoute>} />
         <Route path="/subject/:subject_id/contents" element={<ProtectedRoute><ContentPage /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/" replace />} />
-        <Route path="/admin/login" element={<AdminLoginPage />}/>
-        <Route path="/admin/dashboard" element={<AdminLayout><AdminDashboard /></AdminLayout>} />
-        <Route path="/admin/users" element={<AdminLayout><UsersPage /></AdminLayout>} />
-        <Route path="/admin/courses" element={<AdminLayout><CoursesPage/></AdminLayout>} />
+        <Route path="/admin/login" element={<GuestRoute><AdminLoginPage /></GuestRoute>}/>
+        <Route path="/admin/dashboard" element={<ProtectedRoute><AdminLayout><AdminDashboard /></AdminLayout></ProtectedRoute>} />
+        <Route path="/admin/users" element={<ProtectedRoute><AdminLayout><UsersPage /></AdminLayout></ProtectedRoute>} />
+        <Route path="/admin/courses" element={<ProtectedRoute><AdminLayout><CoursesPage/></AdminLayout></ProtectedRoute>} />
       </Routes>
     </div>
   )

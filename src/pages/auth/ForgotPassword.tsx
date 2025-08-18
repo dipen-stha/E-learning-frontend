@@ -1,30 +1,39 @@
-"use client"
-
-import type React from "react"
-import { useState } from "react"
-import { Link } from "react-router-dom"
-import { Button } from "@/components/ui/Button"
-import { Input } from "@/components/ui/Input"
-import { Label } from "@/components/ui/Label"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/Card"
+import type React from "react";
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { Label } from "@/components/ui/Label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/Card";
 
 const ForgotPasswordPage: React.FC = () => {
-  const [email, setEmail] = useState("")
-  const [isSubmitted, setIsSubmitted] = useState(false)
+  const [email, setEmail] = useState("");
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitted(true)
+    e.preventDefault();
+    setIsSubmitted(true);
     // Handle password reset logic here
-  }
+  };
 
   if (isSubmitted) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-violet-100 to-cyan-100 flex items-center justify-center p-4">
         <Card className="w-full max-w-md shadow-xl border-0 bg-white/80 backdrop-blur-sm">
           <CardHeader className="space-y-1 text-center">
-            <CardTitle className="text-2xl font-bold text-cyan-600">Check Your Email</CardTitle>
-            <CardDescription className="text-gray-600">We've sent a password reset link to {email}</CardDescription>
+            <CardTitle className="text-2xl font-bold text-cyan-600">
+              Check Your Email
+            </CardTitle>
+            <CardDescription className="text-gray-600">
+              We've sent a password reset link to {email}
+            </CardDescription>
           </CardHeader>
           <CardFooter className="flex flex-col space-y-4">
             <Link to="/login" className="w-full">
@@ -35,7 +44,7 @@ const ForgotPasswordPage: React.FC = () => {
           </CardFooter>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
@@ -46,7 +55,8 @@ const ForgotPasswordPage: React.FC = () => {
             Forgot Password?
           </CardTitle>
           <CardDescription className="text-gray-600">
-            Enter your email address and we'll send you a link to reset your password
+            Enter your email address and we'll send you a link to reset your
+            password
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
@@ -75,7 +85,10 @@ const ForgotPasswordPage: React.FC = () => {
             </Button>
             <p className="text-center text-sm text-gray-600">
               Remember your password?{" "}
-              <Link to="/login" className="font-medium text-cyan-700 hover:text-cyan-800 hover:underline">
+              <Link
+                to="/login"
+                className="font-medium text-cyan-700 hover:text-cyan-800 hover:underline"
+              >
                 Sign in
               </Link>
             </p>
@@ -83,7 +96,7 @@ const ForgotPasswordPage: React.FC = () => {
         </form>
       </Card>
     </div>
-  )
-}
+  );
+};
 
-export default ForgotPasswordPage
+export default ForgotPasswordPage;

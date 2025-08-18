@@ -48,10 +48,10 @@
   --radius: 0.5rem;
 }
 
-@media (prefers-color-scheme: dark) {
-  @theme inline {
+/* @media (prefers-color-scheme: dark) {
+  @theme inline { */
     /* Dark mode colors for Tailwind CSS v4 */
-    --color-background: oklch(9% 0.024 285.8);
+    /* --color-background: oklch(9% 0.024 285.8);
     --color-foreground: oklch(98% 0.004 285.8);
     --color-card: oklch(9% 0.024 285.8);
     --color-card-foreground: oklch(98% 0.004 285.8);
@@ -69,16 +69,16 @@
     --color-destructive-foreground: oklch(98% 0.004 285.8);
     --color-border: oklch(17.5% 0.016 285.8);
     --color-input: oklch(17.5% 0.016 285.8);
-    --color-ring: oklch(83.9% 0.008 285.8);
-  }
-}
+    --color-ring: oklch(83.9% 0.008 285.8); */
+  /* }
+} */
 
 /* Updated base styles for Tailwind CSS v4 */
 /* * {
   border-color: var(--color-border);
 } */
-
+/* 
 body {
   background-color: var(--color-background);
   color: var(--color-foreground);
-}
+} */

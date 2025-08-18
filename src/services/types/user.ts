@@ -13,6 +13,7 @@ export interface AuthState {
   setLoginDetails: (details: LoginDetails) => void;
   hasLoginError: () => void;
   login: () => Promise<boolean>;
+  adminLogin: () => Promise<boolean>;
   refresh: () => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -32,14 +33,36 @@ export interface UserDetail {
   username: string;
 }
 
+export interface UserDataPayload{
+  name: string
+  username: string
+  email: string
+  password: string
+  confirm_password: string
+  gender: string
+  dob: Date
+  is_active: boolean
+}
+
+export interface UserPayload {
+  user: UserDataPayload;
+  avatar: File | null
+}
+
 export interface UserState {
   userDetail: UserDetail | null;
+  userPayload: UserPayload | null
   isAuthenticated: boolean;
+  isAdminAuthenticated: boolean;
   hasError: boolean;
   isLoading: boolean;
   hasFetchingError: () => void;
   setUserUnauthenticated: () => void;
+  
   setUserDetails: (userDetail: UserDetail) => void;
+  setUserPayload: (data: UserPayload) => void;
   completeLoader: () => void;
   fetchSelf: () => void;
+  fetchAdminSelf: () => void;
+  createUser: (userData: UserDataPayload, file: File | null) => Promise<void>;
 }

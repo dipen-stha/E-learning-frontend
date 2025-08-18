@@ -1,4 +1,4 @@
-"use client"
+
 
 import type React from "react"
 
@@ -29,7 +29,7 @@ import {
 } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { Link } from "react-router-dom"
+import { Link, useLocation } from "react-router-dom"
 
 interface NavItem {
   title: string
@@ -154,7 +154,7 @@ export function AdminSidebar({
   isMobileOpen = false,
   onMobileToggle,
 }: AdminSidebarProps) {
-  const pathname = usePathname()
+  const pathname = useLocation().pathname
   const [openItems, setOpenItems] = useState<string[]>(["User Management"])
 
   const toggleItem = (title: string) => {
@@ -193,7 +193,7 @@ export function AdminSidebar({
             </Button>
           </CollapsibleTrigger>
           {!isCollapsed && (
-            <CollapsibleContent className="space-y-1 animate-in slide-in-from-top-1 duration-200">
+            <CollapsibleContent className="space-y-1 animate-in slide-in-from-top-1 duration-200 bg-gray-100 rounded-md">
               {item.children?.map((child) => renderNavItem(child, level + 1))}
             </CollapsibleContent>
           )}

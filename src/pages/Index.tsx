@@ -37,7 +37,7 @@ const HomePage: React.FC = () => {
               <Link to="/signup">
                 <Button
                   variant="outline"
-                  className="w-full sm:w-auto border-2 border-cyan-300 text-cyan-700 hover:bg-cyan-50 font-medium px-8 py-3 bg-transparent"
+                  className="w-full sm:w-auto border-none text-cyan-700 hover:bg-cyan-50 font-medium px-8 py-3 bg-transparent"
                 >
                   Create Account
                 </Button>

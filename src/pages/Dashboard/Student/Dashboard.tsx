@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import {
   ChevronLeft,
@@ -33,10 +31,15 @@ const achievements = [
 export default function Dashboard() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const { userDetail } = useUserStore();
-  const {fetchUserCourseDetails, fetchUserCourseStats, userCourseDetails, userCourseStats} = useUserCourseStore();
+  const {
+    fetchUserCourseDetails,
+    fetchUserCourseStats,
+    userCourseDetails,
+    userCourseStats,
+  } = useUserCourseStore();
   const { fetchCourseDetails, courseDetails } = useCourseStore();
   const userName = userDetail?.profile.name;
-  const userId = userDetail?.id
+  const userId = userDetail?.id;
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % courseDetails.length);
@@ -49,9 +52,9 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    if(userId) {
-      fetchUserCourseDetails(userId)
-      fetchUserCourseStats(userId)
+    if (userId) {
+      fetchUserCourseDetails(userId);
+      fetchUserCourseStats(userId);
     }
     fetchCourseDetails();
   }, []);
@@ -118,13 +121,14 @@ export default function Dashboard() {
                               {`${course.completion_time} hours`}
                             </span>
                             <span className="flex items-center gap-1">
-                              {course.course_rating ?
-                              (
-                              <>
-                              <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                               {`${course.course_rating}`} 
-                               </>
-                              ) :  `Not Rated`}
+                              {course.course_rating ? (
+                                <>
+                                  <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                                  {`${course.course_rating}`}
+                                </>
+                              ) : (
+                                `Not Rated`
+                              )}
                             </span>
                             <span>{`${course.student_count}`} students</span>
                           </div>
@@ -188,7 +192,7 @@ export default function Dashboard() {
         </section>
 
         {/* My Courses Progress */}
-        
+
         <section className="mb-12">
           <h2 className="text-3xl font-bold text-gray-800 mb-6">My Courses</h2>
           <div className="grid gap-6">
@@ -206,7 +210,9 @@ export default function Dashboard() {
                     />
                     <div className="flex-1">
                       <h3 className="text-xl font-semibold text-gray-800 mb-1">
-                        <Link to={`/course-detail/${userCourse.course.id}`}>{userCourse.course.title}</Link>
+                        <Link to={`/course-detail/${userCourse.course.id}`}>
+                          {userCourse.course.title}
+                        </Link>
                       </h3>
                       <p className="text-gray-600 mb-3">
                         by {userCourse.course.instructor?.name}
@@ -216,11 +222,14 @@ export default function Dashboard() {
                           <div className="flex justify-between text-sm text-gray-600 mb-1">
                             <span>Progress</span>
                             <span>
-                              {userCourse.completed_subjects}/{userCourse.total_subjects}{" "}
-                              lessons
+                              {userCourse.completed_subjects}/
+                              {userCourse.total_subjects} lessons
                             </span>
                           </div>
-                          <Progress value={userCourse.completion_percent} className="h-2" />
+                          <Progress
+                            value={userCourse.completion_percent}
+                            className="h-2"
+                          />
                         </div>
                         <div className="text-right">
                           <div className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-cyan-600 bg-clip-text text-transparent">
