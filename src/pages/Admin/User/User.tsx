@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -50,8 +50,12 @@ export default function UsersPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const {createUser} = useUserStore();
+  const {createUser, fetchStudents, userDetailList} = useUserStore();
 
+
+  useEffect(() => {
+    fetchStudents();
+  }, [])
   const users = [
     {
       id: 1,
@@ -115,16 +119,11 @@ export default function UsersPage() {
     },
   ];
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Active":
-        return "bg-green-100 text-green-800";
-      case "Inactive":
-        return "bg-gray-100 text-gray-800";
-      case "Suspended":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
+  const getStatusColor = (status: boolean) => {
+    if(status) {
+      return "bg-green-100 text-green-800"
+    } else {
+      return "bg-gray-100 text-gray-800"
     }
   };
 
@@ -162,7 +161,7 @@ export default function UsersPage() {
           </p>
         </div>
         <div className="flex space-x-2">
-          <Button variant="secondary">
+          <Button className="bg-gray-300 hover:bg-gray-500 border-gray-200 text-gray-800 hover:text-gray-200">
             <Download className="mr-2 h-4 w-4" />
             Export
           </Button>
@@ -302,20 +301,20 @@ export default function UsersPage() {
                 <TableHead className="text-gray-600">Status</TableHead>
                 <TableHead className="text-gray-600">Courses</TableHead>
                 <TableHead className="text-gray-600">Join Date</TableHead>
-                <TableHead className="text-gray-600">Last Active</TableHead>
+                <TableHead className="text-gray-600">Last Logged In</TableHead>
                 <TableHead className="text-right text-gray-600">
                   Actions
                 </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {users.map((user) => (
+              {userDetailList.map((user) => (
                 <TableRow key={user.id} className="border-gray-200">
                   <TableCell className="flex items-center space-x-3">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={user.avatar || "/placeholder.svg"} />
+                      <AvatarImage src={user.profile.avatar || "/placeholder.svg"} />
                       <AvatarFallback>
-                        {user.name
+                        {user.profile.name
                           .split(" ")
                           .map((n) => n[0])
                           .join("")}
@@ -323,7 +322,7 @@ export default function UsersPage() {
                     </Avatar>
                     <div>
                       <p className="text-sm font-medium text-gray-900">
-                        {user.name}
+                        {user.profile.name}
                       </p>
                       <p className="text-xs text-gray-600">{user.email}</p>
                     </div>
@@ -331,32 +330,32 @@ export default function UsersPage() {
                   <TableCell>
                     <Badge
                       variant="secondary"
-                      className={getRoleColor(user.role)}
+                      className={getRoleColor(user.profile.role)}
                     >
-                      {user.role}
+                      {user.profile.role}
                     </Badge>
                   </TableCell>
                   <TableCell>
                     <Badge
                       variant="secondary"
-                      className={getStatusColor(user.status)}
+                      className={getStatusColor(user.is_active)}
                     >
-                      {user.status}
+                      {user.is_active ? 'Active' : 'Inactive'}
                     </Badge>
                   </TableCell>
                   <TableCell>
                     <div className="text-sm text-gray-600">
-                      <p>{user.coursesEnrolled} enrolled</p>
+                      <p>{user.total_courses} enrolled</p>
                       <p className="text-xs text-gray-600">
-                        {user.coursesCompleted} completed
+                        {user.courses_completed} completed
                       </p>
                     </div>
                   </TableCell>
                   <TableCell className="text-sm text-gray-600">
-                    {user.joinDate}
+                    {user.joined_date}
                   </TableCell>
                   <TableCell className="text-sm text-gray-600">
-                    {user.lastActive}
+                    {user.last_login}
                   </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>

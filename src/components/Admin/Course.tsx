@@ -1,72 +1,140 @@
+import type React from "react";
 
-
-import type React from "react"
-
-import { useState } from "react"
-import { Button } from "@/components/ui/Button"
-import { Input } from "@/components/ui/Input"
-import { Label } from "@/components/ui/Label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select"
-import { Textarea } from "@/components/ui/Textarea"
-import { Badge } from "@/components/ui/Badge"
-import { Upload, X, Plus } from "lucide-react"
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { Label } from "@/components/ui/Label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/Select";
+import { Textarea } from "@/components/ui/Textarea";
+import { Badge } from "@/components/ui/Badge";
+import { Upload, X, Plus, User } from "lucide-react";
+import { useCourseStore } from "@/stores/Courses/Course";
+import { CoursePayload, CourseData } from "@/services/types/Course";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/Avatar";
+import { useUserStore } from "@/stores/User/User";
+import { MultiSelect } from "../ui/MultiSelect";
 
 interface CreateCourseFormProps {
-  onSubmit: (courseData: any) => void
-  onCancel: () => void
+  onSubmit: (data: CourseData, file: File | null) => void;
+  onCancel: () => void;
 }
 
-export function CreateCourseForm({ onSubmit, onCancel }: CreateCourseFormProps) {
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    category: "",
-    level: "",
-    duration: "",
-    price: "",
-    thumbnail: "",
-    instructor: "",
-    tags: [] as string[],
-    requirements: "",
-    objectives: "",
-  })
+export function CreateCourseForm({
+  onSubmit,
+  onCancel,
+}: CreateCourseFormProps) {
+  const {
+    coursePayload,
+    createCourse,
+    setCoursePayload,
+    fetchCategoryList,
+    categoryList,
+  } = useCourseStore();
+  const { fetchTutors, userMinimalList } = useUserStore();
+  const initialPayload: CoursePayload = {
+    course: {
+      title: "",
+      description: "",
+      completion_time: 0,
+      price: 0,
+      requirements: "",
+      objectives: "",
+      categories_id: [],
+      instructor_id: "",
+    },
+    file: null,
+  };
 
-  const [newTag, setNewTag] = useState("")
+  const [payload, setPayload] = useState<CoursePayload>(initialPayload);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    onSubmit(formData)
-  }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCoursePayload(payload);
+    await onSubmit(payload.course, payload?.file);
+  };
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-  }
+  const updatePayload = (updates: Partial<CoursePayload>) => {
+    const updated = { ...payload, ...updates };
+    setPayload(updated);
+  };
 
-  const addTag = () => {
-    if (newTag.trim() && !formData.tags.includes(newTag.trim())) {
-      setFormData((prev) => ({ ...prev, tags: [...prev.tags, newTag.trim()] }))
-      setNewTag("")
+  const updateCourseField = (
+    field: keyof CourseData,
+    value: string | boolean | number
+  ) => {
+    updatePayload({
+      course: { ...payload.course, [field]: value },
+    });
+  };
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    updateCourseField(name as keyof CourseData, value);
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type.startsWith("image/")) {
+      updatePayload({ file: file });
     }
+  };
+
+  const handleSelectValueChange = (field: keyof CourseData, value: string) => {
+    updateCourseField(field, value);
+  };
+
+  const handleCategoriesChange = () => {
+    
   }
 
-  const removeTag = (tagToRemove: string) => {
-    setFormData((prev) => ({ ...prev, tags: prev.tags.filter((tag) => tag !== tagToRemove) }))
-  }
+  useEffect(() => {
+    fetchCategoryList();
+    fetchTutors();
+  }, []);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid gap-6 md:grid-cols-2">
         {/* Course Thumbnail */}
-        <div className="md:col-span-2">
-          <Label className="text-sm font-medium text-gray-700">Course Thumbnail</Label>
-          <div className="mt-2 border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
-            <Upload className="mx-auto h-12 w-12 text-gray-400" />
-            <div className="mt-4">
-              <Button type="button" variant="outline" size="sm" className="border-none">
-                Upload Image
-              </Button>
-              <p className="text-xs text-gray-600 mt-2">PNG, JPG up to 5MB</p>
-            </div>
+        <div className="md:col-span-2 flex items-center space-x-4">
+          <Avatar className="h-20 w-20">
+            <AvatarImage src={payload?.file || "/placeholder.svg"} />
+            <AvatarFallback className="bg-gray-100">
+              <User className="h-8 w-8 text-gray-400" />
+            </AvatarFallback>
+          </Avatar>
+          <div>
+            <input
+              type="file"
+              id="avatar-upload"
+              name="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="hidden"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => document.getElementById("avatar-upload")?.click()}
+            >
+              <Upload className="mr-2 h-4 w-4" />
+              Upload Image
+            </Button>
+            <p className="text-xs text-gray-600 mt-1">JPG, PNG up to 2MB</p>
+            {payload?.file && (
+              <p className="text-xs text-cyan-600 mt-1">
+                Selected: {payload?.file.name}
+              </p>
+            )}
           </div>
         </div>
 
@@ -77,8 +145,9 @@ export function CreateCourseForm({ onSubmit, onCancel }: CreateCourseFormProps) 
           </Label>
           <Input
             id="title"
-            value={formData.title}
-            onChange={(e) => handleInputChange("title", e.target.value)}
+            name="title"
+            value={payload.course.title}
+            onChange={(e) => handleChange(e)}
             className="bg-white border-gray-300"
             placeholder="Enter course title"
             required
@@ -86,13 +155,17 @@ export function CreateCourseForm({ onSubmit, onCancel }: CreateCourseFormProps) 
         </div>
 
         <div className="md:col-span-2 space-y-2 ">
-          <Label htmlFor="description" className="text-sm font-medium text-gray-700">
+          <Label
+            htmlFor="description"
+            className="text-sm font-medium text-gray-700"
+          >
             Description *
           </Label>
           <Textarea
             id="description"
-            value={formData.description}
-            onChange={(e) => handleInputChange("description", e.target.value)}
+            name="description"
+            value={payload.course.description}
+            onChange={(e) => handleChange(e)}
             className="border-gray-300"
             rows={4}
             placeholder="Describe what students will learn in this course..."
@@ -101,49 +174,33 @@ export function CreateCourseForm({ onSubmit, onCancel }: CreateCourseFormProps) 
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="category" className="text-sm font-medium text-gray-700">
-            Category *
+          <Label htmlFor="categories" className="text-sm font-medium text-gray-700">
+            Categories *
           </Label>
-          <Select value={formData.category} onValueChange={(value) => handleInputChange("category", value)}>
-            <SelectTrigger className="bg-white border-gray-300">
-              <SelectValue placeholder="Select category" />
-            </SelectTrigger>
-            <SelectContent className="bg-white">
-              <SelectItem value="programming" className="text-gray-600">Programming</SelectItem>
-              <SelectItem value="design" className="text-gray-600">Design</SelectItem>
-              <SelectItem value="business" className="text-gray-600">Business</SelectItem>
-              <SelectItem value="marketing" className="text-gray-600">Marketing</SelectItem>
-              <SelectItem value="data-science" className="text-gray-600">Data Science</SelectItem>
-              <SelectItem value="languages" className="text-gray-600">Languages</SelectItem>
-            </SelectContent>
-          </Select>
+          <MultiSelect
+            label="title"
+            value="id"
+            options={categoryList}
+            selected={payload.course.categories_id}
+            onChange={handleCategoriesChange}
+            placeholder="Select categories"
+            className="w-full"
+          />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="level" className="text-sm font-medium text-gray-700">
-            Level *
-          </Label>
-          <Select value={formData.level} onValueChange={(value) => handleInputChange("level", value)}>
-            <SelectTrigger className="bg-white border-gray-300">
-              <SelectValue placeholder="Select level" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="beginner">Beginner</SelectItem>
-              <SelectItem value="intermediate">Intermediate</SelectItem>
-              <SelectItem value="advanced">Advanced</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="duration" className="text-sm font-medium text-gray-700">
+          <Label
+            htmlFor="duration"
+            className="text-sm font-medium text-gray-700"
+          >
             Duration (hours)
           </Label>
           <Input
             id="duration"
+            name="completion_time"
             type="number"
-            value={formData.duration}
-            onChange={(e) => handleInputChange("duration", e.target.value)}
+            value={payload.course.completion_time}
+            onChange={(e) => handleChange(e)}
             className="bg-white border-gray-300"
             placeholder="e.g., 10"
           />
@@ -156,37 +213,57 @@ export function CreateCourseForm({ onSubmit, onCancel }: CreateCourseFormProps) 
           <Input
             id="price"
             type="number"
-            value={formData.price}
-            onChange={(e) => handleInputChange("price", e.target.value)}
+            name="price"
+            value={payload.course.price}
+            onChange={(e) => handleChange(e)}
             className="bg-white border-gray-300"
             placeholder="0.00"
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="instructor" className="text-sm font-medium text-gray-700">
+          <Label
+            htmlFor="instructor"
+            className="text-sm font-medium text-gray-700"
+          >
             Instructor *
           </Label>
-          <Select value={formData.instructor} onValueChange={(value) => handleInputChange("instructor", value)}>
+          <Select
+            name="instructor_id"
+            value={payload.course.instructor_id}
+            onValueChange={(value) =>
+              handleSelectValueChange("instructor_id", value)
+            }
+          >
             <SelectTrigger className="bg-white border-gray-300">
-              <SelectValue placeholder="Select instructor" />
+              <SelectValue placeholder="Select a instructor">
+                {userMinimalList.find(
+                  (user) => String(user.id) === String(payload.course.instructor_id)
+                )?.name || "Select a instructor"}
+              </SelectValue>
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="sarah-miller">Sarah Miller</SelectItem>
-              <SelectItem value="john-doe">John Doe</SelectItem>
-              <SelectItem value="mike-johnson">Mike Johnson</SelectItem>
+            <SelectContent className="border-gray-200">
+              {userMinimalList.map((user, index) => (
+                <SelectItem value={user.id} key={index}>
+                  {user.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
 
         <div className="md:col-span-2 space-y-2">
-          <Label htmlFor="requirements" className="text-sm font-medium text-gray-700">
+          <Label
+            htmlFor="requirements"
+            className="text-sm font-medium text-gray-700"
+          >
             Requirements
           </Label>
           <Textarea
             id="requirements"
-            value={formData.requirements}
-            onChange={(e) => handleInputChange("requirements", e.target.value)}
+            name="requirements"
+            value={payload.course.requirements}
+            onChange={(e) => handleChange(e)}
             className="bg-white border-gray-300"
             rows={3}
             placeholder="What do students need to know before taking this course?"
@@ -194,13 +271,17 @@ export function CreateCourseForm({ onSubmit, onCancel }: CreateCourseFormProps) 
         </div>
 
         <div className="md:col-span-2 space-y-2">
-          <Label htmlFor="objectives" className="text-sm font-medium text-gray-700">
+          <Label
+            htmlFor="objectives"
+            className="text-sm font-medium text-gray-700"
+          >
             Learning Objectives
           </Label>
           <Textarea
             id="objectives"
-            value={formData.objectives}
-            onChange={(e) => handleInputChange("objectives", e.target.value)}
+            name="objectives"
+            value={payload.course.objectives}
+            onChange={(e) => handleChange(e)}
             className="bg-white border-gray-300"
             rows={3}
             placeholder="What will students learn from this course?"
@@ -213,10 +294,13 @@ export function CreateCourseForm({ onSubmit, onCancel }: CreateCourseFormProps) 
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancel
         </Button>
-        <Button type="submit" className="bg-cyan-600 hover:bg-cyan-700 text-white">
+        <Button
+          type="submit"
+          className="bg-cyan-600 hover:bg-cyan-700 text-white"
+        >
           Create Course
         </Button>
       </div>
     </form>
-  )
+  );
 }

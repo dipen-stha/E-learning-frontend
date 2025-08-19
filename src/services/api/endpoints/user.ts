@@ -9,5 +9,5 @@ export const authAPI = {
 export const userAPI = {
     createUser: "/users/create/",
     getStudentList: "/users/get/students/",
-    getTutorsList: "/users/get/tutors/",
+    getTutorsList: "/users/tutors/get/minimal/",
 }

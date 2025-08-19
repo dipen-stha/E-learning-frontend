@@ -47,11 +47,14 @@ import {
 } from "lucide-react";
 import { CreateModal } from "@/components/Modal";
 import { CreateCourseForm } from "@/components/Admin/Course";
+import { CourseData } from "@/services/types/Course";
+import { useCourseStore } from "@/stores/Courses/Course";
 
 export default function CoursesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const {createCourse} = useCourseStore()
   const courses = [
     {
       id: 1,
@@ -163,10 +166,13 @@ export default function CoursesPage() {
     }
   };
 
-  const handleCreateCourse = (courseData: any) => {
-    console.log("Creating course:", courseData);
-    // Here you would typically make an API call to create the course
-    setIsCreateModalOpen(false);
+  const handleCreateCourse = async (data: CourseData, file: File | null) => {
+    try{
+      await createCourse(data, file);
+      setIsCreateModalOpen(false)
+    } catch (error) {
+      // setIsCreateModalOpen(true);
+    }
   };
 
   return (
