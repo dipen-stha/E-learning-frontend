@@ -5,6 +5,8 @@ import { authAPI, userAPI } from "@/services/api/endpoints/user";
 
 export const useUserStore = create<UserState>((set, get) => ({
     userDetail: null,
+    userDetailList: [],
+    userMinimalList: [],
     isLoading: true,
     hasError: false,
     isAuthenticated: false,
@@ -25,6 +27,7 @@ export const useUserStore = create<UserState>((set, get) => ({
 
     setUserDetails: (userDetail: UserDetail) => set({userDetail: userDetail}),
     setUserPayload: (data: UserPayload) => set({userPayload: data}),
+    setUserDetailList: (dataList: UserDetail[]) => set({userDetailList: dataList}),
     hasFetchingError: () => set({hasError: true}),
     setUserUnauthenticated: () => set({isAuthenticated: false}),
     completeLoader: () => set({isLoading: false}),
@@ -98,5 +101,29 @@ export const useUserStore = create<UserState>((set, get) => ({
             set({isLoading: false, hasError: true})
             throw error;
         }  
-    }
+    },
+    fetchStudents: async() => {
+        get().isLoading = true;
+        try{
+            const response = await api.get(userAPI.getStudentList)
+            if(response.data){
+                get().setUserDetailList(response.data)
+                get().isLoading = false;
+            }
+        } catch(error) {
+            throw error
+        }
+    },
+    fetchTutors: async() => {
+                get().isLoading = true;
+        try{
+            const response = await api.get(userAPI.getTutorsList)
+            if(response.data){
+                set({userMinimalList: response.data})
+                get().isLoading = false;
+            }
+        } catch(error) {
+            throw error
+        }
+    },
 }))

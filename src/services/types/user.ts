@@ -19,11 +19,17 @@ export interface AuthState {
 }
 
 
+export interface UserMinimal {
+  id: string
+  name: string
+}
+
 export interface Profile {
   name: string;
   dob: Date;
   gender: string;
   avatar: string;
+  role: string;
 }
 
 export interface UserDetail {
@@ -31,6 +37,11 @@ export interface UserDetail {
   profile: Profile;
   email: string;
   username: string;
+  is_active: boolean
+  total_courses: number | null;
+  courses_completed: number | null;
+  joined_date: string | null;
+  last_login: string | null;
 }
 
 export interface UserDataPayload{
@@ -50,6 +61,8 @@ export interface UserPayload {
 }
 
 export interface UserState {
+  userDetailList: UserDetail[] | [];
+  userMinimalList: UserMinimal[] | [];
   userDetail: UserDetail | null;
   userPayload: UserPayload | null
   isAuthenticated: boolean;
@@ -61,6 +74,9 @@ export interface UserState {
   
   setUserDetails: (userDetail: UserDetail) => void;
   setUserPayload: (data: UserPayload) => void;
+  setUserDetailList: (userList: UserDetail[]) => void;
+  fetchStudents: () => Promise<void>;
+  fetchTutors: () => Promise<void>;
   completeLoader: () => void;
   fetchSelf: () => void;
   fetchAdminSelf: () => void;
