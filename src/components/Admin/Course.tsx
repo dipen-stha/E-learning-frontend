@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import {
-  Select,
+  Select as CSelect,
   SelectContent,
   SelectItem,
   SelectTrigger,
@@ -15,10 +15,11 @@ import { Textarea } from "@/components/ui/Textarea";
 import { Badge } from "@/components/ui/Badge";
 import { Upload, X, Plus, User } from "lucide-react";
 import { useCourseStore } from "@/stores/Courses/Course";
-import { CoursePayload, CourseData } from "@/services/types/Course";
+import { CoursePayload, CourseData, CategoryDetail } from "@/services/types/Course";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/Avatar";
 import { useUserStore } from "@/stores/User/User";
 import { MultiSelect } from "../ui/MultiSelect";
+import { UserMinimal } from "@/services/types/user";
 
 interface CreateCourseFormProps {
   onSubmit: (data: CourseData, file: File | null) => void;
@@ -30,8 +31,6 @@ export function CreateCourseForm({
   onCancel,
 }: CreateCourseFormProps) {
   const {
-    coursePayload,
-    createCourse,
     setCoursePayload,
     fetchCategoryList,
     categoryList,
@@ -46,7 +45,7 @@ export function CreateCourseForm({
       requirements: "",
       objectives: "",
       categories_id: [],
-      instructor_id: "",
+      instructor_id: null,
     },
     file: null,
   };
@@ -56,6 +55,7 @@ export function CreateCourseForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setCoursePayload(payload);
+    console.log(payload)
     await onSubmit(payload.course, payload?.file);
   };
 
@@ -66,7 +66,7 @@ export function CreateCourseForm({
 
   const updateCourseField = (
     field: keyof CourseData,
-    value: string | boolean | number
+    value: string | boolean | number | string[]
   ) => {
     updatePayload({
       course: { ...payload.course, [field]: value },
@@ -87,12 +87,12 @@ export function CreateCourseForm({
     }
   };
 
-  const handleSelectValueChange = (field: keyof CourseData, value: string) => {
-    updateCourseField(field, value);
+  const handleSelectValueChange = (field: keyof CourseData, value: any) => {
+    updateCourseField(field, value.id);
   };
 
-  const handleCategoriesChange = () => {
-    
+  const handleCategoriesChange = (value: any) => {
+    updateCourseField("categories_id", value.map((item: CategoryDetail) => item.id))
   }
 
   useEffect(() => {
@@ -178,13 +178,15 @@ export function CreateCourseForm({
             Categories *
           </Label>
           <MultiSelect
-            label="title"
-            value="id"
+            isMulti
+            getOptionLabel={(option) => option.title}
+            getOptionValue={(option) => option.id}
             options={categoryList}
-            selected={payload.course.categories_id}
+            // value={categories}
             onChange={handleCategoriesChange}
             placeholder="Select categories"
-            className="w-full"
+            className="basic-multi-select"
+            classNamePrefix="select"
           />
         </div>
 
@@ -228,28 +230,13 @@ export function CreateCourseForm({
           >
             Instructor *
           </Label>
-          <Select
-            name="instructor_id"
-            value={payload.course.instructor_id}
-            onValueChange={(value) =>
-              handleSelectValueChange("instructor_id", value)
-            }
-          >
-            <SelectTrigger className="bg-white border-gray-300">
-              <SelectValue placeholder="Select a instructor">
-                {userMinimalList.find(
-                  (user) => String(user.id) === String(payload.course.instructor_id)
-                )?.name || "Select a instructor"}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent className="border-gray-200">
-              {userMinimalList.map((user, index) => (
-                <SelectItem value={user.id} key={index}>
-                  {user.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            <MultiSelect 
+            getOptionLabel={(option) => option.name}
+            getOptionValue={(option) => option.id}
+            options={userMinimalList}
+            onChange={(value) => handleSelectValueChange("instructor_id", value)}
+
+/>
         </div>
 
         <div className="md:col-span-2 space-y-2">

@@ -5,6 +5,11 @@ export interface CategoryDetail {
     title: string
 }
 
+export interface MinimalCourse {
+    id: number
+    title: string
+}
+
 export interface CourseDetail {
     id: number
     title: string
@@ -16,6 +21,9 @@ export interface CourseDetail {
     instructor: Profile | null
     image_url: string | null
     subjects: SubjectDetail[] | []
+    categories: string[] | []
+    total_revenue: number | null
+    status: string
 }
 
 export interface SubjectDetail {
@@ -39,10 +47,10 @@ export interface UserUnitDetail {
 export interface CourseData {
     title: string
     description: string
-    categories_id: string[]
+    categories_id: number[]
     completion_time: number
     price: number
-    instructor_id: string
+    instructor_id: number | null
     requirements: string
     objectives: string
 }
@@ -54,6 +62,7 @@ export interface CoursePayload {
 
 export interface CourseState {
     courseDetails: CourseDetail[]
+    courseMinimal: MinimalCourse[]
     coursePayload: CoursePayload | null
     courseItem: CourseDetail | null
     categoryList: CategoryDetail[] | []
@@ -66,4 +75,6 @@ export interface CourseState {
     fetchCourseById: (course_id: number) => void;
     createCourse: (data: CourseData, image: File | null) => Promise<void>;
     fetchCategoryList: () => Promise<void>;
+    fetchMinimal: () => Promise<void>;
+    reset: () => void;
 }

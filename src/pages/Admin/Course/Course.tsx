@@ -1,6 +1,4 @@
-;
-
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -49,115 +47,26 @@ import { CreateModal } from "@/components/Modal";
 import { CreateCourseForm } from "@/components/Admin/Course";
 import { CourseData } from "@/services/types/Course";
 import { useCourseStore } from "@/stores/Courses/Course";
+import { getStatusColor, mapStatus } from "@/services/utils/choiceUtils";
 
 export default function CoursesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const {createCourse} = useCourseStore()
-  const courses = [
-    {
-      id: 1,
-      title: "React Fundamentals",
-      instructor: "Sarah Miller",
-      instructorAvatar: "/diverse-students-studying.png",
-      category: "Web Development",
-      status: "Published",
-      students: 1234,
-      rating: 4.9,
-      duration: "12 hours",
-      lessons: 24,
-      price: 99,
-      createdDate: "2024-01-15",
-      completionRate: 95,
-      revenue: 122166,
-    },
-    {
-      id: 2,
-      title: "Python for Beginners",
-      instructor: "Mike Johnson",
-      instructorAvatar: "/diverse-students-studying.png",
-      category: "Programming",
-      status: "Published",
-      students: 987,
-      rating: 4.8,
-      duration: "16 hours",
-      lessons: 32,
-      price: 79,
-      createdDate: "2023-11-20",
-      completionRate: 89,
-      revenue: 77973,
-    },
-    {
-      id: 3,
-      title: "Advanced JavaScript",
-      instructor: "John Doe",
-      instructorAvatar: "/diverse-students-studying.png",
-      category: "Web Development",
-      status: "Draft",
-      students: 0,
-      rating: 0,
-      duration: "20 hours",
-      lessons: 40,
-      price: 129,
-      createdDate: "2024-03-01",
-      completionRate: 0,
-      revenue: 0,
-    },
-    {
-      id: 4,
-      title: "UI/UX Design Principles",
-      instructor: "Emily Brown",
-      instructorAvatar: "/diverse-students-studying.png",
-      category: "Design",
-      status: "Published",
-      students: 756,
-      rating: 4.7,
-      duration: "14 hours",
-      lessons: 28,
-      price: 89,
-      createdDate: "2024-02-10",
-      completionRate: 87,
-      revenue: 67284,
-    },
-    {
-      id: 5,
-      title: "Data Science Basics",
-      instructor: "David Wilson",
-      instructorAvatar: "/diverse-students-studying.png",
-      category: "Data Science",
-      status: "Archived",
-      students: 543,
-      rating: 4.6,
-      duration: "18 hours",
-      lessons: 36,
-      price: 109,
-      createdDate: "2023-08-05",
-      completionRate: 82,
-      revenue: 59187,
-    },
-  ];
+  // const { createCourse, fetchCourseDetails, courseDetails } = useCourseStore();
+  const createCourse = useCourseStore(state => state.createCourse)
+  const fetchCourseDetails = useCourseStore(state => state.fetchCourseDetails)
+  const courseDetails = useCourseStore(state => state.courseDetails)
+  const reset = useCourseStore(state => state.reset)
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Published":
-        return "bg-green-100 text-green-800";
-      case "Draft":
-        return "bg-yellow-100 text-yellow-800";
-      case "Archived":
-        return "bg-gray-100 text-gray-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
 
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case "Web Development":
+      case "Information and Technology":
         return "bg-blue-100 text-blue-800";
-      case "Programming":
+      case "Science":
         return "bg-purple-100 text-purple-800";
-      case "Design":
+      case "Maths":
         return "bg-pink-100 text-pink-800";
       case "Data Science":
         return "bg-cyan-100 text-cyan-800";
@@ -167,13 +76,23 @@ export default function CoursesPage() {
   };
 
   const handleCreateCourse = async (data: CourseData, file: File | null) => {
-    try{
+    try {
       await createCourse(data, file);
-      setIsCreateModalOpen(false)
+      setIsCreateModalOpen(false);
     } catch (error) {
       // setIsCreateModalOpen(true);
     }
   };
+
+  useEffect(() => {
+    fetchCourseDetails();
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      reset();
+    }
+  }, [reset])
 
   return (
     <div className="space-y-6">
@@ -183,7 +102,7 @@ export default function CoursesPage() {
           <h1 className="text-3xl font-bold text-gray-900">
             Course Management
           </h1>
-          <p className="text-gray-600 mt-1">
+          <p className="text-gray-800 mt-1">
             Create, edit, and manage all courses on your platform.
           </p>
         </div>
@@ -206,53 +125,53 @@ export default function CoursesPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card className="bg-white border-none">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
+            <CardTitle className="text-sm font-medium text-gray-800">
               Total Courses
             </CardTitle>
-            <BookOpen className="h-4 w-4 text-gray-600" />
+            <BookOpen className="h-4 w-4 text-gray-800" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-600">156</div>
-            <p className="text-xs text-gray-600">+3 new this week</p>
+            <div className="text-2xl font-bold text-gray-800">156</div>
+            <p className="text-xs text-gray-800">+3 new this week</p>
           </CardContent>
         </Card>
 
         <Card className="bg-white border-none">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
+            <CardTitle className="text-sm font-medium text-gray-800">
               Published
             </CardTitle>
             <Play className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-600">142</div>
-            <p className="text-xs text-gray-600">91% of total courses</p>
+            <div className="text-2xl font-bold text-gray-800">142</div>
+            <p className="text-xs text-gray-800">91% of total courses</p>
           </CardContent>
         </Card>
 
         <Card className="bg-white border-none">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
+            <CardTitle className="text-sm font-medium text-gray-800">
               Total Students
             </CardTitle>
             <Users className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-600">3,520</div>
-            <p className="text-xs text-gray-600">Across all courses</p>
+            <div className="text-2xl font-bold text-gray-800">3,520</div>
+            <p className="text-xs text-gray-800">Across all courses</p>
           </CardContent>
         </Card>
 
         <Card className="bg-white border-none">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
+            <CardTitle className="text-sm font-medium text-gray-800">
               Avg. Rating
             </CardTitle>
             <Star className="h-4 w-4 text-yellow-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-600">4.7</div>
-            <p className="text-xs text-gray-600">Based on 2,847 reviews</p>
+            <div className="text-2xl font-bold text-gray-800">4.7</div>
+            <p className="text-xs text-gray-800">Based on 2,847 reviews</p>
           </CardContent>
         </Card>
       </div>
@@ -260,7 +179,7 @@ export default function CoursesPage() {
       {/* Courses Table */}
       <Card className="bg-white border-none">
         <CardHeader>
-          <CardTitle className="text-gray-600">Courses</CardTitle>
+          <CardTitle className="text-gray-800">Courses</CardTitle>
           <CardDescription>
             Manage all courses, track performance, and monitor student
             engagement.
@@ -288,31 +207,31 @@ export default function CoursesPage() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="bg-white border-none">
-                <DropdownMenuLabel className="text-gray-600">
+                <DropdownMenuLabel className="text-gray-800">
                   Filter by Status
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => setSelectedFilter("all")}
-                  className="text-gray-600"
+                  className="text-gray-800"
                 >
                   All Courses
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => setSelectedFilter("published")}
-                  className="text-gray-600"
+                  className="text-gray-800"
                 >
                   Published
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => setSelectedFilter("draft")}
-                  className="text-gray-600"
+                  className="text-gray-800"
                 >
                   Draft
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => setSelectedFilter("archived")}
-                  className="text-gray-600"
+                  className="text-gray-800"
                 >
                   Archived
                 </DropdownMenuItem>
@@ -323,30 +242,30 @@ export default function CoursesPage() {
           <Table>
             <TableHeader>
               <TableRow className="border-gray-300">
-                <TableHead className="text-gray-600">Course</TableHead>
-                <TableHead className="text-gray-600">Instructor</TableHead>
-                <TableHead className="text-gray-600">Category</TableHead>
-                <TableHead className="text-gray-600">Status</TableHead>
-                <TableHead className="text-gray-600">Students</TableHead>
-                <TableHead className="text-gray-600">Rating</TableHead>
-                <TableHead className="text-gray-600">Revenue</TableHead>
+                <TableHead className="text-gray-800">Course</TableHead>
+                <TableHead className="text-gray-800">Instructor</TableHead>
+                <TableHead className="text-gray-800">Category</TableHead>
+                <TableHead className="text-gray-800">Status</TableHead>
+                <TableHead className="text-gray-800">Students</TableHead>
+                <TableHead className="text-gray-800">Rating</TableHead>
+                <TableHead className="text-gray-800">Revenue</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {courses.map((course) => (
+              {courseDetails.map((course) => (
                 <TableRow key={course.id} className="border-gray-200">
                   <TableCell>
                     <div className="space-y-1">
                       <p className="text-sm font-medium text-gray-900">
                         {course.title}
                       </p>
-                      <div className="flex items-center space-x-4 text-xs text-gray-600">
+                      <div className="flex items-center space-x-4 text-xs text-gray-800">
                         <span className="flex items-center">
                           <Clock className="mr-1 h-3 w-3" />
-                          {course.duration}
+                          {course.completion_time}
                         </span>
-                        <span>{course.lessons} lessons</span>
+                        <span>{course.subjects.length} lessons</span>
                         <span>${course.price}</span>
                       </div>
                     </div>
@@ -355,60 +274,62 @@ export default function CoursesPage() {
                     <div className="flex items-center space-x-2">
                       <Avatar className="h-6 w-6">
                         <AvatarImage
-                          src={course.instructorAvatar || "/placeholder.svg"}
+                          src={course.instructor?.avatar || "/placeholder.svg"}
                         />
                         <AvatarFallback>
-                          {course.instructor
+                          {course.instructor?.name
                             .split(" ")
                             .map((n) => n[0])
                             .join("")}
                         </AvatarFallback>
                       </Avatar>
                       <span className="text-sm text-gray-900">
-                        {course.instructor}
+                        {course.instructor?.name}
                       </span>
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge
-                      variant="secondary"
-                      className={getCategoryColor(course.category)}
-                    >
-                      {course.category}
-                    </Badge>
+                    {course.categories.map(category => 
+                      <Badge
+                        variant="secondary"
+                        className={getCategoryColor(category)}
+                      >
+                        {category}
+                      </Badge>
+                    )}
                   </TableCell>
                   <TableCell>
                     <Badge
                       variant="secondary"
                       className={getStatusColor(course.status)}
                     >
-                      {course.status}
+                      {mapStatus(course.status)}
                     </Badge>
                   </TableCell>
                   <TableCell>
                     <div className="space-y-1">
-                      <p className="text-sm font-medium text-gray-600">
-                        {course.students.toLocaleString()}
+                      <p className="text-sm font-medium text-gray-800">
+                        {course.student_count.toLocaleString()}
                       </p>
-                      {course.completionRate > 0 && (
+                      {/* {course.completionRate > 0 && (
                         <div className="space-y-1">
                           <Progress
                             value={course.completionRate}
                             className="h-1"
                           />
-                          <p className="text-xs text-gray-600">
+                          <p className="text-xs text-gray-800">
                             {course.completionRate}% completion
                           </p>
                         </div>
-                      )}
+                      )} */}
                     </div>
                   </TableCell>
                   <TableCell>
-                    {course.rating > 0 ? (
+                    {course.course_rating || 0 > 0 ? (
                       <div className="flex items-center space-x-1">
                         <Star className="h-3 w-3 text-yellow-500 fill-current" />
-                        <span className="text-sm font-medium text-gray-600">
-                          {course.rating}
+                        <span className="text-sm font-medium text-gray-800">
+                          {course.course_rating || 0}
                         </span>
                       </div>
                     ) : (
@@ -416,8 +337,8 @@ export default function CoursesPage() {
                     )}
                   </TableCell>
                   <TableCell>
-                    <p className="text-sm font-medium text-gray-600">
-                      ${course.revenue.toLocaleString()}
+                    <p className="text-sm font-medium text-gray-800">
+                      ${course.total_revenue?.toLocaleString()}
                     </p>
                   </TableCell>
                   <TableCell className="text-right">
@@ -443,7 +364,7 @@ export default function CoursesPage() {
                           View Students
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        {course.status === "Published" ? (
+                        {/* {course.status === "Published" ? (
                           <DropdownMenuItem>
                             <Pause className="mr-2 h-4 w-4" />
                             Unpublish
@@ -453,7 +374,7 @@ export default function CoursesPage() {
                             <Play className="mr-2 h-4 w-4" />
                             Publish
                           </DropdownMenuItem>
-                        )}
+                        )} */}
                         <DropdownMenuItem className="text-red-600">
                           <Trash2 className="mr-2 h-4 w-4" />
                           Delete Course
