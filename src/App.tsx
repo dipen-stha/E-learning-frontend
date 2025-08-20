@@ -15,6 +15,7 @@ import AdminDashboard from "./pages/Admin/Dashboard/Dashboard"
 import AdminLayout from "./components/layouts/AdminLayout"
 import UsersPage from "./pages/Admin/User/User";
 import CoursesPage from "./pages/Admin/Course/Course"
+import SubjectsPage from "./pages/Admin/Subject/Subject"
 
 function App() {
   const {fetchSelf, fetchAdminSelf, isLoading } = useUserStore();
@@ -51,6 +52,7 @@ function App() {
         <Route path="/admin/dashboard" element={<ProtectedRoute><AdminLayout><AdminDashboard /></AdminLayout></ProtectedRoute>} />
         <Route path="/admin/users" element={<ProtectedRoute><AdminLayout><UsersPage /></AdminLayout></ProtectedRoute>} />
         <Route path="/admin/courses" element={<ProtectedRoute><AdminLayout><CoursesPage/></AdminLayout></ProtectedRoute>} />
+        <Route path="/admin/subjects" element={<ProtectedRoute><AdminLayout><SubjectsPage /></AdminLayout></ProtectedRoute>}></Route>
       </Routes>
     </div>
   )

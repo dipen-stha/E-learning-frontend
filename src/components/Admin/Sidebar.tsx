@@ -87,6 +87,17 @@ const navigationItems: NavItem[] = [
     ],
   },
   {
+    title: "Subject Management",
+    icon: FileText,
+    children: [
+    {
+      title: "All Subjects",
+      href: "/admin/subjects",
+      icon: FileText
+    }
+    ]
+  },
+  {
     title: "Content Management",
     icon: FileText,
     children: [
