@@ -10,4 +10,5 @@ export const userAPI = {
     createUser: "/users/create/",
     getStudentList: "/users/get/students/",
     getTutorsList: "/users/tutors/get/minimal/",
+    getStudenStats: "/users/students/get/user-stats/"
 }

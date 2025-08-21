@@ -19,9 +19,8 @@ import { useNavigate } from "react-router-dom";
 
 export default function AdminLoginPage() {
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
   const { loginDetails, setLoginDetails, adminLogin } = useAuthStore();
-  const { fetchAdminSelf, isAdminAuthenticated } = useUserStore();
+  const { fetchAdminSelf, isAdminAuthenticated, isAdminAuthChecked } = useUserStore();
   const [loginPayload, setLoginPayload] = useState(loginDetails);
   const navigate = useNavigate();
 
@@ -37,12 +36,11 @@ export default function AdminLoginPage() {
     const loggedIn = await adminLogin();
     if (loggedIn) {
       fetchAdminSelf();
-      if (isAdminAuthenticated) {
+      if (isAdminAuthChecked && isAdminAuthenticated) {
         navigate("/admin/dashboard");
       }
     }
-    setIsLoading(true);
-    setError("");
+    // setIsLoading(true);
   };
 
   return (

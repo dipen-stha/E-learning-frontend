@@ -6,11 +6,12 @@ export default function GuestRoute({children}: {children: JSX.Element}) {
     const location = useLocation();
     const { isAuthenticated, isAdminAuthenticated, isLoading } = useUserStore();
     if(location.pathname.includes("/admin")){
-        console.log(isAdminAuthenticated)
         if(isLoading) {
             return (<div>Loading...</div>)
         }
-        if(isAdminAuthenticated){
+
+        if(isAdminAuthenticated && location.pathname.includes("/admin/login")){
+
             return <Navigate to="/admin/dashboard" replace />
         }
         return children

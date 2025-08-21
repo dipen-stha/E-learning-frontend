@@ -15,7 +15,11 @@ import { Textarea } from "@/components/ui/Textarea";
 import { Badge } from "@/components/ui/Badge";
 import { Upload, X, Plus, User } from "lucide-react";
 import { useCourseStore } from "@/stores/Courses/Course";
-import { CoursePayload, CourseData, CategoryDetail } from "@/services/types/Course";
+import {
+  CoursePayload,
+  CourseData,
+  CategoryDetail,
+} from "@/services/types/Course";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/Avatar";
 import { useUserStore } from "@/stores/User/User";
 import { MultiSelect } from "../ui/MultiSelect";
@@ -30,12 +34,15 @@ export function CreateCourseForm({
   onSubmit,
   onCancel,
 }: CreateCourseFormProps) {
-  const {
-    setCoursePayload,
-    fetchCategoryList,
-    categoryList,
-  } = useCourseStore();
-  const { fetchTutors, userMinimalList } = useUserStore();
+
+  const setCoursePayload = useCourseStore(state => state.setCoursePayload)
+  const fetchCategoryList = useCourseStore(state => state.fetchCategoryList)
+  const categoryList = useCourseStore(state => state.categoryList)
+  const courseReset = useCourseStore(state => state.reset)
+  const fetchTutors = useUserStore(state => state.fetchTutors)
+  const userMinimalList = useUserStore(state => state.userMinimalList);
+  const userReset = useUserStore(state => state.reset);
+
   const initialPayload: CoursePayload = {
     course: {
       title: "",
@@ -55,7 +62,7 @@ export function CreateCourseForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setCoursePayload(payload);
-    console.log(payload)
+    console.log(payload);
     await onSubmit(payload.course, payload?.file);
   };
 
@@ -92,13 +99,23 @@ export function CreateCourseForm({
   };
 
   const handleCategoriesChange = (value: any) => {
-    updateCourseField("categories_id", value.map((item: CategoryDetail) => item.id))
-  }
+    updateCourseField(
+      "categories_id",
+      value.map((item: CategoryDetail) => item.id)
+    );
+  };
 
   useEffect(() => {
     fetchCategoryList();
     fetchTutors();
   }, []);
+
+  // useEffect(() => {
+  //   return(() => {
+  //     userReset();
+  //     courseReset();
+  //   })
+  // }, [userReset, courseReset])
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -174,7 +191,10 @@ export function CreateCourseForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="categories" className="text-sm font-medium text-gray-700">
+          <Label
+            htmlFor="categories"
+            className="text-sm font-medium text-gray-700"
+          >
             Categories *
           </Label>
           <MultiSelect
@@ -230,13 +250,14 @@ export function CreateCourseForm({
           >
             Instructor *
           </Label>
-            <MultiSelect 
+          <MultiSelect
             getOptionLabel={(option) => option.name}
             getOptionValue={(option) => option.id}
             options={userMinimalList}
-            onChange={(value) => handleSelectValueChange("instructor_id", value)}
-
-/>
+            onChange={(value) =>
+              handleSelectValueChange("instructor_id", value)
+            }
+          />
         </div>
 
         <div className="md:col-span-2 space-y-2">

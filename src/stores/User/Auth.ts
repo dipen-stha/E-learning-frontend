@@ -65,7 +65,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             get().hasLoginError();
         }
     },
-    logout: async() => {
+    logout: () => {
         try{
             localStorage.removeItem("access")
             localStorage.removeItem("refresh")

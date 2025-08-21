@@ -15,7 +15,7 @@ export interface AuthState {
   login: () => Promise<boolean>;
   adminLogin: () => Promise<boolean>;
   refresh: () => Promise<void>;
-  logout: () => Promise<void>;
+  logout: () => void;
 }
 
 
@@ -55,6 +55,17 @@ export interface UserDataPayload{
   is_active: boolean
 }
 
+export interface UserStats {
+    total_count: number
+    active_count: number
+    suspended_count: number
+    monthly_creation: number
+    percent_total_count: number
+    percent_active_count: number
+    percent_monthly_creation: number
+    percent_suspended_count: number
+}
+
 export interface UserPayload {
   user: UserDataPayload;
   avatar: File | null
@@ -64,7 +75,10 @@ export interface UserState {
   userDetailList: UserDetail[] | [];
   userMinimalList: UserMinimal[] | [];
   userDetail: UserDetail | null;
-  userPayload: UserPayload | null
+  userPayload: UserPayload | null;
+  userStats: UserStats;
+  isAuthChecked: boolean;
+  isAdminAuthChecked: boolean;
   isAuthenticated: boolean;
   isAdminAuthenticated: boolean;
   hasError: boolean;
@@ -76,9 +90,11 @@ export interface UserState {
   setUserPayload: (data: UserPayload) => void;
   setUserDetailList: (userList: UserDetail[]) => void;
   fetchStudents: () => Promise<void>;
+  fetchStudentStats: () => Promise<void>;
   fetchTutors: () => Promise<void>;
   completeLoader: () => void;
   fetchSelf: () => void;
   fetchAdminSelf: () => void;
   createUser: (userData: UserDataPayload, file: File | null) => Promise<void>;
+  reset: () => void;
 }

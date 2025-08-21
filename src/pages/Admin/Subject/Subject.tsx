@@ -39,21 +39,28 @@ import {
 } from "lucide-react"
 import { useSubjectStore } from "@/stores/Subjects/Subjects"
 import { getStatusColor, mapStatus } from "@/services/utils/choiceUtils"
+import { useCourseStore } from "@/stores/Courses/Course"
 
 export default function SubjectsPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCourse, setSelectedCourse] = useState("all")
   const [selectedStatus, setSelectedStatus] = useState("all")
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-  const {createSubject, fetchSubjects, subjectDetailList} = useSubjectStore();
+  // const {createSubject, fetchSubjects, subjectDetailList} = useSubjectStore();
+  const createSubject = useSubjectStore(state => state.createSubject)
+  const fetchSubjects = useSubjectStore(state => state.fetchSubjects)
+  const subjectDetailList = useSubjectStore(state => state.subjectDetailList)
+  const fetchSubjectsByCourse = useSubjectStore(state => state.fetchSubjectsByCourse)
+  const isSubjectsLoading = useSubjectStore(state => state.isLoading)
+  const courseMinimal = useCourseStore(state => state.courseMinimal)
+  const fetchMinimal = useCourseStore(state => state.fetchMinimal)
+  const reset = useSubjectStore(state => state.reset)
 
-  const courses = [
-    { id: 1, title: "React Fundamentals" },
-    { id: 2, title: "Python for Beginners" },
-    { id: 3, title: "Advanced JavaScript" },
-    { id: 4, title: "UI/UX Design Principles" },
-    { id: 5, title: "Data Science Basics" },
-  ]
+  const handleCourseChange = (courseId: string) => {
+    setSelectedCourse(courseId);
+    fetchSubjectsByCourse(Number(courseId));
+    console.log(subjectDetailList)
+  }
 
   const handleCreateUnit = () => {
     try{
@@ -66,7 +73,14 @@ export default function SubjectsPage() {
 
   useEffect(() => {
     fetchSubjects();
-  })
+    fetchMinimal();
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      reset();
+    }
+  }, [reset])
 
   return (
     <div className="space-y-6">
@@ -154,13 +168,13 @@ export default function SubjectsPage() {
               />
             </div>
 
-            <Select value={selectedCourse} onValueChange={setSelectedCourse}>
+            <Select value={selectedCourse} onValueChange={handleCourseChange}>
               <SelectTrigger className="w-48">
                 <SelectValue placeholder="Filter by course" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Courses</SelectItem>
-                {courses.map((course) => (
+                {courseMinimal.map((course) => (
                   <SelectItem key={course.id} value={course.id.toString()}>
                     {course.title}
                   </SelectItem>
@@ -170,12 +184,12 @@ export default function SubjectsPage() {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline">
+                <Button variant="outline" className="border-gray-200 shadow-sm">
                   <Filter className="mr-2 h-4 w-4" />
                   Status
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent>
+              <DropdownMenuContent className="bg-white border-gray-200">
                 <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => setSelectedStatus("all")}>All Status</DropdownMenuItem>
@@ -199,8 +213,9 @@ export default function SubjectsPage() {
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
+            {isSubjectsLoading ? <TableBody><TableRow><td>Loading.... </td></TableRow></TableBody> : (
             <TableBody>
-              {subjectDetailList.map((subject) => (
+              {subjectDetailList && subjectDetailList?.map((subject) => (
                 <TableRow key={subject.id} className="border-gray-200">
                   <TableCell>
                     <div className="flex items-center space-x-3">
@@ -220,20 +235,20 @@ export default function SubjectsPage() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <p className="text-sm font-medium text-gray-900">{subject.course.title}</p>
+                    <p className="text-sm font-medium text-gray-900">{subject.course?.title}</p>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-2">
                       <Avatar className="h-6 w-6">
-                        <AvatarImage src={subject.instructor.name || "/placeholder.svg"} />
+                        <AvatarImage src={subject.instructor?.name || "/placeholder.svg"} />
                         <AvatarFallback>
-                          {subject.instructor.name
+                          {subject.instructor?.name
                             .split(" ")
                             .map((n) => n[0])
                             .join("")}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="text-sm text-gray-900">{subject.instructor.name}</span>
+                      <span className="text-sm text-gray-900">{subject.instructor?.name}</span>
                     </div>
                   </TableCell>
                   <TableCell>
@@ -263,7 +278,7 @@ export default function SubjectsPage() {
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
+                      <DropdownMenuContent align="end" className="bg-white border-gray-200">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem>
@@ -300,6 +315,7 @@ export default function SubjectsPage() {
                 </TableRow>
               ))}
             </TableBody>
+            )}
           </Table>
         </CardContent>
       </Card>

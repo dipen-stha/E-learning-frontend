@@ -1,6 +1,6 @@
 import type React from "react";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
@@ -29,7 +29,9 @@ export function CreateUserForm({
   onCancel,
   openModal,
 }: CreateUserFormProps) {
-  const { userPayload, setUserPayload, createUser } = useUserStore();
+  // const { userPayload, setUserPayload, createUser } = useUserStore();
+  const setUserPayload = useUserStore(state => state.setUserPayload)
+  const reset = useUserStore(state => state.reset)
   const initialPayload: UserPayload = {
     user: {
       name: "",
@@ -82,6 +84,12 @@ export function CreateUserForm({
   const handleSelectValueChange = (value: string) => {
     updateUserField("gender", value);
   };
+
+  // useEffect(() => {
+  //   return(() => {
+  //     reset();
+  //   })
+  // }, [reset])
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -181,7 +189,7 @@ export function CreateUserForm({
             <SelectTrigger className="bg-white border-gray-300">
               <SelectValue placeholder="Select a gender" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="border-gray-200">
               <SelectItem value="Male">Male</SelectItem>
               <SelectItem value="Female">Female</SelectItem>
               <SelectItem value="Other">Other</SelectItem>

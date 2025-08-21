@@ -1,28 +1,32 @@
-import { Navigate, useLocation } from "react-router-dom";
-import { useUserStore } from "@/stores/User/User";
-import { type ReactNode } from "react";
+import { JSX, useEffect } from "react";
+import { Navigate } from "react-router-dom";
+import { useUserStore } from "@/stores//User/User";
 
 interface ProtectedRouteProps {
-  children: ReactNode;
+  children: JSX.Element;
+  admin?: boolean; // optional flag for admin routes
 }
 
-const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { isAuthenticated, isAdminAuthenticated, isLoading } = useUserStore();
-  const location = useLocation();
-  if (isLoading) {
-    return <div>Loading.....</div>;
-  }
-  if (location.pathname.includes("/admin")) {
-    if (!isLoading && !isAdminAuthenticated) {
-      return <Navigate to="/admin/login" state={{ from: location }} replace />;
-    }
-  } else {
-    if (!isLoading && !isAuthenticated) {
-      return <Navigate to="/login" state={{ from: location }} replace />;
-    }
+export function ProtectedRoute({ children}: ProtectedRouteProps) {
+  const {
+    isAuthenticated,
+    isAuthChecked,
+    fetchSelf,
+  } = useUserStore();
+
+  useEffect(() => {
+
+      if (!isAuthChecked) fetchSelf();
+  }, [isAuthChecked, fetchSelf]);
+
+  // Show loader until auth check completes
+  if (!isAuthChecked) return <div>Loading...</div>;
+
+  // Redirect if not authenticated
+ if (!isAuthenticated){
+    console.log("Student 403")
+    return <Navigate to="/login"/>;
   }
 
   return children;
-};
-
-export default ProtectedRoute;
+}
