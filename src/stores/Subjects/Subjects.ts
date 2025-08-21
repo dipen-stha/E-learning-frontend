@@ -17,6 +17,7 @@ export const useSubjectStore = create<SubjectState>((set, get) => ({
   // Store only essential state
   subjectPayload: initialPayload,
   subjectDetailList: [],
+  isLoading: false,
 
   // Setter
   setSubjectPayload: (data: Partial<SubjectPayload>) =>
@@ -24,45 +25,45 @@ export const useSubjectStore = create<SubjectState>((set, get) => ({
 
   // Create Subject
   createSubject: async () => {
+    set({isLoading: true})
     const payload = get().subjectPayload;
     if (!payload) return;
 
     try {
       const response = await api.post(subjectAPI.createSubject, payload);
-      get().reset(); // free memory after creating
+      // get().reset(); // free memory after creating
+      set({isLoading: false})
       return response.data;
     } catch (err) {
       console.error("Create subject failed:", err);
+      set({isLoading: false})
       throw err;
     }
   },
 
   // Fetch subjects lazily
   fetchSubjects: async () => {
+    set({isLoading: true})
     try {
       const response = await api.get(subjectAPI.fetchSubjects);
       // Store only minimal data needed
-      set({ subjectDetailList: response.data.map((s: any) => ({
-        id: s.id,
-        title: s.title,
-        course_id: s.course_id,
-      }))});
+      set({ subjectDetailList: response.data, isLoading: false});
       return response.data;
     } catch (err) {
+      set({isLoading: false})
       console.error("Fetch subjects failed:", err);
       throw err;
     }
   },
 
   fetchSubjectsByCourse: async (courseId: number) => {
+    set({isLoading: true})
     try {
       const response = await api.get(subjectAPI.fetchSubjectsByCourse(courseId));
-      set({ subjectDetailList: response.data.map((s: any) => ({
-        id: s.id,
-        title: s.title,
-      }))});
+      set({ subjectDetailList: response.data, isLoading: false});
       return response.data;
     } catch (err) {
+      set({isLoading: false})
       console.error("Fetch subjects by course failed:", err);
       throw err;
     }

@@ -54,11 +54,12 @@ export default function CoursesPage() {
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   // const { createCourse, fetchCourseDetails, courseDetails } = useCourseStore();
-  const createCourse = useCourseStore(state => state.createCourse)
-  const fetchCourseDetails = useCourseStore(state => state.fetchCourseDetails)
-  const courseDetails = useCourseStore(state => state.courseDetails)
-  const reset = useCourseStore(state => state.reset)
-
+  const createCourse = useCourseStore((state) => state.createCourse);
+  const fetchCourseDetails = useCourseStore(
+    (state) => state.fetchCourseDetails
+  );
+  const courseDetails = useCourseStore((state) => state.courseDetails);
+  const reset = useCourseStore((state) => state.reset);
 
   const getCategoryColor = (category: string) => {
     switch (category) {
@@ -91,8 +92,8 @@ export default function CoursesPage() {
   useEffect(() => {
     return () => {
       reset();
-    }
-  }, [reset])
+    };
+  }, [reset]);
 
   return (
     <div className="space-y-6">
@@ -289,14 +290,15 @@ export default function CoursesPage() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    {course.categories.map(category => 
+                    {course.categories.map((category, index) => (
                       <Badge
+                        key={index}
                         variant="secondary"
                         className={getCategoryColor(category)}
                       >
                         {category}
                       </Badge>
-                    )}
+                    ))}
                   </TableCell>
                   <TableCell>
                     <Badge
@@ -348,7 +350,7 @@ export default function CoursesPage() {
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="border-none">
+                      <DropdownMenuContent align="end" className="border-gray-200 bg-white">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem>

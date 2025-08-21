@@ -28,6 +28,7 @@ export interface SubjectDetail {
 export interface SubjectState {
     subjectPayload: SubjectPayload
     subjectDetailList: SubjectDetail[]
+    isLoading: boolean,
 
     setSubjectPayload: (data: SubjectPayload) => void;
 

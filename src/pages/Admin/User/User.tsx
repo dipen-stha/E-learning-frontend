@@ -48,76 +48,23 @@ import { UserDataPayload } from "@/services/types/user";
 
 export default function UsersPage() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedFilter, setSelectedFilter] = useState("all");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const {createUser, fetchStudents, userDetailList} = useUserStore();
-
+  const createUser = useUserStore(state => state.createUser)
+  const fetchStudents = useUserStore(state => state.fetchStudents)
+  const userDetailList = useUserStore(state => state.userDetailList)
+  const fetchStudentStats = useUserStore(state => state.fetchStudentStats)
+  const userStats = useUserStore(state => state.userStats)
 
   useEffect(() => {
     fetchStudents();
+    fetchStudentStats();
   }, [])
-  const users = [
-    {
-      id: 1,
-      name: "John Doe",
-      email: "john@example.com",
-      avatar: "/diverse-students-studying.png",
-      role: "Student",
-      status: "Active",
-      joinDate: "2024-01-15",
-      lastActive: "2 hours ago",
-      coursesEnrolled: 3,
-      coursesCompleted: 1,
-    },
-    {
-      id: 2,
-      name: "Sarah Miller",
-      email: "sarah@example.com",
-      avatar: "/diverse-students-studying.png",
-      role: "Instructor",
-      status: "Active",
-      joinDate: "2023-11-20",
-      lastActive: "1 day ago",
-      coursesEnrolled: 0,
-      coursesCompleted: 0,
-    },
-    {
-      id: 3,
-      name: "Mike Johnson",
-      email: "mike@example.com",
-      avatar: "/diverse-students-studying.png",
-      role: "Student",
-      status: "Inactive",
-      joinDate: "2024-02-10",
-      lastActive: "1 week ago",
-      coursesEnrolled: 2,
-      coursesCompleted: 2,
-    },
-    {
-      id: 4,
-      name: "Emily Brown",
-      email: "emily@example.com",
-      avatar: "/diverse-students-studying.png",
-      role: "Admin",
-      status: "Active",
-      joinDate: "2023-08-05",
-      lastActive: "30 minutes ago",
-      coursesEnrolled: 0,
-      coursesCompleted: 0,
-    },
-    {
-      id: 5,
-      name: "David Wilson",
-      email: "david@example.com",
-      avatar: "/diverse-students-studying.png",
-      role: "Student",
-      status: "Suspended",
-      joinDate: "2024-03-01",
-      lastActive: "3 days ago",
-      coursesEnrolled: 1,
-      coursesCompleted: 0,
-    },
-  ];
+
+  // useEffect(() => {
+  //   return(() => {
+  //     reset();
+  //   }) 
+  // },[reset])
 
   const getStatusColor = (status: boolean) => {
     if(status) {
@@ -142,11 +89,11 @@ export default function UsersPage() {
 
   const handleCreateUser =  async (userData: UserDataPayload, file: File | null) => {
     try{
-       await createUser(userData, file)
+      await createUser(userData, file)
+      await fetchStudents();
       setIsCreateModalOpen(false);
     } catch {
       console.log('error')
-      setIsCreateModalOpen(true);
     }
   };
 
@@ -185,8 +132,8 @@ export default function UsersPage() {
             <Users className="h-4 w-4 text-gray-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-600">2,847</div>
-            <p className="text-xs text-gray-600">+12% from last month</p>
+            <div className="text-2xl font-bold text-gray-600">{userStats.total_count}</div>
+            <p className="text-xs text-gray-600">+{userStats.percent_total_count}% from last month</p>
           </CardContent>
         </Card>
 
@@ -198,8 +145,8 @@ export default function UsersPage() {
             <UserCheck className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-600">2,654</div>
-            <p className="text-xs text-gray-600">93.2% of total users</p>
+            <div className="text-2xl font-bold text-gray-600">{userStats.active_count}</div>
+            <p className="text-xs text-gray-600">{userStats.percent_active_count}% of total users</p>
           </CardContent>
         </Card>
 
@@ -211,8 +158,8 @@ export default function UsersPage() {
             <Calendar className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-600">342</div>
-            <p className="text-xs text-gray-600">+8% from last month</p>
+            <div className="text-2xl font-bold text-gray-600">{userStats.monthly_creation}</div>
+            <p className="text-xs text-gray-600">+{userStats.percent_monthly_creation}% from last month</p>
           </CardContent>
         </Card>
 
@@ -224,8 +171,8 @@ export default function UsersPage() {
             <UserX className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-600">23</div>
-            <p className="text-xs text-gray-600">0.8% of total users</p>
+            <div className="text-2xl font-bold text-gray-600">{userStats.suspended_count}</div>
+            <p className="text-xs text-gray-600">{userStats.percent_suspended_count}% of total users</p>
           </CardContent>
         </Card>
       </div>
@@ -267,25 +214,25 @@ export default function UsersPage() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   className="text-gray-600"
-                  onClick={() => setSelectedFilter("all")}
+                  onClick={() => ""}
                 >
                   All Users
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="text-gray-600"
-                  onClick={() => setSelectedFilter("active")}
+                  onClick={() => ""}
                 >
                   Active
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="text-gray-600"
-                  onClick={() => setSelectedFilter("inactive")}
+                  onClick={() => ""}
                 >
                   Inactive
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="text-gray-600"
-                  onClick={() => setSelectedFilter("suspended")}
+                  onClick={() => ""}
                 >
                   Suspended
                 </DropdownMenuItem>

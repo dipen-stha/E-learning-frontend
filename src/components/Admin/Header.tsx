@@ -13,6 +13,8 @@ import {
 import { Bell, Search, Settings, LogOut, User } from "lucide-react"
 import { Input } from "@/components/ui/Input"
 import { SidebarToggle } from "./Sidebar"
+import { useAuthStore } from "@/stores/User/Auth"
+import { useNavigate } from "react-router-dom"
 
 interface AdminHeaderProps {
   isCollapsed?: boolean
@@ -21,6 +23,15 @@ interface AdminHeaderProps {
 }
 
 export function AdminHeader({ isCollapsed, onToggle, onMobileToggle }: AdminHeaderProps) {
+
+const navigate = useNavigate();
+const logout = useAuthStore(state => state.logout)
+
+const handleLogout = () => {
+  logout();
+  navigate("/admin/login");
+}
+
   return (
     <header className="bg-white border-b border-gray-200 px-6 py-4">
       <div className="flex items-center justify-between text-gray-600">
@@ -60,7 +71,7 @@ export function AdminHeader({ isCollapsed, onToggle, onMobileToggle }: AdminHead
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56 bg-white" align="end" forceMount>
+            <DropdownMenuContent className="w-56 border-gray-200 bg-white" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none text-gray-600">Admin User</p>
@@ -79,7 +90,7 @@ export function AdminHeader({ isCollapsed, onToggle, onMobileToggle }: AdminHead
               <DropdownMenuSeparator />
               <DropdownMenuItem className="text-red-600">
                 <LogOut className="mr-2 h-4 w-4" />
-                <span>Log out</span>
+                <span onClick={handleLogout}>Log out</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
