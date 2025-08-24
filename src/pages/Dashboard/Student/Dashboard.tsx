@@ -13,7 +13,6 @@ import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Progress } from "@/components/ui/Progress";
 import { Badge } from "@/components/ui/Badge";
-import Navigation from "@/components/Navigation";
 import { useUserStore } from "@/stores/User/User";
 import { useUserCourseStore } from "@/stores/UserCourses/UserCourse";
 import { useCourseStore } from "@/stores/Courses/Course";
@@ -61,7 +60,6 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-violet-100 to-cyan-100">
-      <Navigation />
 
       <header className="bg-white/80 backdrop-blur-sm border-b border-violet-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -133,9 +131,11 @@ export default function Dashboard() {
                             <span>{`${course.student_count}`} students</span>
                           </div>
                           <div className="flex items-center gap-4">
+                            <Link to={`/course-detail/${course.id}`}>
                             <Button className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-700 hover:to-cyan-700">
                               {`Enroll Now - $${course.price}`}
                             </Button>
+                            </Link>
                             <Button
                               // variant="link"
                               className="bg-gradient-to-r from-cyan-600 to-violet-600 hover:from-cyan-700 hover:to-violet-700"

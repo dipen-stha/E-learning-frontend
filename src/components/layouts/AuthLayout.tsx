@@ -1,21 +1,27 @@
+
 import type React from "react";
-import type { Metadata } from "next";
-import "@/assets/styles/index.css";
+import Navigation from "../Navigation";
 
-export const metadata: Metadata = {
-  title: "violet Login - Authentication",
-  description: "Beautiful login and signup pages with violet and cyan theme",
-};
-
-export default function RootLayout({
+export default function AuthLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
 
   return (
-    <html lang="en">
-      <body>{children}</body>
-    </html>
-  );
+    <div className="min-h-screen bg-gray-50">
+      <div className="flex">
+
+
+        <div className="flex-1 flex flex-col min-h-screen">
+          <Navigation/>
+
+          {/* Page Content */}
+          <main className="flex-1 bg-gray-100/50">
+            <div className="">{children}</div>
+          </main>
+        </div>
+      </div>
+    </div>
+  )
 }

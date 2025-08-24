@@ -10,5 +10,12 @@ export const courseAPI = {
 export const subjectAPI = {
     createSubject: `${prefix}/subject/create/`,
     fetchSubjects: `${prefix}/subject/get/all/`,
-    fetchSubjectsByCourse: (id: number) => `${prefix}/subject/by_course/${id}/`
+    fetchSubjectsByCourse: (id: number) => `${prefix}/subject/by_course/${id}/`,
+    fetchSubjectMinimal: (id: number) => `${prefix}/subject/minimal/${id}/`
+}
+
+export const UnitAPI = {
+    fetchAllUnits: `${prefix}/unit/get/all/`,
+    createUnit: `${prefix}/unit/create/`,
+    
 }

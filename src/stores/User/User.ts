@@ -1,5 +1,4 @@
 import {
-  UserDataPayload,
   UserDetail,
   UserPayload,
   UserState,
@@ -111,14 +110,17 @@ export const useUserStore = create<UserState>((set, get) => ({
       set({ isLoading: false, hasError: true, isAdminAuthenticated: false, isAdminAuthChecked: true });
     }
   },
-  createUser: async (user: UserDataPayload, file: File | null) => {
+  createUser: async () => {
     get().isLoading = true;
     const formData = new FormData();
+    const payload = get().userPayload
+    const user = payload?.user
+    const file = payload?.avatar
     formData.append(
       "user",
       JSON.stringify({
         ...user,
-        dob: user.dob.toISOString().split("T")[0],
+        dob: user?.dob.toISOString().split("T")[0],
       })
     );
     if (file) {

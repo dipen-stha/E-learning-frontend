@@ -258,9 +258,6 @@ export default function LessonContent() {
     }
   };
 
-  const currentSection = lessonData.sections.find(
-    (section) => section.id === activeSection
-  );
   const completedSections = lessonData.sections.filter(
     (section) => section.completed
   ).length;
@@ -570,7 +567,7 @@ export default function LessonContent() {
                     {lessonData.sections.map((section) => (
                       <div
                         key={section.id}
-                        ref={(el) => (contentRefs.current[section.id] = el)}
+                        ref={(el) => {contentRefs.current[section.id] = el}}
                         className="scroll-mt-4"
                       >
                         <Card className="bg-white/90 backdrop-blur-sm border-violet-200">

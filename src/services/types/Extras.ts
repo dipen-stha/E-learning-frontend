@@ -1,0 +1,20 @@
+export interface ModalCompProps {
+    onSubmit: (data?: any | null, file?: any | null) => void;
+    isOpen: boolean;
+    onCancel: () => void;
+}
+
+export interface ModalActionProps {
+  title: string;
+  onAction: () => void;
+  variant: string;
+}
+
+export interface CreateModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  actions: ModalActionProps[];
+  title: string;
+  children: React.ReactNode;
+  width?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "full";
+}

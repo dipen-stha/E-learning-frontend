@@ -1,18 +1,12 @@
-import React from "react";
 import { motion, AnimatePresence, Variants, Easing } from "framer-motion";
 import { cn } from "@/lib/utils";
-
-interface CreateModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  title: string;
-  children: React.ReactNode;
-  width?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "full";
-}
+import { Button } from "./ui/Button";
+import { CreateModalProps } from "@/services/types/Extras";
 
 export function CreateModal({
   isOpen,
   onClose,
+  actions,
   title,
   children,
   width,
@@ -54,6 +48,19 @@ export function CreateModal({
     },
   };
 
+  const buttonColorStatus = (variant: string | null) => {
+    if (!variant) return "";
+    if (variant === "primary") {
+      return "bg-cyan-600 hover:bg-cyan-700 text-white";
+    } else if (variant === "secondary") {
+      return "bg-gray-900 hover:bg-gray-700 text-white";
+    } else if (variant === "danger") {
+      return "bg-red-600 hover:bg-red-700 text-white";
+    } else if (variant === "default") {
+      return "bg-gray-200 text-gray-900 hover:text-gray-400";
+    }
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -79,12 +86,13 @@ export function CreateModal({
             exit="exit"
             layout
           >
-            <div className="bg-white rounded-lg shadow-xl w-full max-h-[90vh] overflow-y-auto border border-gray-200">
-              <div className="flex justify-between items-center p-4 border-b border-gray-200">
+            <div className="bg-white rounded-lg shadow-xl w-full max-h-[90vh] border border-gray-200 flex flex-col">
+              {/* Sticky Header */}
+              <div className="flex justify-between items-center p-4 border-b border-gray-200 sticky top-0 bg-white z-10">
                 <h2 className="text-xl font-semibold text-gray-900">{title}</h2>
                 <button
                   onClick={onClose}
-                  className="text-gray-500 hover:text-gray-700 focus:outline-none"
+                  className="text-gray-500 hover:text-gray-700 focus:outline-none cursor-pointer"
                   aria-label="Close modal"
                 >
                   <svg
@@ -103,7 +111,22 @@ export function CreateModal({
                   </svg>
                 </button>
               </div>
-              <div className="p-4">{children}</div>
+
+              {/* Scrollable Body */}
+              <div className="p-4 overflow-y-auto">{children}</div>
+              {actions.length > 0 && (
+                <div className="flex justify-end space-x-2 py-4 pr-4 border-t border-gray-200">
+                  {actions.map((action, index) => (
+                    <Button
+                      key={index}
+                      onClick={action.onAction}
+                      className={buttonColorStatus(action?.variant)}
+                    >
+                      {action.title}
+                    </Button>
+                  ))}
+                </div>
+              )}
             </div>
           </motion.div>
         </>

@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/Input"
 import { Badge } from "@/components/ui/Badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table"
-import { Progress } from "@/components/ui/Progress"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,8 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/DropDown"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select"
-import { CreateModal } from "@/components/Modal"
-import { CreateUnitForm } from "@/components/Admin/Subject"
+import { CreateSubjectForm } from "@/components/Admin/Subject"
 import {
   BookOpen,
   Search,
@@ -32,8 +30,6 @@ import {
   Clock,
   Play,
   Pause,
-  FileText,
-  Video,
   CheckCircle,
   Circle,
 } from "lucide-react"
@@ -46,7 +42,6 @@ export default function SubjectsPage() {
   const [selectedCourse, setSelectedCourse] = useState("all")
   const [selectedStatus, setSelectedStatus] = useState("all")
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-  // const {createSubject, fetchSubjects, subjectDetailList} = useSubjectStore();
   const createSubject = useSubjectStore(state => state.createSubject)
   const fetchSubjects = useSubjectStore(state => state.fetchSubjects)
   const subjectDetailList = useSubjectStore(state => state.subjectDetailList)
@@ -62,10 +57,11 @@ export default function SubjectsPage() {
     console.log(subjectDetailList)
   }
 
-  const handleCreateUnit = () => {
+  const handleCreateSubject = async () => {
     try{
-      createSubject();
+      await createSubject();
       setIsCreateModalOpen(false)
+      await fetchSubjects();
     } catch {
 
     }
@@ -320,14 +316,7 @@ export default function SubjectsPage() {
         </CardContent>
       </Card>
 
-      <CreateModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        title="Create New Subject"
-        width="4xl"
-      >
-        <CreateUnitForm onSubmit={handleCreateUnit} onCancel={() => setIsCreateModalOpen(false)} />
-      </CreateModal>
+        <CreateSubjectForm isOpen={isCreateModalOpen} onSubmit={handleCreateSubject} onCancel={() => setIsCreateModalOpen(false)} />
     </div>
   )
 }

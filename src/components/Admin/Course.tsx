@@ -4,16 +4,8 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
-import {
-  Select as CSelect,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
-import { Badge } from "@/components/ui/Badge";
-import { Upload, X, Plus, User } from "lucide-react";
+import { Upload, User } from "lucide-react";
 import { useCourseStore } from "@/stores/Courses/Course";
 import {
   CoursePayload,
@@ -23,25 +15,21 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/Avatar";
 import { useUserStore } from "@/stores/User/User";
 import { MultiSelect } from "../ui/MultiSelect";
-import { UserMinimal } from "@/services/types/user";
-
-interface CreateCourseFormProps {
-  onSubmit: (data: CourseData, file: File | null) => void;
-  onCancel: () => void;
-}
+import { ModalCompProps } from "@/services/types/Extras";
+import { CreateModal } from "../Modal";
+import { Status } from "@/services/utils/choiceUtils";
 
 export function CreateCourseForm({
   onSubmit,
   onCancel,
-}: CreateCourseFormProps) {
+  isOpen,
+}: ModalCompProps) {
+  const setCoursePayload = useCourseStore((state) => state.setCoursePayload);
+  const fetchCategoryList = useCourseStore((state) => state.fetchCategoryList);
+  const categoryList = useCourseStore((state) => state.categoryList);
 
-  const setCoursePayload = useCourseStore(state => state.setCoursePayload)
-  const fetchCategoryList = useCourseStore(state => state.fetchCategoryList)
-  const categoryList = useCourseStore(state => state.categoryList)
-  const courseReset = useCourseStore(state => state.reset)
-  const fetchTutors = useUserStore(state => state.fetchTutors)
-  const userMinimalList = useUserStore(state => state.userMinimalList);
-  const userReset = useUserStore(state => state.reset);
+  const fetchTutors = useUserStore((state) => state.fetchTutors);
+  const userMinimalList = useUserStore((state) => state.userMinimalList);
 
   const initialPayload: CoursePayload = {
     course: {
@@ -53,17 +41,16 @@ export function CreateCourseForm({
       objectives: "",
       categories_id: [],
       instructor_id: null,
+      status: "",
     },
     file: null,
   };
 
   const [payload, setPayload] = useState<CoursePayload>(initialPayload);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setCoursePayload(payload);
-    console.log(payload);
-    await onSubmit(payload.course, payload?.file);
+    await onSubmit();
   };
 
   const updatePayload = (updates: Partial<CoursePayload>) => {
@@ -103,7 +90,21 @@ export function CreateCourseForm({
       "categories_id",
       value.map((item: CategoryDetail) => item.id)
     );
+    console.log(payload);
   };
+
+  const modalActions = [
+    {
+      title: "Create Course",
+      onAction: handleSubmit,
+      variant: "primary"
+    },
+    {
+      title: "Cancel",
+      onAction: onCancel,
+      variant: "danger"
+    },
+  ];
 
   useEffect(() => {
     fetchCategoryList();
@@ -118,12 +119,17 @@ export function CreateCourseForm({
   // }, [userReset, courseReset])
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <CreateModal
+      isOpen={isOpen}
+      onClose={onCancel}
+      title="Create New Course"
+      actions={modalActions}
+    >
       <div className="grid gap-6 md:grid-cols-2">
         {/* Course Thumbnail */}
         <div className="md:col-span-2 flex items-center space-x-4">
           <Avatar className="h-20 w-20">
-            <AvatarImage src={payload?.file || "/placeholder.svg"} />
+            <AvatarImage src={String(payload?.file) || "/placeholder.svg"} />
             <AvatarFallback className="bg-gray-100">
               <User className="h-8 w-8 text-gray-400" />
             </AvatarFallback>
@@ -203,10 +209,27 @@ export function CreateCourseForm({
             getOptionValue={(option) => option.id}
             options={categoryList}
             // value={categories}
-            onChange={handleCategoriesChange}
+            onValueChange={handleCategoriesChange}
             placeholder="Select categories"
             className="basic-multi-select"
             classNamePrefix="select"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label
+            htmlFor="instructor"
+            className="text-sm font-medium text-gray-700"
+          >
+            Instructor *
+          </Label>
+          <MultiSelect
+            getOptionLabel={(option) => option.name}
+            getOptionValue={(option) => option.id}
+            options={userMinimalList}
+            onValueChange={(value) =>
+              handleSelectValueChange("instructor_id", value)
+            }
           />
         </div>
 
@@ -243,23 +266,19 @@ export function CreateCourseForm({
           />
         </div>
 
-        <div className="space-y-2">
-          <Label
-            htmlFor="instructor"
-            className="text-sm font-medium text-gray-700"
-          >
-            Instructor *
+        <div>
+          <Label htmlFor="status" className="text-gray-700">
+            Status *
           </Label>
           <MultiSelect
-            getOptionLabel={(option) => option.name}
-            getOptionValue={(option) => option.id}
-            options={userMinimalList}
-            onChange={(value) =>
-              handleSelectValueChange("instructor_id", value)
+            options={Status}
+            getOptionLabel={(option) => option.label}
+            getOptionValue={(option) => option.value}
+            onValueChange={(value: any) =>
+              handleSelectValueChange("status", value?.value)
             }
           />
         </div>
-
         <div className="md:col-span-2 space-y-2">
           <Label
             htmlFor="requirements"
@@ -296,19 +315,6 @@ export function CreateCourseForm({
           />
         </div>
       </div>
-
-      {/* Form Actions */}
-      <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
-        <Button type="button" variant="outline" onClick={onCancel}>
-          Cancel
-        </Button>
-        <Button
-          type="submit"
-          className="bg-cyan-600 hover:bg-cyan-700 text-white"
-        >
-          Create Course
-        </Button>
-      </div>
-    </form>
+    </CreateModal>
   );
 }
