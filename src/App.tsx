@@ -3,7 +3,7 @@ import HomePage from "@/pages/Index";
 import LoginPage from "@/pages/auth/Login";
 import SignupPage from "@/pages/auth/Signup";
 import ForgotPasswordPage from "@/pages/auth/ForgotPassword";
-import {ProtectedRoute} from "@/components/ProtectedRoute";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AdminProtectedRoute } from "./components/AdminProtectedRoute";
 import GuestRoute from "./components/GuestRoute";
 import Dashboard from "@/pages/Dashboard/Student/Dashboard";
@@ -15,9 +15,10 @@ import AdminLayout from "./components/layouts/AdminLayout";
 import UsersPage from "./pages/Admin/User/User";
 import CoursesPage from "./pages/Admin/Course/Course";
 import SubjectsPage from "./pages/Admin/Subject/Subject";
+import AuthLayout from "./components/layouts/AuthLayout";
+import UnitsPage from "./pages/Admin/Content/Units/Unit";
 
 function App() {
-
   return (
     <div className="App">
       <Routes>
@@ -43,7 +44,9 @@ function App() {
           path="/dashboard"
           element={
             <ProtectedRoute>
+              <AuthLayout>
               <Dashboard />
+              </AuthLayout>
             </ProtectedRoute>
           }
         />
@@ -51,7 +54,9 @@ function App() {
           path="/course-detail/:course_id"
           element={
             <ProtectedRoute>
+              <AuthLayout>
               <CourseDetails />
+              </AuthLayout>
             </ProtectedRoute>
           }
         />
@@ -59,17 +64,14 @@ function App() {
           path="/subject/:subject_id/contents"
           element={
             <ProtectedRoute>
+              <AuthLayout>
               <ContentPage />
+              </AuthLayout>
             </ProtectedRoute>
           }
         />
         <Route path="*" element={<Navigate to="/" replace />} />
-        <Route
-          path="/admin/login"
-          element={
-              <AdminLoginPage />
-          }
-        />
+        <Route path="/admin/login" element={<AdminLoginPage />} />
         <Route
           path="/admin/dashboard"
           element={
@@ -110,6 +112,7 @@ function App() {
             </AdminProtectedRoute>
           }
         ></Route>
+        <Route path="/admin/content/units" element={<AdminProtectedRoute><AdminLayout><UnitsPage /></AdminLayout></AdminProtectedRoute>}/>
       </Routes>
     </div>
   );

@@ -24,6 +24,7 @@ export interface CourseDetail {
     categories: string[] | []
     total_revenue: number | null
     status: string
+    is_enrolled: boolean
 }
 
 export interface SubjectDetail {
@@ -53,6 +54,7 @@ export interface CourseData {
     instructor_id: number | null
     requirements: string
     objectives: string
+    status: string
 }
 
 export interface CoursePayload {
@@ -73,7 +75,7 @@ export interface CourseState {
     setCoursePayload: (data: CoursePayload) => void;
     fetchCourseDetails: () => void;
     fetchCourseById: (course_id: number) => void;
-    createCourse: (data: CourseData, image: File | null) => Promise<void>;
+    createCourse: () => Promise<void>;
     fetchCategoryList: () => Promise<void>;
     fetchMinimal: () => Promise<void>;
     reset: () => void;

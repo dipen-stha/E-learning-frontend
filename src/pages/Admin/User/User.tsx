@@ -41,10 +41,8 @@ import {
   Download,
   Calendar,
 } from "lucide-react";
-import { CreateModal } from "@/components/Modal";
 import { CreateUserForm } from "@/components/Admin/User";
 import { useUserStore } from "@/stores/User/User";
-import { UserDataPayload } from "@/services/types/user";
 
 export default function UsersPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -87,9 +85,9 @@ export default function UsersPage() {
     }
   };
 
-  const handleCreateUser =  async (userData: UserDataPayload, file: File | null) => {
+  const handleCreateUser =  async () => {
     try{
-      await createUser(userData, file)
+      await createUser()
       await fetchStudents();
       setIsCreateModalOpen(false);
     } catch {
@@ -350,17 +348,12 @@ export default function UsersPage() {
       </Card>
 
       {/* Create User Modal */}
-      <CreateModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        title="Create New User"
-      >
+
         <CreateUserForm
+          isOpen={isCreateModalOpen}
           onSubmit={handleCreateUser}
           onCancel={() => setIsCreateModalOpen(false)}
-          openModal={() => setIsCreateModalOpen(true)}
         />
-      </CreateModal>
     </div>
   );
 }

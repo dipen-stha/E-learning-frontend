@@ -1,5 +1,10 @@
 import { MinimalCourse } from "./Course"
-import { Profile, UserMinimal } from "./user"
+import { UserMinimal } from "./user"
+
+export interface SubjectMinimal {
+    id: number
+    title: string
+}
 
 export interface SubjectPayload {
     title: string
@@ -29,11 +34,13 @@ export interface SubjectState {
     subjectPayload: SubjectPayload
     subjectDetailList: SubjectDetail[]
     isLoading: boolean,
+    subjectMinimalList: SubjectMinimal[],
 
     setSubjectPayload: (data: SubjectPayload) => void;
 
     createSubject: () => Promise<void>
     fetchSubjects: () => Promise<void>
     fetchSubjectsByCourse: (courseId: number) => Promise<void>
+    fetchSubjectMinimal: (courseId: number) => Promise<void>;
     reset: () => void;
 }

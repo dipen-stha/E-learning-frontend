@@ -1,6 +1,6 @@
 import type React from "react";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
@@ -11,27 +11,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/Select";
-import { Textarea } from "@/components/ui/Textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
 import { Upload, User } from "lucide-react";
 import { useUserStore } from "@/stores/User/User";
 import { Checkbox } from "../ui/Checkbox";
 import { UserDataPayload, UserPayload } from "@/services/types/user";
+import { ModalCompProps } from "@/services/types/Extras";
+import { CreateModal } from "../Modal";
 
-interface CreateUserFormProps {
-  onSubmit: (userData: UserDataPayload, file: File | null) => void;
-  onCancel: () => void;
-  openModal: () => void;
-}
 
 export function CreateUserForm({
   onSubmit,
   onCancel,
-  openModal,
-}: CreateUserFormProps) {
+  isOpen,
+}: ModalCompProps) {
   // const { userPayload, setUserPayload, createUser } = useUserStore();
   const setUserPayload = useUserStore(state => state.setUserPayload)
-  const reset = useUserStore(state => state.reset)
   const initialPayload: UserPayload = {
     user: {
       name: "",
@@ -48,10 +43,9 @@ export function CreateUserForm({
 
   const [payload, setPayload] = useState<UserPayload>(initialPayload);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setUserPayload(payload);
-    await onSubmit(payload.user, payload?.avatar);
+    await onSubmit();
   };
 
   const updatePayload = (updates: Partial<UserPayload>) => {
@@ -85,19 +79,31 @@ export function CreateUserForm({
     updateUserField("gender", value);
   };
 
-  // useEffect(() => {
-  //   return(() => {
-  //     reset();
-  //   })
-  // }, [reset])
+  const modalOptions = [
+    {
+      title: "Create User",
+      onAction: handleSubmit,
+      variant: "primary"
+    },
+    {
+      title: "Cancel",
+      onAction: onCancel,
+      variant: "danger"
+    }
+  ]
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <CreateModal
+        isOpen={isOpen}
+        onClose={onCancel}
+        title="Create New User"
+        actions={modalOptions}
+      >
       <div className="grid gap-6 md:grid-cols-2">
         {/* Profile Picture */}
         <div className="md:col-span-2 flex items-center space-x-4">
           <Avatar className="h-20 w-20">
-            <AvatarImage src={payload?.avatar || "/placeholder.svg"} />
+            <AvatarImage src={String(payload?.avatar) || "/placeholder.svg"} />
             <AvatarFallback className="bg-gray-100">
               <User className="h-8 w-8 text-gray-400" />
             </AvatarFallback>
@@ -247,19 +253,6 @@ export function CreateUserForm({
           ></Checkbox>
         </div>
       </div>
-
-      {/* Form Actions */}
-      <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
-        <Button type="button" variant="outline" onClick={onCancel}>
-          Cancel
-        </Button>
-        <Button
-          type="submit"
-          className="bg-cyan-600 hover:bg-cyan-700 text-white"
-        >
-          Create User
-        </Button>
-      </div>
-    </form>
+    </CreateModal>
   );
 }

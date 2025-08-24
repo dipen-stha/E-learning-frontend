@@ -95,6 +95,6 @@ export interface UserState {
   completeLoader: () => void;
   fetchSelf: () => void;
   fetchAdminSelf: () => void;
-  createUser: (userData: UserDataPayload, file: File | null) => Promise<void>;
+  createUser: () => Promise<void>;
   reset: () => void;
 }

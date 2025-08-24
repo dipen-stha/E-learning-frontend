@@ -17,6 +17,7 @@ export const useSubjectStore = create<SubjectState>((set, get) => ({
   // Store only essential state
   subjectPayload: initialPayload,
   subjectDetailList: [],
+  subjectMinimalList: [],
   isLoading: false,
 
   // Setter
@@ -66,6 +67,18 @@ export const useSubjectStore = create<SubjectState>((set, get) => ({
       set({isLoading: false})
       console.error("Fetch subjects by course failed:", err);
       throw err;
+    }
+  },
+  fetchSubjectMinimal: async(courseId: number) => {
+    set({isLoading: true})
+    try{
+      const response = await api.get(subjectAPI.fetchSubjectMinimal(courseId))
+      if(response.data){
+        set({subjectMinimalList: response.data})
+      }
+      set({isLoading:false})
+    } catch (error){
+      set({isLoading:false})
     }
   },
 

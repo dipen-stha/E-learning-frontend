@@ -75,6 +75,11 @@ const navigationItems: NavItem[] = [
     icon: FileText,
     children: [
       {
+        title: "Units",
+        href: "/admin/content/units",
+        icon: FileText,
+      },
+      {
         title: "Lessons",
         href: "/admin/content/lessons",
         icon: FileText,

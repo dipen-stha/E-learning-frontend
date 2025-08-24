@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import api from "@/services/api/interceptor";
 import { courseAPI } from "@/services/api/endpoints/courses";
-import { CourseState, CourseDetail, CoursePayload, CourseData } from "@/services/types/Course";
+import { CourseState, CourseDetail, CoursePayload } from "@/services/types/Course";
 
 // Initial payload
 const initialCoursePayload: CoursePayload = {
@@ -14,6 +14,7 @@ const initialCoursePayload: CoursePayload = {
     objectives: "",
     categories_id: [],
     instructor_id: null,
+    status: ""
   },
   file: null,
 }
@@ -63,11 +64,12 @@ export const useCourseStore = create<CourseState>((set, get) => ({
     }
   },
 
-  createCourse: async (data: CourseData, file: File | null) => {
+  createCourse: async () => {
     set({ isLoading: true });
     const formData = new FormData();
-    formData.append("course", JSON.stringify(data));
-    if (file) formData.append("file", file);
+    const payload = get().coursePayload
+    formData.append("course", JSON.stringify(payload?.course));
+    if (payload?.file) formData.append("file", payload?.file);
 
     try {
       const response = await api.post(courseAPI.createCourse, formData, {

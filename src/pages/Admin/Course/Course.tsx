@@ -18,7 +18,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/Table";
-import { Progress } from "@/components/ui/Progress";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -41,11 +40,8 @@ import {
   Clock,
   TrendingUp,
   Play,
-  Pause,
 } from "lucide-react";
-import { CreateModal } from "@/components/Modal";
 import { CreateCourseForm } from "@/components/Admin/Course";
-import { CourseData } from "@/services/types/Course";
 import { useCourseStore } from "@/stores/Courses/Course";
 import { getStatusColor, mapStatus } from "@/services/utils/choiceUtils";
 
@@ -53,7 +49,6 @@ export default function CoursesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  // const { createCourse, fetchCourseDetails, courseDetails } = useCourseStore();
   const createCourse = useCourseStore((state) => state.createCourse);
   const fetchCourseDetails = useCourseStore(
     (state) => state.fetchCourseDetails
@@ -76,9 +71,10 @@ export default function CoursesPage() {
     }
   };
 
-  const handleCreateCourse = async (data: CourseData, file: File | null) => {
+  const handleCreateCourse = async () => {
     try {
-      await createCourse(data, file);
+
+      await createCourse();
       setIsCreateModalOpen(false);
     } catch (error) {
       // setIsCreateModalOpen(true);
@@ -391,17 +387,11 @@ export default function CoursesPage() {
         </CardContent>
       </Card>
 
-      <CreateModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        title="Create New Course"
-        width="4xl"
-      >
         <CreateCourseForm
+          isOpen={isCreateModalOpen}
           onSubmit={handleCreateCourse}
           onCancel={() => setIsCreateModalOpen(false)}
         />
-      </CreateModal>
     </div>
   );
 }
