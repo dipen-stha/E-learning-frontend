@@ -76,7 +76,6 @@ export default function UnitsPage() {
     setSelectedCourse(courseId);
     fetchSubjectMinimal(Number(courseId));
     // fetchSubjectsByCourse(Number(courseId));
-    console.log(selectedStatus)
   };
 
   const handleCreateUnit = async () => {

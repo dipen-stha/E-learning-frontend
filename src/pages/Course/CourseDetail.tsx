@@ -166,7 +166,7 @@ export default function CourseDetails() {
     : courseItem?.subjects;
 
   const handleStartLesson = (subjectId: number) => {
-    console.log(subjectId);
+
   };
 
   const toggleUnit = (unitId: number) => {

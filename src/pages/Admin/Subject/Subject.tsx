@@ -54,7 +54,6 @@ export default function SubjectsPage() {
   const handleCourseChange = (courseId: string) => {
     setSelectedCourse(courseId);
     fetchSubjectsByCourse(Number(courseId));
-    console.log(subjectDetailList)
   }
 
   const handleCreateSubject = async () => {
