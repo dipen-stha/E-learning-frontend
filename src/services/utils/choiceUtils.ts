@@ -21,3 +21,10 @@
         return "bg-gray-100 text-gray-800";
     }
   };
+
+  export const PaymentMethods = [
+    {value: "STRIPE", label: "Stripe"},
+    {value: "CARD", label: "Card"},
+    {value: "PAYPAL", label: "Paypal"},
+    {value: "GPAY", label: "Gpay"}
+  ]
