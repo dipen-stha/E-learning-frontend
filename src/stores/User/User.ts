@@ -124,7 +124,7 @@ export const useUserStore = create<UserState>((set, get) => ({
       })
     );
     if (file) {
-      formData.append("image", file);
+      formData.append("file", file);
     }
     try {
       await api.post(userAPI.createUser, formData, {
@@ -132,7 +132,7 @@ export const useUserStore = create<UserState>((set, get) => ({
           "Content-Type": "multipart/form-data",
         },
       });
-      set({ hasError: false, isLoading: false });
+      set({ hasError: false, isLoading: false, userPayload: initialPayload });
       return;
     } catch (error) {
       set({ isLoading: false, hasError: true });

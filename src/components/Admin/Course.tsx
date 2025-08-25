@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import { Textarea } from "@/components/ui/Textarea";
-import { Upload, User } from "lucide-react";
+import { FileVideoCamera, Upload, User } from "lucide-react";
 import { useCourseStore } from "@/stores/Courses/Course";
 import {
   CoursePayload,
@@ -82,7 +82,11 @@ export function CreateCourseForm({
   };
 
   const handleSelectValueChange = (field: keyof CourseData, value: any) => {
-    updateCourseField(field, value.id);
+    if(typeof value === 'string') {
+      updateCourseField(field, value)
+    } else{
+      updateCourseField(field, value.id);
+    }
   };
 
   const handleCategoriesChange = (value: any) => {
@@ -90,7 +94,6 @@ export function CreateCourseForm({
       "categories_id",
       value.map((item: CategoryDetail) => item.id)
     );
-    console.log(payload);
   };
 
   const modalActions = [
