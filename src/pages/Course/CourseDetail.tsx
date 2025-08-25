@@ -19,6 +19,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useCourseStore } from "@/stores/Courses/Course";
 import { useUserCourseStore } from "@/stores/UserCourses/UserCourse";
 import { EnrollCourse } from "../Enrollment/Payment";
+import { useEnrollStore } from "@/stores/Courses/Enrollment";
+import { useStripe, useElements } from "@stripe/react-stripe-js";
+import { useUserStore } from "@/stores/User/User";
 // Mock course data with detailed units
 const courseData = {
   id: 1,
@@ -123,7 +126,7 @@ export default function CourseDetails() {
   const [showEnrollModal, setShowEnrollModal] = useState(false);
   const { fetchUserCourseByCourse, userCourseItem, isEnrolledToCourse } =
     useUserCourseStore();
-
+  const userItem = useUserStore((state) => state.userDetail);
   const plan = {
     id: "full",
     name: "Full Course Access",
@@ -140,6 +143,12 @@ export default function CourseDetails() {
   };
 
   const [selectedPlan, setSelectedPlan] = useState("full");
+  const makePayment = useEnrollStore(state => state.makePayment);
+  const paymentDetail = useEnrollStore(state => state.paymentDetail)
+  const enrollPayload = useEnrollStore(state => state.enrollmentPayload)
+  const setEnrollPayload = useEnrollStore(state => state.setPayload)
+  const [payload, setPayload] = useState(enrollPayload);
+
 
   const handleBackToDashboard = () => {
     // This would handle navigation back to dashboard
@@ -149,11 +158,30 @@ export default function CourseDetails() {
   const handleEnrollClick = () => {
     setShowEnrollModal(true);
   };
-  const enrollCourse = () => {};
+  const enrollCourse = () => {
+    console.log(courseItem, userItem)
+    if(courseItem && userItem){
+      console.log("true")
+    setPayload({
+        ...payload,
+        course_id: courseItem.id,
+        user_id: userItem.id,
+        amount: courseItem.price,
+        provider: "STRIPE",
+        status: "PENDING",
+      });
+    console.log(payload)
+    setEnrollPayload(payload);
+    makePayment();
+    }
+
+
+  };
 
   const onCancelCourseEnrollment = () => {
     setShowEnrollModal(false);
   };
+
   const mergedSubjects = isEnrolledToCourse
     ? courseItem?.subjects.map((subject) => {
         const enrolledSubject = userCourseItem?.subjects.find(
@@ -174,10 +202,8 @@ export default function CourseDetails() {
   };
 
   useEffect(() => {
-    if (course_id) {
       fetchCourseById(Number(course_id));
       fetchUserCourseByCourse(Number(course_id));
-    }
   }, []);
 
   return (
@@ -577,6 +603,7 @@ export default function CourseDetails() {
         isOpen={showEnrollModal}
         onSubmit={enrollCourse}
         onCancel={onCancelCourseEnrollment}
+        courseId={Number(course_id)}
       />
     </div>
   );
