@@ -8,6 +8,7 @@ export interface CategoryDetail {
 export interface MinimalCourse {
     id: number
     title: string
+    image_url: string
 }
 
 export interface CourseDetail {
@@ -95,12 +96,55 @@ export interface PaymentDetail {
     url: string
 }
 
+export interface UserEnrollment {
+    instructor: string
+    course: MinimalCourse
+    next_subject: string
+    completion_percent: number
+    total_subjects:number
+    completed_subjects: number
+    is_completed: boolean
+    is_started: boolean
+    subjects: SubjectDetail[]
+}
+
 export interface EnrollmentState {
     enrollmentPayload: EnrollPayload
     paymentSuccess: boolean
     paymentDetail: PaymentDetail | null
     isLoading: boolean
+    userCourseEnrollmentItem: UserEnrollment | null
+    userCourseEnrollmentsList: UserEnrollment[] 
 
-    makePayment: () => void;
     setPayload: (data: EnrollPayload) => void;
+    makePayment: () => void;
+    fetchUserEnrollmentByCourse: (courseId: number) => Promise<void>; 
+    fetchUserEnrollments: () => Promise<void>;
+}
+
+export interface UnitContentData{
+    completion_time: number
+    order: number
+    description: string
+    content_type: string
+    status: string
+    video_time_stamps: ContentVideoTimeStamps[]
+    unit_id: number | null
+}
+
+export interface ContentVideoTimeStamps {
+    title: string
+    video_stamp: string
+}
+
+export interface UnitContentPayload {
+    content: UnitContentData
+    file: File | null
+}
+
+export interface UnitContentState {
+    payload: UnitContentPayload;
+    isLoading: boolean;
+    setPayload: (data: UnitContentPayload) => void;
+    createUnitContent: () => Promise<void>;
 }

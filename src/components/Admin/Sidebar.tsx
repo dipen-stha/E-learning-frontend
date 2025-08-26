@@ -20,6 +20,7 @@ import {
   Shield,
   Menu,
   X,
+  Video,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Link, useLocation } from "react-router-dom"
@@ -80,9 +81,9 @@ const navigationItems: NavItem[] = [
         icon: FileText,
       },
       {
-        title: "Lessons",
-        href: "/admin/content/lessons",
-        icon: FileText,
+        title: "Unit Contents",
+        href: "/admin/content/unit-contents",
+        icon: Video,
       },
       {
         title: "Assignments",

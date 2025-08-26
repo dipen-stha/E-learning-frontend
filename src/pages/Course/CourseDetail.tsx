@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Progress } from "@/components/ui/Progress";
 import { Badge } from "@/components/ui/Badge";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useCourseStore } from "@/stores/Courses/Course";
 import { useUserCourseStore } from "@/stores/UserCourses/UserCourse";
 import { EnrollCourse } from "../Enrollment/Payment";
@@ -144,7 +144,8 @@ export default function CourseDetails() {
 
   const [selectedPlan, setSelectedPlan] = useState("full");
   const makePayment = useEnrollStore(state => state.makePayment);
-  const paymentDetail = useEnrollStore(state => state.paymentDetail)
+  const fetchUserEnrollmentByCourse = useEnrollStore(state => state.fetchUserEnrollmentByCourse)
+  const userCourseEnrollmentItem = useEnrollStore(state => state.userCourseEnrollmentItem)
   const enrollPayload = useEnrollStore(state => state.enrollmentPayload)
   const setEnrollPayload = useEnrollStore(state => state.setPayload)
   const [payload, setPayload] = useState(enrollPayload);
@@ -161,17 +162,16 @@ export default function CourseDetails() {
   const enrollCourse = () => {
     console.log(courseItem, userItem)
     if(courseItem && userItem){
-      console.log("true")
-    setPayload({
+      const updatedPayload = {
         ...payload,
         course_id: courseItem.id,
         user_id: userItem.id,
         amount: courseItem.price,
         provider: "STRIPE",
         status: "PENDING",
-      });
-    console.log(payload)
-    setEnrollPayload(payload);
+      }
+    setPayload(updatedPayload);
+    setEnrollPayload(updatedPayload);
     makePayment();
     }
 
@@ -202,8 +202,17 @@ export default function CourseDetails() {
   };
 
   useEffect(() => {
-      fetchCourseById(Number(course_id));
-      fetchUserCourseByCourse(Number(course_id));
+    const load = async () => {
+      try{
+        await fetchUserEnrollmentByCourse(Number(course_id))
+        await fetchCourseById(Number(course_id));
+      } catch (error: any) {
+        if (error?.status === 404){
+          navigate("/dashboard")
+        }
+      }
+    }
+    load()
   }, []);
 
   return (
@@ -225,7 +234,7 @@ export default function CourseDetails() {
 
           <div className="flex flex-col lg:flex-row gap-8 border-gray-200">
             <div className="lg:w-2/3">
-              {courseItem?.is_enrolled && (
+              {userCourseEnrollmentItem && (
                 <div className="flex items-center gap-2 mb-3">
                   <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200">
                     In Progress
@@ -234,8 +243,8 @@ export default function CourseDetails() {
                     variant="outline"
                     className="border-amber-300 text-amber-700 bg-amber-50"
                   >
-                    {userCourseItem?.completed_subjects}/
-                    {userCourseItem?.total_subjects} Lessons
+                    {userCourseEnrollmentItem?.completed_subjects}/
+                    {userCourseEnrollmentItem?.total_subjects} Lessons
                   </Badge>
                 </div>
               )}
@@ -274,29 +283,28 @@ export default function CourseDetails() {
               <p className="text-gray-600 mb-6">{courseItem?.description}</p>
 
               {/* Overall Progress */}
-              {courseItem?.is_enrolled ? (
-                <div className="bg-gradient-to-r from-white/80 to-rose-50/80 backdrop-blur-sm rounded-lg p-4 mb-6 border border-rose-200">
+              {userCourseEnrollmentItem ?
+                (<div className="bg-gradient-to-r from-white/80 to-rose-50/80 backdrop-blur-sm rounded-lg p-4 mb-6 border border-rose-200">
                   <div className="flex items-center justify-between mb-2">
                     <span className="font-semibold text-gray-800">
                       Course Progress
                     </span>
                     <span className="text-2xl font-bold bg-gray-700 bg-clip-text text-transparent">
-                      {userCourseItem?.completion_percent}%
+                      {userCourseEnrollmentItem?.completion_percent || 0}%
                     </span>
                   </div>
                   <Progress
-                    value={userCourseItem?.completion_percent}
+                    value={userCourseEnrollmentItem?.completion_percent || 0}
                     className="h-3 mb-2"
                   />
                   <p className="text-sm text-gray-600">
                     Next:{" "}
                     <span className="text-emerald-600 font-medium">
-                      {userCourseItem?.next_subject}
+                      {userCourseEnrollmentItem?.next_subject}
                     </span>{" "}
-                    in {userCourseItem?.course.title}
+                    in {userCourseEnrollmentItem?.course.title}
                   </p>
-                </div>
-              ) : (
+                </div>) : (
                 <>
                   <Button
                     variant="outline"
@@ -312,20 +320,22 @@ export default function CourseDetails() {
             <div className="lg:w-1/3">
               <Card className="bg-white/90 backdrop-blur-sm border-2 border-transparent bg-gradient-to-r from-violet-200 via-rose-200 to-cyan-200 p-0.5 rounded-lg sticky top-24">
                 <div className="bg-white/95 rounded-lg">
-                  {courseItem?.is_enrolled ? (
+                  {userCourseEnrollmentItem ? (
                     <CardContent className="p-6">
                       <img
                         src={courseItem?.image_url || "/placeholder.svg"}
                         alt={courseItem?.title}
                         className="w-full h-48 object-cover rounded-lg mb-4 border-2 border-indigo-100"
                       />
+                      <Link to={`/subject/${course_id}/contents`}>
                       <Button
                         className="w-full bg-gradient-to-r from-emerald-500 to-cyan-600 hover:from-emerald-600 hover:to-cyan-700 mb-3 shadow-lg"
                         onClick={() => handleStartLesson(3)}
                       >
                         <Play className="w-4 h-4 mr-2" />
-                        Continue Learning
+                        {userCourseEnrollmentItem.is_started ? 'Continute Learning' : `Start Course`}
                       </Button>
+                      </Link>
                       <Button
                         variant="outline"
                         className="w-full bg-gray-200 border-rose-300 text-sky-600 hover:bg-rose-50"
@@ -417,7 +427,7 @@ export default function CourseDetails() {
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                      {isEnrolledToCourse &&
+                      {userCourseEnrollmentItem && (userCourseEnrollmentItem.is_started || userCourseEnrollmentItem.is_completed) &&
                         subject.completion_percent != null && (
                           <div
                             className={`flex items-center justify-center w-10 h-10 rounded-full ${
@@ -454,7 +464,7 @@ export default function CourseDetails() {
                             <Clock className="w-3 h-3 text-emerald-500" />
                             {`${subject.completion_time} hours`}
                           </span>
-                          {isEnrolledToCourse && (
+                          {userCourseEnrollmentItem && (userCourseEnrollmentItem.is_started || userCourseEnrollmentItem.is_completed) && (
                             <span className="text-amber-600 font-medium">
                               {subject.completed_units}/{subject.total_units}{" "}
                               completed
@@ -463,7 +473,7 @@ export default function CourseDetails() {
                         </div>
                       </div>
                     </div>
-                    {isEnrolledToCourse &&
+                    {userCourseEnrollmentItem && (userCourseEnrollmentItem.is_started || userCourseEnrollmentItem.is_completed) &&
                       subject.completion_percent != null && (
                         <div className="text-right">
                           <div
@@ -548,7 +558,7 @@ export default function CourseDetails() {
           </div>
         </section>
 
-        {courseItem?.is_enrolled && (
+        {userCourseEnrollmentItem && (
           <section>
             <h2 className="text-3xl font-bold bg-gradient-to-r from-violet-600 to-cyan-600 bg-clip-text text-transparent mb-6">
               Your Progress

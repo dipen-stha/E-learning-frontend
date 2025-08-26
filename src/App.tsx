@@ -17,6 +17,7 @@ import CoursesPage from "./pages/Admin/Course/Course";
 import SubjectsPage from "./pages/Admin/Subject/Subject";
 import AuthLayout from "./components/layouts/AuthLayout";
 import UnitsPage from "./pages/Admin/Content/Units/Unit";
+import UnitContents from "./pages/Admin/Content/UnitContents/UnitContents";
 
 function App() {
   return (
@@ -45,7 +46,7 @@ function App() {
           element={
             <ProtectedRoute>
               <AuthLayout>
-              <Dashboard />
+                <Dashboard />
               </AuthLayout>
             </ProtectedRoute>
           }
@@ -55,7 +56,7 @@ function App() {
           element={
             <ProtectedRoute>
               <AuthLayout>
-              <CourseDetails />
+                <CourseDetails />
               </AuthLayout>
             </ProtectedRoute>
           }
@@ -65,7 +66,7 @@ function App() {
           element={
             <ProtectedRoute>
               <AuthLayout>
-              <ContentPage />
+                <ContentPage />
               </AuthLayout>
             </ProtectedRoute>
           }
@@ -112,7 +113,25 @@ function App() {
             </AdminProtectedRoute>
           }
         ></Route>
-        <Route path="/admin/content/units" element={<AdminProtectedRoute><AdminLayout><UnitsPage /></AdminLayout></AdminProtectedRoute>}/>
+        <Route
+          path="/admin/content/units"
+          element={
+            <AdminProtectedRoute>
+              <AdminLayout>
+                <UnitsPage />
+              </AdminLayout>
+            </AdminProtectedRoute>
+          }
+        />
+        <Route path="/admin/content/unit-contents"
+          element={
+            <AdminProtectedRoute>
+              <AdminLayout>
+                <UnitContents />
+              </AdminLayout>
+            </AdminProtectedRoute>
+          }
+        />
       </Routes>
     </div>
   );

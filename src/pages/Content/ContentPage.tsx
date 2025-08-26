@@ -363,7 +363,6 @@ export default function LessonContent() {
       ref={mainContainerRef}
       className="h-screen overflow-hidden bg-gradient-to-br from-violet-100 to-cyan-100"
     >
-      <Navigation />
 
       <div className="relative h-full">
         {/* Header Page */}
