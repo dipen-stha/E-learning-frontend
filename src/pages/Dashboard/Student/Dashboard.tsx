@@ -17,6 +17,7 @@ import { useUserStore } from "@/stores/User/User";
 import { useUserCourseStore } from "@/stores/UserCourses/UserCourse";
 import { useCourseStore } from "@/stores/Courses/Course";
 import { Link } from "react-router";
+import { useEnrollStore } from "@/stores/Courses/Enrollment";
 
 // Mock data for courses
 
@@ -37,6 +38,8 @@ export default function Dashboard() {
     userCourseStats,
   } = useUserCourseStore();
   const { fetchCourseDetails, courseDetails } = useCourseStore();
+  const enrolledCourses = useEnrollStore(state => state.userCourseEnrollmentsList);
+  const fetchEnrolledCourses = useEnrollStore(state => state.fetchUserEnrollments)
   const userName = userDetail?.profile.name;
   const userId = userDetail?.id;
 
@@ -56,6 +59,7 @@ export default function Dashboard() {
       fetchUserCourseStats(userId);
     }
     fetchCourseDetails();
+    fetchEnrolledCourses();
   }, []);
 
   return (
@@ -196,7 +200,7 @@ export default function Dashboard() {
         <section className="mb-12">
           <h2 className="text-3xl font-bold text-gray-800 mb-6">My Courses</h2>
           <div className="grid gap-6">
-            {userCourseDetails.map((userCourse, index) => (
+            {enrolledCourses.map((userCourse, index) => (
               <Card
                 key={index}
                 className="bg-white/90 backdrop-blur-sm border-violet-200 hover:shadow-lg transition-shadow"
@@ -204,7 +208,7 @@ export default function Dashboard() {
                 <CardContent className="p-6">
                   <div className="flex items-center gap-6">
                     <img
-                      src={userCourse.course.image_url || "/placeholder.svg"}
+                      src={userCourse.course?.image_url || "/placeholder.svg"}
                       alt={userCourse.course.title}
                       className="w-20 h-20 rounded-lg object-cover"
                     />
@@ -215,7 +219,7 @@ export default function Dashboard() {
                         </Link>
                       </h3>
                       <p className="text-gray-600 mb-3">
-                        by {userCourse.course.instructor?.name}
+                        by {userCourse.instructor}
                       </p>
                       <div className="flex items-center gap-4 mb-3">
                         <div className="flex-1">
@@ -227,13 +231,13 @@ export default function Dashboard() {
                             </span>
                           </div>
                           <Progress
-                            value={userCourse.completion_percent}
+                            value={userCourse.completion_percent || 0}
                             className="h-2"
                           />
                         </div>
                         <div className="text-right">
                           <div className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-cyan-600 bg-clip-text text-transparent">
-                            {userCourse.completion_percent}%
+                            {userCourse.completion_percent || 0}%
                           </div>
                         </div>
                       </div>
@@ -241,10 +245,12 @@ export default function Dashboard() {
                         Next: {userCourse.next_subject}
                       </p>
                     </div>
+                    <Link to={`/subject/${userCourse.course.id}/contents`}>
                     <Button className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-700 hover:to-cyan-700">
                       <Play className="w-4 h-4 mr-2" />
                       Continue
                     </Button>
+                    </Link>
                   </div>
                 </CardContent>
               </Card>

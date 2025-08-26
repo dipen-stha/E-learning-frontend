@@ -44,10 +44,8 @@ export const useCourseStore = create<CourseState>((set, get) => ({
       const response = await api.get(courseAPI.fetchAll);
       if (response.data) set({ courseDetails: response.data });
     } catch (error) {
-      console.error("Failed to fetch courses:", error);
-      throw error;
-    } finally {
       set({ isLoading: false });
+      throw error;
     }
   },
 
@@ -57,10 +55,8 @@ export const useCourseStore = create<CourseState>((set, get) => ({
       const response = await api.get(courseAPI.fetchById(courseId));
       if (response.data) set({ courseItem: response.data });
     } catch (error) {
-      console.error(`Failed to fetch course ${courseId}:`, error);
-      throw error;
-    } finally {
       set({ isLoading: false });
+      throw error;
     }
   },
 
@@ -77,10 +73,9 @@ export const useCourseStore = create<CourseState>((set, get) => ({
       });
       return response.data;
     } catch (error) {
+      set({isLoading: false})
       console.error("Failed to create course:", error);
       throw error;
-    } finally {
-      set({ isLoading: false });
     }
   },
 

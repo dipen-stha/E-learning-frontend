@@ -53,7 +53,7 @@ import { getStatusColor, mapStatus } from "@/services/utils/choiceUtils";
 import { useCourseStore } from "@/stores/Courses/Course";
 import { useUnitStore } from "@/stores/Unit/Unit";
 
-export default function UnitsPage() {
+export default function UnitContents() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCourse, setSelectedCourse] = useState("all");
   const [selectedSubject, setSelectedSubject] = useState("all");

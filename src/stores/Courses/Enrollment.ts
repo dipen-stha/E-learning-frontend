@@ -2,12 +2,10 @@ import { create } from "zustand";
 
 import {
   EnrollPayload,
-  PaymentDetail,
   EnrollmentState,
 } from "@/services/types/Course";
 import api from "@/services/api/interceptor";
 import { enrollAPI } from "@/services/api/endpoints/courses";
-import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
 
 const initialPayload = {
   user_id: null,
@@ -22,6 +20,8 @@ const initialState = {
   paymentSuccess: false,
   paymentDetail: null,
   isLoading: false,
+  userCourseEnrollmentItem: null,
+userCourseEnrollmentsList: []
 };
 
 export const useEnrollStore = create<EnrollmentState>((set, get) => ({
@@ -38,8 +38,27 @@ export const useEnrollStore = create<EnrollmentState>((set, get) => ({
         set({ enrollmentPayload: initialPayload });
         window.location.href=response.data.url
       }
-    } catch {
-      console.log();
+    } catch (error) {
+      throw error
     }
   },
+  fetchUserEnrollmentByCourse: async(courseId: number) => {
+    try{
+      set({isLoading: true})
+      const response = await api.get(enrollAPI.fetchUserCourseById(courseId))
+      set({userCourseEnrollmentItem: response.data})
+      set({isLoading: false})
+    } catch (error){
+      set({isLoading: false})
+    }
+  },
+  fetchUserEnrollments: async() => {
+    try{
+      set({isLoading: true})
+      const response = await api.get(enrollAPI.fetchUserEnrolledCourses)
+      set({userCourseEnrollmentsList: response.data})
+    } catch(error){
+      set({isLoading: false})
+    }
+  }
 }));

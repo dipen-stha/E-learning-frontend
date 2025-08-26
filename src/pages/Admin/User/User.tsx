@@ -131,7 +131,7 @@ export default function UsersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-gray-600">{userStats.total_count}</div>
-            <p className="text-xs text-gray-600">+{userStats.percent_total_count}% from last month</p>
+            <p className="text-xs text-green-600">+{userStats.percent_total_count}% from last month</p>
           </CardContent>
         </Card>
 
@@ -144,7 +144,7 @@ export default function UsersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-gray-600">{userStats.active_count}</div>
-            <p className="text-xs text-gray-600">{userStats.percent_active_count}% of total users</p>
+            <p className="text-xs text-green-600">{userStats.percent_active_count}% of total users</p>
           </CardContent>
         </Card>
 
@@ -157,7 +157,7 @@ export default function UsersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-gray-600">{userStats.monthly_creation}</div>
-            <p className="text-xs text-gray-600">+{userStats.percent_monthly_creation}% from last month</p>
+            <p className="text-xs text-green-600">+{userStats.percent_monthly_creation}% from last month</p>
           </CardContent>
         </Card>
 
@@ -170,7 +170,7 @@ export default function UsersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-gray-600">{userStats.suspended_count}</div>
-            <p className="text-xs text-gray-600">{userStats.percent_suspended_count}% of total users</p>
+            <p className="text-xs text-green-600">{userStats.percent_suspended_count}% of total users</p>
           </CardContent>
         </Card>
       </div>

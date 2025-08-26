@@ -28,3 +28,10 @@
     {value: "PAYPAL", label: "Paypal"},
     {value: "GPAY", label: "Gpay"}
   ]
+
+  export const ContentType = [
+    {value: "VIDEO", label: "Video", icon: "Video"},
+    {value: "TEXT", label: "Text", icon: "File"},
+    {value: "PDF", label: "PDF", icon: "PDF"},
+    {value: "IMAGE", label: "Image", icon: "Picture"} 
+  ]
