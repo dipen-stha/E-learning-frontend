@@ -19,3 +19,7 @@ export const UnitAPI = {
     createUnit: `${prefix}/unit/create/`,
     
 }
+
+export const enrollAPI = {
+    createStripeSession: `/enrollment/create-enrollment-session/`
+}

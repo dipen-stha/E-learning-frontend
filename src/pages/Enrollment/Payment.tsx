@@ -4,96 +4,37 @@ import { Card, CardContent } from "@/components/ui/Card";
 import { CreditCard, Shield, Lock } from "lucide-react";
 import { CreateModal } from "@/components/Modal";
 import { ModalCompProps } from "@/services/types/Extras";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useCourseStore } from "@/stores/Courses/Course";
+import { useEnrollStore } from "@/stores/Courses/Enrollment";
+import { CardElement } from "@stripe/react-stripe-js";
+import { useUserStore } from "@/stores/User/User";
 
-export const EnrollCourse = ({ onSubmit, isOpen, onCancel }: ModalCompProps) => {
-  const [selectedPlan, setSelectedPlan] = useState("full");
-  const [paymentMethod, setPaymentMethod] = useState("card");
-  const courseData = {
-    id: 1,
-    title: "Advanced React Development",
-    instructor: "Sarah Johnson",
-    instructorImage: "/placeholder.svg?height=60&width=60",
-    instructorBio:
-      "Senior Frontend Developer at Google with 8+ years of React experience",
-    duration: "8 hours",
-    rating: 4.8,
-    students: 1234,
-    image: "/react-course-thumbnail.png",
-    price: "$89",
-    originalPrice: "$129",
-    description:
-      "Master advanced React concepts including hooks, context, performance optimization, and modern patterns. Build production-ready applications with confidence.",
-    features: [
-      "Lifetime access to course materials",
-      "Certificate of completion",
-      "Direct instructor support",
-      "30-day money-back guarantee",
-      "Mobile and desktop access",
-      "Downloadable resources",
-    ],
-    curriculum: [
-      { title: "React Hooks Deep Dive", duration: "45 min", lessons: 6 },
-      {
-        title: "Context API & State Management",
-        duration: "60 min",
-        lessons: 8,
-      },
-      { title: "Performance Optimization", duration: "50 min", lessons: 7 },
-      { title: "Testing React Applications", duration: "40 min", lessons: 5 },
-      { title: "Advanced Patterns", duration: "55 min", lessons: 9 },
-      { title: "Real-world Project", duration: "90 min", lessons: 12 },
-    ],
-    skills: [
-      "React Hooks",
-      "Context API",
-      "Performance",
-      "Testing",
-      "TypeScript",
-      "Next.js",
-    ],
-    requirements: [
-      "Basic React knowledge",
-      "JavaScript ES6+",
-      "HTML & CSS fundamentals",
-    ],
-  };
+interface EnrollProps extends ModalCompProps {
+  courseId: number;
+}
 
-  const plans = [
-    {
-      id: "full",
-      name: "Full Course Access",
-      price: "$89",
-      originalPrice: "$129",
-      features: [
-        "Complete course content",
-        "Lifetime access",
-        "Certificate of completion",
-        "Direct instructor support",
-        "All downloadable resources",
-      ],
-      popular: true,
-    },
-    {
-      id: "basic",
-      name: "Basic Access",
-      price: "$59",
-      originalPrice: "$89",
-      features: [
-        "Core course content",
-        "6 months access",
-        "Basic support",
-        "Essential resources",
-      ],
-      popular: false,
-    },
-  ];
+export const EnrollCourse = ({
+  onSubmit,
+  isOpen,
+  onCancel,
+  courseId,
+}: EnrollProps) => {
+  const fetchCourse = useCourseStore((state) => state.fetchCourseById);
+  const courseItem = useCourseStore((state) => state.courseItem);
+  const setEnrollPayload = useEnrollStore((state) => state.setPayload);
+  const enrollPayload = useEnrollStore((state) => state.enrollmentPayload);
+  const [payload, setPayload] = useState(enrollPayload);
 
-  const selectedPlanData = plans.find((plan) => plan.id === selectedPlan);
   const handleFormSubmit = () => {
     onSubmit();
-    setSelectedPlan
   };
+
+  useEffect(() => {
+    console.log(courseId)
+    fetchCourse(courseId);
+
+  }, []);
 
   return (
     <>
@@ -104,82 +45,57 @@ export const EnrollCourse = ({ onSubmit, isOpen, onCancel }: ModalCompProps) => 
         width="3xl"
         actions={[]}
       >
-        {/* Modal Content */}
         <div className="p-6 space-y-6">
-          {/* Course Summary */}
-          <Card className="bg-gradient-to-br from-violet-50 to-cyan-50 border-violet-200">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-4">
-                <img
-                  src={courseData.image || "/placeholder.svg"}
-                  alt={courseData.title}
-                  className="w-16 h-16 rounded-lg object-cover"
-                />
-                <div className="flex-1">
-                  <h3 className="font-semibold text-gray-800">
-                    {courseData.title}
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    by {courseData.instructor}
-                  </p>
-                  <div className="flex items-center gap-2 mt-1">
+          {courseItem && (
+            <Card className="bg-gradient-to-br from-violet-50 to-cyan-50 border-violet-200">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-4">
+                  <img
+                    src={courseItem.image_url || "/placeholder.svg"}
+                    alt={courseItem.title}
+                    className="w-16 h-16 rounded-lg object-cover"
+                  />
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-gray-800">
+                      {courseItem.title}
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      by {courseItem.instructor?.name}
+                    </p>
+                    {/* <div className="flex items-center gap-2 mt-1">
                     <Badge className="bg-emerald-100 text-emerald-700 text-xs">
                       {selectedPlanData?.name}
                     </Badge>
+                  </div> */}
                   </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-cyan-600 bg-clip-text text-transparent">
-                    {selectedPlanData?.price}
-                  </div>
-                  <div className="text-sm text-gray-500 line-through">
+                  <div className="text-right">
+                    <div className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-cyan-600 bg-clip-text text-transparent">
+                      ${courseItem?.price}
+                    </div>
+                    {/* <div className="text-sm text-gray-500 line-through">
                     {selectedPlanData?.originalPrice}
+                  </div> */}
                   </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Payment Method Selection */}
-          <div className="space-y-4">
+          {/* <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-800">
               Payment Method
             </h3>
             <div className="grid gap-3">
-              <div
-                className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
-                  paymentMethod === "card"
-                    ? "border-violet-300 bg-gradient-to-br from-violet-50 to-cyan-50"
-                    : "border-gray-200 hover:border-violet-200"
-                }`}
-                onClick={() => setPaymentMethod("card")}
-              >
-                <div className="flex items-center gap-3">
-                  <div
-                    className={`w-4 h-4 rounded-full border-2 ${
-                      paymentMethod === "card"
-                        ? "border-violet-600 bg-violet-600"
-                        : "border-gray-300"
-                    }`}
-                  >
-                    {paymentMethod === "card" && (
-                      <div className="w-2 h-2 bg-white rounded-full m-0.5"></div>
-                    )}
-                  </div>
-                  <CreditCard className="w-5 h-5 text-violet-600" />
-                  <span className="font-medium text-gray-800">
-                    Credit/Debit Card
-                  </span>
-                </div>
-              </div>
-
-              <div
+              {PaymentMethods.map((payment, index) => (
+                <div
+                key={index}
                 className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
                   paymentMethod === "paypal"
                     ? "border-violet-300 bg-gradient-to-br from-violet-50 to-cyan-50"
                     : "border-gray-200 hover:border-violet-200"
                 }`}
-                onClick={() => setPaymentMethod("paypal")}
+                onClick={() => handleMethodSelect(payment.value)}
               >
                 <div className="flex items-center gap-3">
                   <div
@@ -198,12 +114,12 @@ export const EnrollCourse = ({ onSubmit, isOpen, onCancel }: ModalCompProps) => 
                   </div>
                   <span className="font-medium text-gray-800">PayPal</span>
                 </div>
-              </div>
+              </div>))}
             </div>
-          </div>
+          </div> */}
 
           {/* Payment Form */}
-          {paymentMethod === "card" && (
+          {/* {paymentMethod === "card" && (
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-gray-800">
                 Card Information
@@ -253,10 +169,10 @@ export const EnrollCourse = ({ onSubmit, isOpen, onCancel }: ModalCompProps) => 
                 </div>
               </div>
             </div>
-          )}
+          )} */}
 
           {/* Security Notice */}
-          <div className="bg-gradient-to-br from-emerald-50 to-cyan-50 border border-emerald-200 rounded-lg p-4">
+          {/* <div className="bg-gradient-to-br from-emerald-50 to-cyan-50 border border-emerald-200 rounded-lg p-4">
             <div className="flex items-center gap-3">
               <Shield className="w-5 h-5 text-emerald-600" />
               <div>
@@ -269,30 +185,31 @@ export const EnrollCourse = ({ onSubmit, isOpen, onCancel }: ModalCompProps) => 
               </div>
               <Lock className="w-4 h-4 text-emerald-600 ml-auto" />
             </div>
-          </div>
+          </div> */}
 
           {/* Order Summary */}
           <div className="border-t border-gray-200 pt-4">
             <div className="flex items-center justify-between mb-2">
               <span className="text-gray-600">Course Price</span>
-              <span className="text-gray-800">
-                {selectedPlanData?.originalPrice}
-              </span>
+              <span className="text-gray-800">{courseItem?.price}</span>
             </div>
-            <div className="flex items-center justify-between mb-2">
+            {/* <div className="flex items-center justify-between mb-2">
               <span className="text-emerald-600">Discount (31% OFF)</span>
               <span className="text-emerald-600">-$40</span>
-            </div>
-            <div className="flex items-center justify-between text-lg font-bold border-t border-gray-200 pt-2">
+            </div> */}
+            {/* <div className="flex items-center justify-between text-lg font-bold border-t border-gray-200 pt-2">
               <span className="text-gray-800">Total</span>
               <span className="bg-gradient-to-r from-violet-600 to-cyan-600 bg-clip-text text-transparent">
                 {selectedPlanData?.price}
-              </span>
-            </div>
+              </span> */}
+            {/* </div> */}
           </div>
 
           {/* Payment Button */}
-          <Button className="w-full bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-700 hover:to-cyan-700 text-white font-semibold py-3 text-lg" onClick={handleFormSubmit}>
+          <Button
+            className="w-full bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-700 hover:to-cyan-700 text-white font-semibold py-3 text-lg"
+            onClick={handleFormSubmit}
+          >
             <Lock className="w-4 h-4 mr-2" />
             Complete Payment
           </Button>

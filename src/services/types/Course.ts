@@ -80,3 +80,27 @@ export interface CourseState {
     fetchMinimal: () => Promise<void>;
     reset: () => void;
 }
+
+export interface EnrollPayload {
+    user_id: number | null
+    course_id: number | null
+    amount: number
+    status: string
+    provider: string
+}
+
+export interface PaymentDetail {
+    session_id: string
+    payment_id: number
+    url: string
+}
+
+export interface EnrollmentState {
+    enrollmentPayload: EnrollPayload
+    paymentSuccess: boolean
+    paymentDetail: PaymentDetail | null
+    isLoading: boolean
+
+    makePayment: () => void;
+    setPayload: (data: EnrollPayload) => void;
+}
