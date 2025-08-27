@@ -1,30 +1,36 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
+import { produce } from "immer";
 
 export function useUpdater<T>(initial: T) {
   const [payload, setPayload] = useState<T>(initial);
+  const initialRef = useRef(initial);
 
   const updateField = useCallback(
-    <K extends keyof T>(
-      field: K,
-      value: T[K] | { id: T[K] } | { id: T[K] }[]
-    ) => {
-      let normalized: T[K];
+    (path: string, value: any) => {
+      setPayload(prev =>
+        produce(prev, draft => {
+          const keys = path.split(".");
+          let current: any = draft;
 
-      if (Array.isArray(value)) {
-        normalized = value.map(v => (v as { id: T[K] }).id) as T[K];
-      } else if (typeof value === "object" && value !== null && "id" in value) {
-        normalized = (value as { id: T[K] }).id as T[K];
-      } else {
-        normalized = value as T[K];
-      }
+          // Walk down the object until the last key
+          keys.slice(0, -1).forEach(k => {
+            if (!(k in current)) {
+              current[k] = {}; // create if missing
+            }
+            current = current[k];
+          });
 
-      setPayload(prev => ({
-        ...prev,
-        [field]: normalized,
-      }));
+          // Set the final value
+          current[keys[keys.length - 1]] = value;
+        })
+      );
     },
     []
   );
 
-  return { payload, updateField, setPayload };
+  const reset = useCallback(() => {
+    setPayload(initialRef.current);
+  }, []);
+
+  return { payload, updateField, setPayload, reset };
 }

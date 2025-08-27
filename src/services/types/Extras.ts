@@ -18,3 +18,10 @@ export interface CreateModalProps {
   children: React.ReactNode;
   width?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "full";
 }
+
+export interface NavItem {
+  title: string
+  href?: string
+  icon: React.ComponentType<{ className?: string }>
+  children?: NavItem[]
+}

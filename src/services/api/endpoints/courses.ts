@@ -18,12 +18,13 @@ export const UnitAPI = {
     fetchAllUnits: `${prefix}/unit/get/all/`,
     createUnit: `${prefix}/unit/create/`,
     minimalUnit: `${prefix}/unit/minimal/`,
-    minimalUnitBySubject: (id: number) => `${prefix}/unit/minimal/by_subject/${id}}`
+    minimalUnitBySubject: (id: number) => `${prefix}/unit/minimal/by_subject/${id}`
     
 }
 
 export const contentAPI = {
-    createUnitContent: `${prefix}/content/create/`
+    createUnitContent: `${prefix}/content/create/`,
+    fetchAllContents: `${prefix}/content/fetch/all/`
 }
 
 export const enrollAPI = {

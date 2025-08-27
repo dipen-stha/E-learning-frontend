@@ -72,7 +72,7 @@ function App() {
           }
         />
         <Route path="*" element={<Navigate to="/" replace />} />
-        <Route path="/admin/login" element={<AdminLoginPage />} />
+        <Route path="/admin/login" element={<GuestRoute><AdminLoginPage /></GuestRoute>} />
         <Route
           path="/admin/dashboard"
           element={

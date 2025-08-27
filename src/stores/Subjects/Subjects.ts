@@ -57,6 +57,7 @@ export const useSubjectStore = create<SubjectState>((set, get) => ({
     }
   },
 
+
   fetchSubjectsByCourse: async (courseId: number) => {
     set({isLoading: true})
     try {

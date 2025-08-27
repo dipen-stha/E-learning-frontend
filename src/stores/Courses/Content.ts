@@ -5,6 +5,7 @@ import { create } from "zustand";
 
 const initialPayload = {
   content: {
+    title: "",
     completion_time: 0,
     order: 0,
     description: "",
@@ -19,6 +20,8 @@ const initialPayload = {
 const initialState = {
   payload: initialPayload,
   isLoading: false,
+  contentsList: [],
+  contentItem: null
 };
 
 export const useUnitContentStore = create<UnitContentState>((set, get) => ({
@@ -26,12 +29,34 @@ export const useUnitContentStore = create<UnitContentState>((set, get) => ({
   setPayload: (data: UnitContentPayload) => set({ payload: data }),
   createUnitContent: async () => {
     set({ isLoading: true });
+    const formData = new FormData();
+    const payload = get().payload;
+    formData.append("content", JSON.stringify(payload?.content));
+    if(payload?.file) formData.append("file", payload.file) 
     try {
-      await api.post(contentAPI.createUnitContent);
+      await api.post(contentAPI.createUnitContent, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
+      });
       set({ isLoading: false });
+      return true
     } catch (error) {
       set({ isLoading: false });
-      throw error;
+      return false;
     }
   },
+  resetPayload: () => set({payload: initialPayload}),
+  fetchAllContents: async () => {
+    set({isLoading: true})
+    try{
+      const response = await api.get(contentAPI.fetchAllContents)
+      if(response.data){
+        set({contentsList: response.data, isLoading: false})
+      }
+    } catch (error) {
+      set({isLoading: false})
+    }
+  }
+
 }));

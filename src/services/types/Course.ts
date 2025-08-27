@@ -122,7 +122,22 @@ export interface EnrollmentState {
     fetchUserEnrollments: () => Promise<void>;
 }
 
+
+export interface UnitContentDetail {
+    id: number
+    title: string
+    completion_time: number
+    order: number
+    course: string
+    instructor: Profile
+    content_type: string
+    description: string
+    file_url?: string
+    status: string
+}
+
 export interface UnitContentData{
+    title: string;
     completion_time: number
     order: number
     description: string
@@ -133,8 +148,9 @@ export interface UnitContentData{
 }
 
 export interface ContentVideoTimeStamps {
+    id: string;
     title: string
-    video_stamp: string
+    time_stamp: string
 }
 
 export interface UnitContentPayload {
@@ -144,7 +160,11 @@ export interface UnitContentPayload {
 
 export interface UnitContentState {
     payload: UnitContentPayload;
+    contentsList: UnitContentDetail[]
+    contentItem: UnitContentDetail | null
     isLoading: boolean;
     setPayload: (data: UnitContentPayload) => void;
-    createUnitContent: () => Promise<void>;
+    createUnitContent: () => Promise<boolean>;
+    fetchAllContents: () => Promise<void>;
+    resetPayload: () => void;
 }

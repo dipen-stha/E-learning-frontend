@@ -1,11 +1,15 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useUserStore } from "@/stores/User/User";
-import { JSX } from "react";
+import { JSX, useEffect } from "react";
 
 export default function GuestRoute({children}: {children: JSX.Element}) {
     const location = useLocation();
-    const { isAuthenticated, isAdminAuthenticated, isLoading } = useUserStore();
-    if(location.pathname.includes("/admin")){
+    const { isAuthenticated, isAdminAuthenticated, isLoading, fetchSelf, fetchAdminSelf } = useUserStore();
+    const isAdmin = location.pathname.includes("/admin") ? true : false
+    useEffect(() => {
+        isAdmin ? fetchAdminSelf() : fetchSelf();
+    }, [])
+    if(isAdmin){
         if(isLoading) {
             return (<div>Loading...</div>)
         }
