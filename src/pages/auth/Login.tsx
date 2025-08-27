@@ -38,10 +38,10 @@ const LoginPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-100 to-cyan-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-100 via-cyan-50 to-blue-100 flex items-center justify-center p-4">
       <Card className="w-full max-w-md shadow-xl border-0 bg-white/80 backdrop-blur-sm">
         <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-3xl font-bold bg-gradient-to-r from-violet-700 to-cyan-600 bg-clip-text text-transparent">
+          <CardTitle className="text-3xl font-bold bg-gradient-to-r from-sky-400 to-cyan-600 bg-clip-text text-transparent">
             Welcome Back
           </CardTitle>
           <CardDescription className="text-gray-600">Sign in to your account to continue</CardDescription>
@@ -63,7 +63,7 @@ const LoginPage: React.FC = () => {
                 required
               />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2 focus:outline-none">
               <Label htmlFor="password" className="text-gray-700 font-medium">
                 Password
               </Label>
@@ -86,15 +86,15 @@ const LoginPage: React.FC = () => {
                 onChange={handleChange}
                 label="Remember me"
               />
-              <Link to="/forgot-password" className="text-sm text-violet-700 hover:text-violet-800 hover:underline">
+              <Link to="/forgot-password" className="text-sm text-sky-700 hover:text-sky-800 hover:underline">
                 Forgot password?
               </Link>
             </div>
           </CardContent>
-          <CardFooter className="flex flex-col space-y-4">
+          <CardFooter className="flex flex-col space-y-4 mt-3">
             <Button
               type="submit"
-              className="w-full bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 text-white font-medium py-2.5"
+              className="w-full bg-gradient-to-r from-sky-600 to-cyan-500 hover:from-sky-700 hover:to-cyan-600 text-white font-medium py-2.5"
             >
               Sign In
             </Button>

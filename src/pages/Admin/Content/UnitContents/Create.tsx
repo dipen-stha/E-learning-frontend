@@ -8,10 +8,6 @@ import { Textarea } from "@/components/ui/Textarea";
 import { Badge } from "@/components/ui/Badge";
 import {
   Upload,
-  FileText,
-  Video,
-  ImageIcon,
-  Archive,
   X,
   Plus,
   Clock,
@@ -22,69 +18,74 @@ import { MultiSelect } from "@/components/ui/MultiSelect";
 import { ContentType } from "@/services/utils/choiceUtils";
 import { useCourseStore } from "@/stores/Courses/Course";
 import { useSubjectStore } from "@/stores/Subjects/Subjects";
-
-interface VideoTimestamp {
-  id: string;
-  time: string;
-  description: string;
-}
+import { useUnitStore } from "@/stores/Unit/Unit";
+import { useUpdater } from "@/services/utils/storeUtils";
+import { ContentVideoTimeStamps, UnitContentData, UnitContentPayload} from "@/services/types/Course";
+import { useUnitContentStore } from "@/stores/Courses/Content";
+import { Status } from "@/services/utils/choiceUtils";
 
 export function CreateContentForm({
   onSubmit,
   onCancel,
   isOpen,
 }: ModalCompProps) {
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    type: "",
-    category: "",
-    course: "",
-    module: "",
-    duration: "",
-    fileSize: "",
-    tags: [] as string[],
-    isPublic: "false",
-    allowDownload: "false",
-  });
-
-  const [newTag, setNewTag] = useState("");
-  const [timestamps, setTimestamps] = useState<VideoTimestamp[]>([]);
+  const [timestamps, setTimestamps] = useState<ContentVideoTimeStamps[]>([]);
   const [newTimestamp, setNewTimestamp] = useState({
     time: "",
     description: "",
   });
-  const [contentFile, setContentFile] = useState("");
 
-  const handleSubmit = () => {
-    onSubmit({ ...formData, timestamps });
-  };
-
-  const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
 
   const fetchCourses = useCourseStore((state) => state.fetchMinimal);
-  const courseDetails = useCourseStore((state) => state.courseDetails);
+  const courseDetails = useCourseStore((state) => state.courseMinimal);
+
+  const subjectList = useSubjectStore((state) => state.subjectMinimalList);
   const fetchSubjectMinimal = useSubjectStore(
     (state) => state.fetchSubjectMinimal
   );
-  const subjectList = useSubjectStore((state) => state.subjectDetailList);
+
+  const fetchMinimalList = useUnitStore((state) => state.fetchMinimalUnitList);
+  const unitList = useUnitStore((state) => state.unitMinimalList);
+
+  const contentPayload = useUnitContentStore((state) => state.payload);
+  const setPayload = useUnitContentStore((state) => state.setPayload)
+
+  const initialPayload = contentPayload;
+
+  const { payload, updateField, reset } =
+    useUpdater<UnitContentPayload>(initialPayload);
+
+  const handleModalClose = () => {
+    reset();
+    // setContentFile(null);
+    // setTimestamps([]);
+    onCancel();
+  };
 
   const handleCourseChange = (course: any) => {
-    if(course){
-        fetchSubjectMinimal(course?.id)
+    if (course) {
+      fetchSubjectMinimal(course?.id);
     }
-    
-  }
+  };
+
+  const handleSubjectChange = (subject: any) => {
+    if (subject) {
+      fetchMinimalList(subject.id);
+    }
+  };
+
   const addTimestamp = () => {
     if (newTimestamp.time.trim() && newTimestamp.description.trim()) {
-      const timestamp: VideoTimestamp = {
+      const timestamp: ContentVideoTimeStamps = {
         id: Date.now().toString(),
-        time: newTimestamp.time.trim(),
-        description: newTimestamp.description.trim(),
+        time_stamp: newTimestamp.time.trim(),
+        title: newTimestamp.description.trim(),
       };
-      setTimestamps((prev) => [...prev, timestamp]);
+      setTimestamps((prev) => {
+        const updated = [...prev, timestamp]
+        updateField("content.video_time_stamps", updated)
+        return updated
+      });
       setNewTimestamp({ time: "", description: "" });
     }
   };
@@ -95,7 +96,19 @@ export function CreateContentForm({
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    if (file)(
+      updateField("file", file)
+    )
   };
+
+
+  const handleSubmit = () => {
+    console.log(timestamps)
+    setPayload(payload)
+    console.log(useUnitContentStore.getState().payload)
+    onSubmit();
+  };
+
 
   useEffect(() => {
     fetchCourses();
@@ -109,7 +122,7 @@ export function CreateContentForm({
     },
     {
       title: "Close",
-      onAction: onCancel,
+      onAction: handleModalClose,
       variant: "danger",
     },
   ];
@@ -117,7 +130,7 @@ export function CreateContentForm({
   return (
     <CreateModal
       isOpen={isOpen}
-      onClose={onCancel}
+      onClose={handleModalClose}
       title="Create A New Unit"
       width="4xl"
       actions={modalActions}
@@ -150,7 +163,7 @@ export function CreateContentForm({
               <p className="text-xs text-gray-600 mt-2">
                 Supports videos, documents, images, and archives up to 100MB
               </p>
-              {contentFile && <p>Selected: {contentFile}</p>}
+              {payload.file && <p>Selected: {payload.file.name}</p>}
             </div>
           </div>
         </div>
@@ -162,8 +175,8 @@ export function CreateContentForm({
           </Label>
           <Input
             id="title"
-            value={formData.title}
-            onChange={(e) => handleInputChange("title", e.target.value)}
+            value={payload.content.title}
+            onChange={(e) => updateField("content.title", e.target.value)}
             className="bg-white border-gray-300"
             placeholder="Enter content title"
             required
@@ -179,8 +192,8 @@ export function CreateContentForm({
           </Label>
           <Textarea
             id="description"
-            value={formData.description}
-            onChange={(e) => handleInputChange("description", e.target.value)}
+            value={payload.content.description}
+            onChange={(e) => updateField("content.description", e.target.value)}
             className="bg-white border-gray-300"
             rows={3}
             placeholder="Describe the content..."
@@ -225,7 +238,14 @@ export function CreateContentForm({
               </SelectItem>
             </SelectContent>
           </Select> */}
-          <MultiSelect options={ContentType} />
+          <MultiSelect
+            options={ContentType}
+            getOptionLabel={(option) => option.label}
+            getOptionValue={(option) => option.value}
+            onValueChange={(value: any) =>
+              updateField("content.content_type", String(value?.value))
+            }
+          />
         </div>
 
         <div className="space-y-2">
@@ -236,13 +256,31 @@ export function CreateContentForm({
             options={courseDetails}
             getOptionLabel={(option) => option.title}
             getOptionValue={(option) => String(option.id)}
+            onValueChange={handleCourseChange}
           />
         </div>
-
+        <div>
+          <Label htmlFor="module" className="text-sm font-medium text-gray-700">
+            Subject
+          </Label>
+          <MultiSelect
+            options={subjectList}
+            getOptionLabel={(option) => option.title}
+            getOptionValue={(option) => String(option.id)}
+            onValueChange={handleSubjectChange}
+          />
+        </div>
         <div className="space-y-2">
           <Label htmlFor="module" className="text-sm font-medium text-gray-700">
             Unit
           </Label>
+          <MultiSelect
+            options={unitList}
+            getOptionLabel={(option) => option.title}
+            getOptionValue={(option) => String(option.id)}
+            defaultInputValue=""
+            onValueChange={(value: any) => updateField("content.unit_id", value?.id)}
+          />
         </div>
 
         <div className="space-y-2">
@@ -255,14 +293,36 @@ export function CreateContentForm({
           <Input
             id="duration"
             type="number"
-            value={formData.duration}
-            onChange={(e) => handleInputChange("duration", e.target.value)}
+            value={payload.content.completion_time}
+            onChange={(e) =>
+              updateField("content.completion_time", Number(e.target.value))
+            }
             className="bg-white border-gray-300"
             placeholder="e.g., 15"
           />
         </div>
-
-        {formData.type === "video" && (
+        <div className="space-y-2">
+            <Label htmlFor="duration" className="text-sm font-medium text-gray-700">
+              Order
+            </Label>
+            <Input
+            id="order"
+            type="number"
+            value={payload.content.order}
+            onChange={(e) =>
+              updateField("content.order", Number(e.target.value))
+            }
+            className="bg-white border-gray-300"
+            placeholder="e.g., 15"
+          />
+        </div>
+        <div>
+            <Label htmlFor="duration" className="text-sm font-medium text-gray-700">
+              Status
+            </Label>
+            <MultiSelect options={Status} onValueChange={(value:any) => updateField("content.status", value.value)}/>
+        </div>
+        {payload.content.content_type === "VIDEO" && (
           <div className="md:col-span-2 space-y-4 p-4 bg-red-50 rounded-lg border border-red-200">
             <div className="flex items-center space-x-2">
               <Clock className="h-5 w-5 text-red-600" />
@@ -306,7 +366,7 @@ export function CreateContentForm({
                     }
                     className="bg-white border-gray-300"
                     placeholder="e.g., Introduction to React Hooks"
-                    onKeyPress={(e) =>
+                    onKeyDown={(e) =>
                       e.key === "Enter" && (e.preventDefault(), addTimestamp())
                     }
                   />
@@ -328,9 +388,9 @@ export function CreateContentForm({
                   Added Timestamps
                 </Label>
                 <div className="space-y-2 max-h-32 overflow-y-auto">
-                  {timestamps.map((timestamp) => (
+                  {timestamps.map((timestamp, index) => (
                     <div
-                      key={timestamp.id}
+                      key={index}
                       className="flex items-center justify-between bg-white p-2 rounded border border-gray-200"
                     >
                       <div className="flex items-center space-x-3">
@@ -338,10 +398,10 @@ export function CreateContentForm({
                           variant="outline"
                           className="text-red-600 border-red-200"
                         >
-                          {timestamp.time}
+                          {timestamp.time_stamp}
                         </Badge>
                         <span className="text-sm text-gray-700">
-                          {timestamp.description}
+                          {timestamp.title}
                         </span>
                       </div>
                       <button

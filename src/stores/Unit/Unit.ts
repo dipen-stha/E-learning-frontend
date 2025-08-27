@@ -18,6 +18,7 @@ const initialState = {
   unitItem: null,
   unitPayload: initialUnitPayload,
   isLoading: false,
+  unitMinimalList: []
 };
 
 export const useUnitStore = create<UnitState>((set, get) => ({
@@ -42,6 +43,22 @@ export const useUnitStore = create<UnitState>((set, get) => ({
     } catch (error) {
         console.log("Error Creating Unit")
         set({isLoading: false})
+    }
+  },
+  fetchMinimalUnitList: async(subjectId: number | null) => {
+    let apiUrl = UnitAPI.minimalUnit
+    if(subjectId){
+      apiUrl = UnitAPI.minimalUnitBySubject(subjectId)
+    }
+    console.log(apiUrl)
+    try{
+      const response = await api.get(apiUrl)
+      if(response.data){
+        set({unitMinimalList: response.data})
+      }
+    } catch(error){
+      console.log(error)
+      throw error
     }
   },
   reset: async () => {

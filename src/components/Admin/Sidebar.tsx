@@ -5,131 +5,16 @@ import { Button } from "@/components/ui/Button"
 import { ScrollArea } from "@/components/ui/ScrollArea"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/Collapsible"
 import {
-  LayoutDashboard,
-  Users,
-  BookOpen,
-  FileText,
-  BarChart3,
-  Settings,
   GraduationCap,
   ChevronDown,
   ChevronRight,
-  FileBarChart,
-  TrendingUp,
-  Cog,
-  Shield,
   Menu,
   X,
-  Video,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Link, useLocation } from "react-router-dom"
-
-interface NavItem {
-  title: string
-  href?: string
-  icon: React.ComponentType<{ className?: string }>
-  children?: NavItem[]
-}
-
-const navigationItems: NavItem[] = [
-  {
-    title: "Dashboard",
-    href: "/admin/dashboard",
-    icon: LayoutDashboard,
-  },
-  {
-    title: "User Management",
-    icon: Users,
-    children: [
-      {
-        title: "All Users",
-        href: "/admin/users",
-        icon: Users,
-      },
-    ],
-  },
-  {
-    title: "Course Management",
-    icon: BookOpen,
-    children: [
-      {
-        title: "All Courses",
-        href: "/admin/courses",
-        icon: BookOpen,
-      },
-    ],
-  },
-  {
-    title: "Subject Management",
-    icon: FileText,
-    children: [
-      {
-        title: "All Subjects",
-        href: "/admin/subjects",
-        icon: FileText
-      }
-    ]
-  },
-  {
-    title: "Content Management",
-    icon: FileText,
-    children: [
-      {
-        title: "Units",
-        href: "/admin/content/units",
-        icon: FileText,
-      },
-      {
-        title: "Unit Contents",
-        href: "/admin/content/unit-contents",
-        icon: Video,
-      },
-      {
-        title: "Assignments",
-        href: "/admin/content/assignments",
-        icon: FileBarChart,
-      },
-    ],
-  },
-  {
-    title: "Analytics & Reports",
-    icon: BarChart3,
-    children: [
-      {
-        title: "Overview",
-        href: "/admin/analytics",
-        icon: BarChart3,
-      },
-      {
-        title: "User Progress",
-        href: "/admin/analytics/progress",
-        icon: TrendingUp,
-      },
-      {
-        title: "Course Performance",
-        href: "/admin/analytics/courses",
-        icon: FileBarChart,
-      },
-    ],
-  },
-  {
-    title: "Settings",
-    icon: Settings,
-    children: [
-      {
-        title: "General",
-        href: "/admin/settings",
-        icon: Cog,
-      },
-      {
-        title: "Security",
-        href: "/admin/settings/security",
-        icon: Shield,
-      },
-    ],
-  },
-]
+import { navigationItems } from "@/services/utils/SidebarItems"
+import { NavItem } from "@/services/types/Extras"
 
 interface AdminSidebarProps {
   isCollapsed?: boolean
@@ -146,7 +31,7 @@ export function AdminSidebar({
 }: AdminSidebarProps) {
   const location = useLocation()
   const pathname = location.pathname
-  const [openItems, setOpenItems] = useState<string[]>([])
+  const [openItem, setOpenItem] = useState<string | null>(null) // Changed from array to single string
 
   // Helper function to check if a parent item should be active
   const isParentActive = (item: NavItem): boolean => {
@@ -157,52 +42,53 @@ export function AdminSidebar({
     return false
   }
 
-  // Helper function to find which parent items should be open based on current route
-  const getInitialOpenItems = (): string[] => {
-    const openItems: string[] = []
-    
-    navigationItems.forEach(item => {
+  // Helper function to find which parent item should be open based on current route
+  const getInitialOpenItem = (): string | null => {
+    for (const item of navigationItems) {
       if (item.children && isParentActive(item)) {
-        openItems.push(item.title)
+        return item.title
       }
-    })
-    
-    return openItems
+    }
+    return null
   }
 
   // Load saved state from localStorage or determine from current route
   useEffect(() => {
-    const savedOpenItems = localStorage.getItem('admin-sidebar-open-items')
+    const savedOpenItem = localStorage.getItem('admin-sidebar-open-item')
     
-    if (savedOpenItems) {
+    if (savedOpenItem) {
       try {
-        const parsed = JSON.parse(savedOpenItems)
-        setOpenItems(parsed)
+        const parsed = JSON.parse(savedOpenItem)
+        // Validate that the saved item is a string or null
+        if (typeof parsed === 'string' || parsed === null) {
+          setOpenItem(parsed)
+        } else {
+          // If it's an old array format or invalid, fall back to route-based detection
+          setOpenItem(getInitialOpenItem())
+        }
       } catch {
         // If parsing fails, fall back to route-based detection
-        setOpenItems(getInitialOpenItems())
+        setOpenItem(getInitialOpenItem())
       }
     } else {
       // First time or no saved state, use route-based detection
-      setOpenItems(getInitialOpenItems())
+      setOpenItem(getInitialOpenItem())
     }
   }, [pathname])
 
   useEffect(() => {
-    localStorage.setItem('admin-sidebar-open-items', JSON.stringify(openItems))
-  }, [openItems])
+    localStorage.setItem('admin-sidebar-open-item', JSON.stringify(openItem))
+  }, [openItem])
 
   const toggleItem = (title: string) => {
-    setOpenItems((prev) => {
-      const newItems = prev.includes(title) 
-        ? prev.filter((item) => item !== title) 
-        : [...prev, title]
-      return newItems
+    setOpenItem((prev) => {
+      // If the clicked item is already open, close it; otherwise, open it (closing any other open item)
+      return prev === title ? null : title
     })
   }
 
   const renderNavItem = (item: NavItem, level = 0) => {
-    const isOpen = openItems.includes(item.title)
+    const isOpen = openItem === item.title // Changed from includes to equality check
     const isActive = item.href === pathname
     const isParentItemActive = isParentActive(item)
     const hasChildren = item.children && item.children.length > 0

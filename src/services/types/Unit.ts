@@ -22,15 +22,22 @@ export interface UnitPayload {
     status: string
 }
 
+export interface UnitMinimal {
+    id: number
+    title: string
+}
+
 export interface UnitState {
     unitListDetails: UnitDetail[]
     unitItem: UnitDetail | null
     unitPayload: UnitPayload
+    unitMinimalList: UnitMinimal[]
     isLoading: boolean
 
     setPayload: (payloadData: UnitPayload) => void;
 
     fetchAllUnits: () => Promise<void>;
+    fetchMinimalUnitList: (subjectId: number | null) => Promise<void>;
     createUnit: () => Promise<void>;
     reset: () => void;
 }

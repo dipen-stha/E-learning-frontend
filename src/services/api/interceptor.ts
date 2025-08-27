@@ -34,17 +34,19 @@ api.interceptors.response.use(
         const originalRequest = config;
         if (status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
-            const { refreshToken } = useAuthStore();
+            const refreshToken = useAuthStore.getState().refreshToken;
             if(refreshToken){
                 try{
-                await axios.post(apiUrl + "/auth/refresh", {
+                const response = await axios.post(apiUrl + "/auth/refresh", {
                     refresh_token: refreshToken
                 })
+                localStorage.setItem("access", response.data.access_token)
                 } catch (e) {
                     console.error("Token Refresh Failed", e)
                     throw e;
                 }
             }
+            return axios(originalRequest)
         }
         return Promise.reject(error)
     }

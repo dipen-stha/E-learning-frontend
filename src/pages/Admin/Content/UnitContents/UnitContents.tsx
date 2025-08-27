@@ -1,13 +1,26 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card"
-import { Button } from "@/components/ui/Button"
-import { Input } from "@/components/ui/Input"
-import { Badge } from "@/components/ui/Badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table"
-import { Progress } from "@/components/ui/Progress"
+import { useEffect, useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { Badge } from "@/components/ui/Badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/Table";
+import { Progress } from "@/components/ui/Progress";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,9 +28,15 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/DropDown"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select"
-import {CreateContentForm} from "@/pages/Admin/Content/UnitContents/Create"
+} from "@/components/ui/DropDown";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/Select";
+import { CreateContentForm } from "@/pages/Admin/Content/UnitContents/Create";
 import {
   BookOpen,
   Search,
@@ -35,13 +54,19 @@ import {
   Video,
   CheckCircle,
   Circle,
-} from "lucide-react"
+  Image,
+} from "lucide-react";
+import { useUnitContentStore } from "@/stores/Courses/Content";
+import { ContentType, getStatusColor, getTypeColor, mapChoice, Status } from "@/services/utils/choiceUtils";
 
 export default function UnitsPage() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [selectedCourse, setSelectedCourse] = useState("all")
-  const [selectedStatus, setSelectedStatus] = useState("all")
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCourse, setSelectedCourse] = useState("all");
+  const [selectedStatus, setSelectedStatus] = useState("all");
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const createContent = useUnitContentStore((state) => state.createUnitContent);
+  const fetchAllContents = useUnitContentStore((state) => state.fetchAllContents)
+  const contentList = useUnitContentStore((state) => state.contentsList)
 
   const courses = [
     { id: 1, title: "React Fundamentals" },
@@ -49,7 +74,7 @@ export default function UnitsPage() {
     { id: 3, title: "Advanced JavaScript" },
     { id: 4, title: "UI/UX Design Principles" },
     { id: 5, title: "Data Science Basics" },
-  ]
+  ];
 
   const units = [
     {
@@ -84,7 +109,8 @@ export default function UnitsPage() {
       completionRate: 89,
       createdDate: "2024-01-16",
       lastModified: "2024-01-21",
-      description: "Understanding React components and how to pass data with props",
+      description:
+        "Understanding React components and how to pass data with props",
     },
     {
       id: 3,
@@ -118,7 +144,8 @@ export default function UnitsPage() {
       completionRate: 92,
       createdDate: "2023-11-20",
       lastModified: "2023-11-25",
-      description: "Introduction to Python syntax and basic programming concepts",
+      description:
+        "Introduction to Python syntax and basic programming concepts",
     },
     {
       id: 5,
@@ -154,60 +181,46 @@ export default function UnitsPage() {
       lastModified: "2023-11-27",
       description: "Creating reusable functions and working with modules",
     },
-  ]
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Published":
-        return "bg-green-100 text-green-800"
-      case "Draft":
-        return "bg-yellow-100 text-yellow-800"
-      case "Archived":
-        return "bg-gray-100 text-gray-800"
-      default:
-        return "bg-gray-100 text-gray-800"
-    }
-  }
+  ];
 
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case "Video":
-        return <Video className="h-4 w-4 text-blue-600" />
-      case "Document":
-        return <FileText className="h-4 w-4 text-purple-600" />
+      case "VIDEO":
+        return <Video className="h-4 w-4 text-blue-600" />;
+      case "PDF":
+        return <FileText className="h-4 w-4 text-purple-600" />;
       default:
-        return <FileText className="h-4 w-4 text-gray-600" />
+        return <Image className="h-4 w-4 text-gray-600" />;
     }
-  }
-
-  const getTypeColor = (type: string) => {
-    switch (type) {
-      case "Video":
-        return "bg-blue-100 text-blue-800"
-      case "Document":
-        return "bg-purple-100 text-purple-800"
-      default:
-        return "bg-gray-100 text-gray-800"
-    }
-  }
+  };
 
   const filteredUnits = units.filter((unit) => {
     const matchesSearch =
       unit.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      unit.course.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCourse = selectedCourse === "all" || unit.courseId.toString() === selectedCourse
-    const matchesStatus = selectedStatus === "all" || unit.status.toLowerCase() === selectedStatus.toLowerCase()
+      unit.course.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCourse =
+      selectedCourse === "all" || unit.courseId.toString() === selectedCourse;
+    const matchesStatus =
+      selectedStatus === "all" ||
+      unit.status.toLowerCase() === selectedStatus.toLowerCase();
 
-    return matchesSearch && matchesCourse && matchesStatus
-  })
+    return matchesSearch && matchesCourse && matchesStatus;
+  });
 
-  const handleCreateUnit = () => {
+  const handleCreateUnit = async () => {
     // Here you would typically make an API call to create the unit
-    setIsCreateModalOpen(false)
-  }
+    const created = await createContent();
+    if(created){
+      setIsCreateModalOpen(false);
+    }
+  };
   const handleModalClose = () => {
-    handleModalClose()
-  }
+    handleModalClose();
+  };
+
+  useEffect(() => {
+    fetchAllContents();
+  }, [])
 
   return (
     <div className="space-y-6">
@@ -215,14 +228,19 @@ export default function UnitsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Units Management</h1>
-          <p className="text-gray-600 mt-1">Manage course units, lessons, and learning materials.</p>
+          <p className="text-gray-600 mt-1">
+            Manage course units, lessons, and learning materials.
+          </p>
         </div>
         <div className="flex space-x-2">
           <Button variant="outline">
             <Eye className="mr-2 h-4 w-4" />
             Preview Mode
           </Button>
-          <Button className="bg-cyan-600 hover:bg-cyan-700 text-white" onClick={() => setIsCreateModalOpen(true)}>
+          <Button
+            className="bg-cyan-600 hover:bg-cyan-700 text-white"
+            onClick={() => setIsCreateModalOpen(true)}
+          >
             <Plus className="mr-2 h-4 w-4" />
             Create Unit
           </Button>
@@ -244,7 +262,9 @@ export default function UnitsPage() {
 
         <Card className="border-gray-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Published Units</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Published Units
+            </CardTitle>
             <CheckCircle className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
@@ -266,7 +286,9 @@ export default function UnitsPage() {
 
         <Card className="border-gray-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg. Completion</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Avg. Completion
+            </CardTitle>
             <Users className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
@@ -280,7 +302,9 @@ export default function UnitsPage() {
       <Card className="border-gray-200">
         <CardHeader>
           <CardTitle>Course Units</CardTitle>
-          <CardDescription>Manage individual units and lessons within your courses.</CardDescription>
+          <CardDescription>
+            Manage individual units and lessons within your courses.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center space-x-4 mb-6">
@@ -318,10 +342,20 @@ export default function UnitsPage() {
               <DropdownMenuContent className="border-gray-200">
                 <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => setSelectedStatus("all")}>All Status</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSelectedStatus("published")}>Published</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSelectedStatus("draft")}>Draft</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSelectedStatus("archived")}>Archived</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSelectedStatus("all")}>
+                  All Status
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setSelectedStatus("published")}
+                >
+                  Published
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSelectedStatus("draft")}>
+                  Draft
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSelectedStatus("archived")}>
+                  Archived
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -334,76 +368,97 @@ export default function UnitsPage() {
                 <TableHead>Instructor</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Students</TableHead>
-                <TableHead>Completion</TableHead>
+                {/* <TableHead>Students</TableHead> */}
+                {/* <TableHead>Completion</TableHead> */}
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredUnits.map((unit) => (
-                <TableRow key={unit.id} className="border-gray-200">
+              {contentList && contentList.map((content) => (
+                <TableRow key={content.id} className="border-gray-200">
                   <TableCell>
                     <div className="flex items-center space-x-3">
                       <div className="flex items-center justify-center w-8 h-8 bg-gray-100 rounded-full text-sm font-medium text-gray-600">
-                        {unit.order}
+                        {content.order}
                       </div>
                       <div className="space-y-1">
-                        <p className="text-sm font-medium text-gray-900">{unit.title}</p>
-                        <p className="text-xs text-gray-600 max-w-xs truncate">{unit.description}</p>
-                        {unit.duration && (
+                        <p className="text-sm font-medium text-gray-900">
+                          {content.title}
+                        </p>
+                        <p className="text-xs text-gray-600 max-w-xs truncate">
+                          {content.description}
+                        </p>
+                        {content.completion_time && (
                           <div className="flex items-center text-xs text-gray-600">
                             <Clock className="mr-1 h-3 w-3" />
-                            {unit.duration}
+                            {content.completion_time} minutes
                           </div>
                         )}
                       </div>
                     </div>
                   </TableCell>
                   <TableCell>
-                    <p className="text-sm font-medium text-gray-900">{unit.course}</p>
+                    <p className="text-sm font-medium text-gray-900">
+                      {content.course}
+                    </p>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-2">
                       <Avatar className="h-6 w-6">
-                        <AvatarImage src={unit.instructorAvatar || "/placeholder.svg"} />
+                        <AvatarImage
+                          src={content.instructor?.avatar || "/placeholder.svg"}
+                        />
                         <AvatarFallback>
-                          {unit.instructor
+                          {content.instructor.name
                             .split(" ")
                             .map((n) => n[0])
                             .join("")}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="text-sm text-gray-900">{unit.instructor}</span>
+                      <span className="text-sm text-gray-900">
+                        {content.instructor.name}
+                      </span>
                     </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-2">
-                      {getTypeIcon(unit.type)}
-                      <Badge variant="secondary" className={getTypeColor(unit.type)}>
-                        {unit.type}
+                      {getTypeIcon(content.content_type)}
+                      <Badge
+                        variant="secondary"
+                        className={getTypeColor(content.content_type)}
+                      >
+                        {mapChoice(content.content_type, ContentType)}
                       </Badge>
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge variant="secondary" className={getStatusColor(unit.status)}>
-                      {unit.status}
+                    <Badge
+                      variant="secondary"
+                      className={getStatusColor(content.status)}
+                    >
+                      {mapChoice(content.status, Status)}
                     </Badge>
                   </TableCell>
-                  <TableCell>
-                    <p className="text-sm font-medium">{unit.students.toLocaleString()}</p>
-                  </TableCell>
-                  <TableCell>
-                    {unit.completionRate > 0 ? (
+                  {/* <TableCell>
+                    <p className="text-sm font-medium">
+                      {content.students.toLocaleString()}
+                    </p>
+                  </TableCell> */}
+                  {/* <TableCell>
+                    {content.completionRate > 0 ? (
                       <div className="space-y-1">
                         <div className="flex items-center justify-between text-xs">
-                          <span>{unit.completionRate}%</span>
+                          <span>{content.completionRate}%</span>
                         </div>
-                        <Progress value={unit.completionRate} className="h-1 w-16" />
+                        <Progress
+                          value={content.completionRate}
+                          className="h-1 w-16"
+                        />
                       </div>
                     ) : (
                       <span className="text-sm text-gray-400">No data</span>
                     )}
-                  </TableCell>
+                  </TableCell> */}
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -427,7 +482,7 @@ export default function UnitsPage() {
                           View Analytics
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        {unit.status === "Published" ? (
+                        {content.status === "Published" ? (
                           <DropdownMenuItem>
                             <Pause className="mr-2 h-4 w-4" />
                             Unpublish
@@ -451,10 +506,11 @@ export default function UnitsPage() {
           </Table>
         </CardContent>
       </Card>
-        <CreateContentForm
+      <CreateContentForm
         isOpen={isCreateModalOpen}
         onSubmit={handleCreateUnit}
-        onCancel={() => setIsCreateModalOpen(false)} />
+        onCancel={() => setIsCreateModalOpen(false)}
+      />
     </div>
-  )
+  );
 }

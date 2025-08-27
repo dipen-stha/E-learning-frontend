@@ -19,7 +19,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Progress } from "@/components/ui/Progress";
 import { Badge } from "@/components/ui/Badge";
 import Navigation from "@/components/Navigation";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { useCourseStore } from "@/stores/Courses/Course";
+import { useSubjectStore } from "@/stores/Subjects/Subjects";
 
 // Mock lesson data
 const lessonData = {
@@ -142,6 +144,9 @@ export default function LessonContent() {
   const contentRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const { subject_id } = useParams();
+
+  // const fetchCourseById = useSubjectStore((state) => state.fetchSubject);
 
   const handleBackToCourse = () => {
     console.log("Navigate back to course");
@@ -192,6 +197,8 @@ export default function LessonContent() {
         }
       }
     };
+    console.log(subject_id)
+    // fetchCourseById(Number(course_id));
 
     const container = mainContainerRef.current;
     if (container) {
