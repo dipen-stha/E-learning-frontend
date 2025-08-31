@@ -121,11 +121,12 @@ export default function CourseDetails() {
   const [activeUnit, setActiveUnit] = useState<number | null>(null);
   const { course_id } = useParams();
   const navigate = useNavigate();
-
-  const { fetchCourseById, courseItem } = useCourseStore();
+  const fetchCourseById = useCourseStore(state => state.fetchCourseById)
+  const courseItem = useCourseStore(state => state.courseItem)
   const [showEnrollModal, setShowEnrollModal] = useState(false);
-  const { fetchUserCourseByCourse, userCourseItem, isEnrolledToCourse } =
-    useUserCourseStore();
+  const fetchUserCourseByCourse = useUserCourseStore(state => state.fetchUserCourseByCourse);
+  const userCourseItem = useUserCourseStore(state => state.userCourseItem);
+  const isEnrolledToCourse = useUserCourseStore(state => state.isEnrolledToCourse);
   const userItem = useUserStore((state) => state.userDetail);
   const plan = {
     id: "full",
@@ -149,7 +150,8 @@ export default function CourseDetails() {
   const enrollPayload = useEnrollStore(state => state.enrollmentPayload)
   const setEnrollPayload = useEnrollStore(state => state.setPayload)
   const [payload, setPayload] = useState(enrollPayload);
-
+  const createUserCourse = useUserCourseStore(state => state.createUserCourse)
+  const userDetail = useUserStore(state => state.userDetail)
 
   const handleBackToDashboard = () => {
     // This would handle navigation back to dashboard
@@ -160,7 +162,6 @@ export default function CourseDetails() {
     setShowEnrollModal(true);
   };
   const enrollCourse = () => {
-    console.log(courseItem, userItem)
     if(courseItem && userItem){
       const updatedPayload = {
         ...payload,
@@ -193,9 +194,20 @@ export default function CourseDetails() {
       })
     : courseItem?.subjects;
 
-  const handleStartLesson = (subjectId: number) => {
-
+  const handleStartCourse = (is_enrolled: boolean) => {
+    if(is_enrolled){
+      
+    }
+    else{
+      if(userDetail && course_id)
+      createUserCourse(userDetail.id, Number(course_id))
+      navigate(`/subject/${course_id}/contents/`)
+    }
   };
+
+  const handleStartLesson = (subject_id: number) => {
+    navigate(`/subject/${subject_id}/contents/`)
+  }
 
   const toggleUnit = (unitId: number) => {
     setActiveUnit(activeUnit === unitId ? null : unitId);
@@ -205,7 +217,8 @@ export default function CourseDetails() {
     const load = async () => {
       try{
         await fetchUserEnrollmentByCourse(Number(course_id))
-        await fetchCourseById(Number(course_id));
+        await fetchCourseById(Number(course_id))
+        await fetchUserCourseByCourse(Number(course_id))
       } catch (error: any) {
         if (error?.status === 404){
           navigate("/dashboard")
@@ -327,15 +340,13 @@ export default function CourseDetails() {
                         alt={courseItem?.title}
                         className="w-full h-48 object-cover rounded-lg mb-4 border-2 border-indigo-100"
                       />
-                      <Link to={`/subject/${course_id}/contents`}>
                       <Button
                         className="w-full bg-gradient-to-r from-emerald-500 to-cyan-600 hover:from-emerald-600 hover:to-cyan-700 mb-3 shadow-lg"
-                        onClick={() => handleStartLesson(3)}
+                        onClick={() => handleStartCourse(userCourseEnrollmentItem.is_started)}
                       >
                         <Play className="w-4 h-4 mr-2" />
                         {userCourseEnrollmentItem.is_started ? 'Continute Learning' : `Start Course`}
                       </Button>
-                      </Link>
                       <Button
                         variant="outline"
                         className="w-full bg-gray-200 border-rose-300 text-sky-600 hover:bg-rose-50"
@@ -503,7 +514,7 @@ export default function CourseDetails() {
                         Topics Covered:
                       </h4>
                       <div className="grid gap-2">
-                        {!courseItem?.is_enrolled
+                        {!isEnrolledToCourse
                           ? subject.units.map((unit, topicIndex) => (
                               <div
                                 key={topicIndex}
@@ -530,24 +541,24 @@ export default function CourseDetails() {
                                   <Circle className="w-4 h-4 text-rose-400 flex-shrink-0" />
                                 )}
                                 <span className="text-sm text-gray-600">
-                                  {`${unit}`}
+                                  {`${unit.title}`}
                                 </span>
                               </div>
                             ))}
                       </div>
-                      {courseItem?.is_enrolled && <div className="mt-4 pt-4 border-t border-indigo-100">
+                      {isEnrolledToCourse && <div className="mt-4 pt-4 border-t border-indigo-100">
                         <Button
                           className={`${
                             subject.completion_percent === 100
                               ? "bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700"
-                              : "bg-gradient-to-r from-rose-500 to-violet-600 hover:from-rose-600 hover:to-violet-700"
+                              : "bg-gradient-to-r from-sky-700 to-cyan-600 hover:from-sky-800 hover:to-cyan-700"
                           } shadow-lg`}
                           onClick={() => handleStartLesson(subject.id)}
                         >
                           <Play className="w-4 h-4 mr-2" />
                           {subject.completion_percent === 100
                             ? "Review Unit"
-                            : "Continue Unit"}
+                            : subject.completion_percent === 0 ? "Start Unit" : "Continue Unit"}
                         </Button>
                       </div>}
                     </div>

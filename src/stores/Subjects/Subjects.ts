@@ -18,13 +18,13 @@ export const useSubjectStore = create<SubjectState>((set, get) => ({
   subjectPayload: initialPayload,
   subjectDetailList: [],
   subjectMinimalList: [],
+  subjectItem: null,
   isLoading: false,
 
-  // Setter
   setSubjectPayload: (data: Partial<SubjectPayload>) =>
     set((state) => ({ subjectPayload: { ...state.subjectPayload, ...data } })),
+  resetSubjectPayload: () => set({subjectPayload: initialPayload}),
 
-  // Create Subject
   createSubject: async () => {
     set({isLoading: true})
     const payload = get().subjectPayload;
@@ -32,7 +32,7 @@ export const useSubjectStore = create<SubjectState>((set, get) => ({
 
     try {
       const response = await api.post(subjectAPI.createSubject, payload);
-      // get().reset(); // free memory after creating
+
       set({isLoading: false})
       return response.data;
     } catch (err) {
@@ -42,12 +42,11 @@ export const useSubjectStore = create<SubjectState>((set, get) => ({
     }
   },
 
-  // Fetch subjects lazily
   fetchSubjects: async () => {
     set({isLoading: true})
     try {
       const response = await api.get(subjectAPI.fetchSubjects);
-      // Store only minimal data needed
+
       set({ subjectDetailList: response.data, isLoading: false});
       return response.data;
     } catch (err) {
@@ -80,6 +79,15 @@ export const useSubjectStore = create<SubjectState>((set, get) => ({
       set({isLoading:false})
     } catch (error){
       set({isLoading:false})
+    }
+  },
+  fetchSubjectById: async(subjectId) => {
+    set({isLoading: true})
+    try{
+      const response = await api.get(subjectAPI.fetchSubjectById(subjectId))
+      set({subjectItem: response.data})
+    } catch {
+
     }
   },
 

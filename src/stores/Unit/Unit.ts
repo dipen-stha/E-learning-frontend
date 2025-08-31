@@ -24,6 +24,7 @@ const initialState = {
 export const useUnitStore = create<UnitState>((set, get) => ({
   ...initialState,
   setPayload: (data: UnitPayload) => set({ unitPayload: data }),
+  resetPayload: () => set({unitPayload: initialUnitPayload}),
   fetchAllUnits: async () => {
     set({ isLoading: true });
     try {
