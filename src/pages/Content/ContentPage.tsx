@@ -13,6 +13,7 @@ import {
   Clock,
   BookOpen,
   ChevronDown,
+  CirclePlay,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
@@ -22,131 +23,95 @@ import Navigation from "@/components/Navigation";
 import { useNavigate, useParams } from "react-router-dom";
 import { useCourseStore } from "@/stores/Courses/Course";
 import { useSubjectStore } from "@/stores/Subjects/Subjects";
-
-// Mock lesson data
-const lessonData = {
-  id: 1,
-  title: "Event Delegation in JavaScript",
-  courseTitle: "JavaScript Fundamentals",
-  unit: "DOM Manipulation",
-  duration: "25 min",
-  progress: 60,
-  sections: [
-    {
-      id: 1,
-      title: "Introduction to Event Delegation",
-      type: "video",
-      duration: "5 min",
-      completed: true,
-      content: {
-        videoUrl: "/javascript-event-delegation-video.png",
-        description:
-          "Learn the basics of event delegation and why it's important for efficient DOM manipulation.",
-      },
-    },
-    {
-      id: 2,
-      title: "Event Bubbling Explained",
-      type: "text",
-      duration: "8 min",
-      completed: true,
-      content: {
-        text: `Event bubbling is a fundamental concept in JavaScript that describes how events propagate through the DOM tree. When an event occurs on an element, it doesn't just affect that element - it "bubbles up" through its parent elements.
-
-## How Event Bubbling Works
-
-When you click on a nested element, the event starts at the target element and then bubbles up through each parent element until it reaches the document root. This behavior allows us to implement event delegation effectively.
-
-### Example Code:
-\`\`\`javascript
-document.addEventListener('click', function(event) {
-  console.log('Clicked element:', event.target);
-  console.log('Current element:', event.currentTarget);
-});
-\`\`\`
-
-This bubbling behavior is what makes event delegation possible and efficient.`,
-      },
-    },
-    {
-      id: 3,
-      title: "Practical Implementation",
-      type: "code",
-      duration: "7 min",
-      completed: false,
-      content: {
-        code: `// Event delegation example
-const todoList = document.getElementById('todo-list');
-
-todoList.addEventListener('click', function(event) {
-  // Check if clicked element is a delete button
-  if (event.target.classList.contains('delete-btn')) {
-    const todoItem = event.target.closest('.todo-item');
-    todoItem.remove();
-  }
-  
-  // Check if clicked element is a complete button
-  if (event.target.classList.contains('complete-btn')) {
-    const todoItem = event.target.closest('.todo-item');
-    todoItem.classList.toggle('completed');
-  }
-});`,
-        language: "javascript",
-        description:
-          "A practical example showing how to use event delegation for a todo list application.",
-      },
-    },
-    {
-      id: 4,
-      title: "Visual Diagram",
-      type: "image",
-      duration: "3 min",
-      completed: false,
-      content: {
-        imageUrl: "/event-delegation-diagram.png",
-        description:
-          "Visual representation of how event delegation works in the DOM tree.",
-      },
-    },
-    {
-      id: 5,
-      title: "Best Practices & Performance",
-      type: "text",
-      duration: "2 min",
-      completed: false,
-      content: {
-        text: `## Best Practices for Event Delegation
-
-1. **Use specific selectors**: Always check for specific classes or attributes to avoid unintended behavior.
-2. **Limit delegation scope**: Attach event listeners to the closest common parent, not always to the document.
-3. **Performance benefits**: Reduces memory usage by having fewer event listeners.
-
-### When to Use Event Delegation:
-- Dynamic content that's added/removed frequently
-- Large lists with many interactive elements
-- When you need to handle events on elements that don't exist yet`,
-      },
-    },
-  ],
-  resources: [
-    { name: "Event Delegation Cheat Sheet", type: "pdf", url: "#" },
-    { name: "Practice Exercises", type: "zip", url: "#" },
-    { name: "Code Examples", type: "js", url: "#" },
-  ],
-};
+import { ContentDetail } from "@/services/types/Content";
+import { ContentType, mapChoice } from "@/services/utils/choiceUtils";
+import { useUserSubjectStore } from "@/stores/UserSubject/UserSubject";
+import { useUserUnitStore } from "@/stores/UserUnit/UserUnit";
 
 export default function LessonContent() {
   const [currentPage, setCurrentPage] = useState(0); // 0 for header page, 1 for content page
   const [activeSection, setActiveSection] = useState(1);
-  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
   const mainContainerRef = useRef<HTMLDivElement>(null);
   const contentRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { subject_id } = useParams();
 
-  // const fetchCourseById = useSubjectStore((state) => state.fetchSubject);
+  const fetchSubjectById = useSubjectStore((state) => state.fetchSubjectById);
+  const subjectItem = useSubjectStore((state) => state.subjectItem);
+  const fetchUserSubjectStats = useUserSubjectStore(
+    (state) => state.fetchUserSubjectStats
+  );
+  const userSubjectStats = useUserSubjectStore(
+    (state) => state.userSubjectStatus
+  );
+
+  const fetchUserUnitBySubject = useUserUnitStore(
+    (state) => state.fetchUserUnitBySubject
+  );
+  const userUnitStatus = useUserUnitStore((state) => state.userUnitStatus);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+
+  const togglePlay = () => {
+    if (videoRef.current) {
+      if (isVideoPlaying) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play();
+      }
+      setIsVideoPlaying(!isVideoPlaying);
+    }
+  };
+
+  const toggleMute = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = !isMuted;
+      setIsMuted(!isMuted);
+    }
+  };
+
+  useEffect(() => {
+    let frameId: number;
+    const updatetime = () => {
+      if (videoRef.current) {
+        setCurrentTime(videoRef.current.currentTime);
+        frameId = requestAnimationFrame(updatetime);
+      }
+    };
+
+    if (isVideoPlaying) {
+      frameId = requestAnimationFrame(updatetime);
+    }
+    return () => cancelAnimationFrame(frameId);
+  }, [isVideoPlaying]);
+
+  const handleLoadedMetadata = () => {
+    if (videoRef.current) setDuration(videoRef.current.duration);
+  };
+
+  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (videoRef.current) {
+      videoRef.current.currentTime = Number(e.target.value);
+      setCurrentTime(Number(e.target.value));
+    }
+  };
+
+  const jumpTo = (time: number) => {
+    if (videoRef.current) {
+      videoRef.current.currentTime = time;
+      setCurrentTime(time);
+    }
+  };
+
+  const formatTime = (time: number) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}: ${seconds.toString().padStart(2, "0")}`;
+  };
 
   const handleBackToCourse = () => {
     console.log("Navigate back to course");
@@ -171,7 +136,6 @@ export default function LessonContent() {
 
       const target = e.target as HTMLElement;
       const isInContentArea = scrollContainerRef.current?.contains(target);
-
       if (isInContentArea) {
         const scrollContainer = scrollContainerRef.current;
         if (scrollContainer && e.deltaY < 0 && scrollContainer.scrollTop <= 5) {
@@ -197,8 +161,6 @@ export default function LessonContent() {
         }
       }
     };
-    console.log(subject_id)
-    // fetchCourseById(Number(course_id));
 
     const container = mainContainerRef.current;
     if (container) {
@@ -206,6 +168,16 @@ export default function LessonContent() {
       return () => container.removeEventListener("wheel", handleWheel);
     }
   }, [currentPage]);
+
+  const filterUnit = (unitId: number) => {
+    return userUnitStatus.find((unit) => unit.unit_id === unitId);
+  };
+
+  useEffect(() => {
+    fetchSubjectById(Number(subject_id));
+    fetchUserSubjectStats(Number(subject_id));
+    fetchUserUnitBySubject(Number(subject_id));
+  }, []);
 
   useEffect(() => {
     if (currentPage !== 1) return;
@@ -218,24 +190,25 @@ export default function LessonContent() {
       const containerHeight = scrollContainer.clientHeight;
 
       let newActiveSection = activeSection;
-
+      let units = subjectItem?.units;
       // Find which section is most visible
-      for (const section of lessonData.sections) {
-        const element = contentRefs.current[section.id];
-        if (!element) continue;
+      if (units)
+        for (const section of units) {
+          const element = contentRefs.current[section.id];
+          if (!element) continue;
 
-        const elementTop = element.offsetTop - scrollContainer.offsetTop;
-        const elementBottom = elementTop + element.offsetHeight;
+          const elementTop = element.offsetTop - scrollContainer.offsetTop;
+          const elementBottom = elementTop + element.offsetHeight;
 
-        // Check if section is in viewport
-        if (
-          elementTop <= scrollTop + containerHeight / 2 &&
-          elementBottom > scrollTop + containerHeight / 2
-        ) {
-          newActiveSection = section.id;
-          break;
+          // Check if section is in viewport
+          if (
+            elementTop <= scrollTop + containerHeight / 2 &&
+            elementBottom > scrollTop + containerHeight / 2
+          ) {
+            newActiveSection = section.id;
+            break;
+          }
         }
-      }
 
       if (newActiveSection !== activeSection) {
         setActiveSection(newActiveSection);
@@ -265,26 +238,34 @@ export default function LessonContent() {
     }
   };
 
-  const completedSections = lessonData.sections.filter(
-    (section) => section.completed
-  ).length;
-
-  const renderContent = (section: (typeof lessonData.sections)[0]) => {
-    switch (section.type) {
-      case "video":
+  const renderContent = (content: ContentDetail) => {
+    switch (content.content_type) {
+      case "VIDEO":
+        // const handleVideoEnded = () => {
+        //   setIsVideoPlaying(false)
+        // }
         return (
           <div className="space-y-4">
-            <div className="relative bg-gray-900 rounded-lg overflow-hidden">
-              <img
-                src={section.content.videoUrl || "/placeholder.svg"}
-                alt="Video thumbnail"
+            <div className="relative bg-gray-900 rounded-lg overflow-hidden group">
+              <video
+                ref={videoRef}
+                src={content.file_url as string}
                 className="w-full h-64 object-cover"
+                muted={isMuted}
+                onEnded={() => {
+                  setIsVideoPlaying(false);
+                  setCurrentTime(0);
+                  if (videoRef.current) videoRef.current.currentTime = 0;
+                }}
+                onLoadedMetadata={handleLoadedMetadata}
               />
-              <div className="absolute inset-0 flex items-center justify-center">
+
+              {/* Play/Pause button */}
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                 <Button
                   size="lg"
                   className="bg-white/90 hover:bg-white text-gray-900 rounded-full w-16 h-16"
-                  onClick={() => setIsVideoPlaying(!isVideoPlaying)}
+                  onClick={togglePlay}
                 >
                   {isVideoPlaying ? (
                     <Pause className="w-6 h-6" />
@@ -293,12 +274,14 @@ export default function LessonContent() {
                   )}
                 </Button>
               </div>
-              <div className="absolute bottom-4 right-4 flex gap-2">
+
+              {/* Mute button */}
+              <div className="absolute bottom-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                 <Button
                   size="sm"
                   variant="secondary"
                   className="bg-black/50 hover:bg-black/70 text-white"
-                  onClick={() => setIsMuted(!isMuted)}
+                  onClick={toggleMute}
                 >
                   {isMuted ? (
                     <VolumeX className="w-4 h-4" />
@@ -308,7 +291,36 @@ export default function LessonContent() {
                 </Button>
               </div>
             </div>
-            <p className="text-gray-600">{section.content.description}</p>
+            {/* Progress Bar */}
+            <div className="absolute bottom-0 left-0 right-0 px-4 pb-2 flex items-center gap-2 text-white text-sm">
+              <span>{formatTime(currentTime)}</span>
+              <input
+                type="range"
+                min="0"
+                max={duration}
+                value={currentTime}
+                onChange={handleSeek}
+                className="flex-1 accent-regal-blue"
+              />
+              <span>{formatTime(duration)}</span>
+            </div>
+            <div className="space-y-2">
+              <h4 className="font-semibold">Timestamps</h4>
+              <ul className="space-y-1">
+                {content.video_time_stamps?.map((ts, i) => (
+                  <li key={i}>
+                    <button
+                      className="text-blue-600 hover:underline"
+                      onClick={() => jumpTo(ts.time_stamp as number)}
+                    >
+                      {formatTime(ts.time_stamp as number)} - {ts.title}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            {/* Description */}
+            <p className="text-gray-600">{content.description}</p>
           </div>
         );
 
@@ -316,7 +328,7 @@ export default function LessonContent() {
         return (
           <div className="prose max-w-none">
             <div className="whitespace-pre-line text-gray-700 leading-relaxed">
-              {section.content.text}
+              {content.description}
             </div>
           </div>
         );
@@ -324,10 +336,10 @@ export default function LessonContent() {
       case "code":
         return (
           <div className="space-y-4">
-            <p className="text-gray-600">{section.content.description}</p>
+            <p className="text-gray-600">{content.description}</p>
             <div className="bg-gray-900 rounded-lg p-4 overflow-x-auto">
               <pre className="text-green-400 text-sm">
-                <code>{section.content.code}</code>
+                <code>{content.description}</code>
               </pre>
             </div>
           </div>
@@ -337,11 +349,11 @@ export default function LessonContent() {
         return (
           <div className="space-y-4">
             <img
-              src={section.content.imageUrl || "/placeholder.svg"}
-              alt={section.title}
+              src={content.file_url || "/placeholder.svg"}
+              alt={content.title}
               className="w-full rounded-lg border border-violet-200"
             />
-            <p className="text-gray-600">{section.content.description}</p>
+            <p className="text-gray-600">{content.description}</p>
           </div>
         );
 
@@ -352,13 +364,13 @@ export default function LessonContent() {
 
   const getContentIcon = (type: string) => {
     switch (type) {
-      case "video":
+      case "VIDEO":
         return <Video className="w-4 h-4" />;
-      case "text":
+      case "TEXT":
         return <FileText className="w-4 h-4" />;
-      case "code":
+      case "CODE":
         return <BookOpen className="w-4 h-4" />;
-      case "image":
+      case "IMAGE":
         return <ImageIcon className="w-4 h-4" />;
       default:
         return <Circle className="w-4 h-4" />;
@@ -370,7 +382,6 @@ export default function LessonContent() {
       ref={mainContainerRef}
       className="h-screen overflow-hidden bg-gradient-to-br from-violet-100 to-cyan-100"
     >
-
       <div className="relative h-full">
         {/* Header Page */}
         <div
@@ -378,7 +389,7 @@ export default function LessonContent() {
             currentPage === 0 ? "translate-y-0" : "-translate-y-full"
           }`}
         >
-          <div className="h-full flex flex-col">
+          <div className="h-[90%] flex flex-col ">
             <header className="bg-white/80 backdrop-blur-sm border-b border-violet-200">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                 <div className="flex items-center gap-4 mb-4">
@@ -392,7 +403,7 @@ export default function LessonContent() {
                     Back to Course
                   </Button>
                   <Badge className="bg-cyan-100 text-cyan-700 border-cyan-200">
-                    {lessonData.unit}
+                    {subjectItem?.title}
                   </Badge>
                 </div>
               </div>
@@ -401,11 +412,11 @@ export default function LessonContent() {
             <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8">
               <div className="max-w-4xl mx-auto text-center">
                 <h1 className="text-4xl lg:text-6xl font-bold bg-gradient-to-r from-violet-600 to-cyan-600 bg-clip-text text-transparent mb-6">
-                  {lessonData.title}
+                  {subjectItem?.title}
                 </h1>
                 <p className="text-xl text-gray-600 mb-8">
                   Part of{" "}
-                  <span className="font-medium">{lessonData.courseTitle}</span>
+                  <span className="font-medium">{`${subjectItem?.course.title}`}</span>
                 </p>
 
                 <div className="bg-white/90 backdrop-blur-sm rounded-xl p-8 border border-violet-200 mb-8 max-w-2xl mx-auto">
@@ -414,21 +425,17 @@ export default function LessonContent() {
                       Lesson Progress
                     </span>
                     <span className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-cyan-600 bg-clip-text text-transparent">
-                      {Math.round(
-                        (completedSections / lessonData.sections.length) * 100
-                      )}
-                      %
+                      {userSubjectStats?.completion_percent}%
                     </span>
                   </div>
                   <Progress
-                    value={
-                      (completedSections / lessonData.sections.length) * 100
-                    }
+                    value={(userSubjectStats?.completion_percent || 0) * 100}
                     className="h-3 mb-4"
                   />
                   <p className="text-gray-600">
-                    {completedSections} of {lessonData.sections.length} sections
-                    completed • {lessonData.duration}
+                    {userSubjectStats?.completed_units} of{" "}
+                    {userSubjectStats?.total_units} sections completed •{" "}
+                    {subjectItem?.completion_time} hours
                   </p>
                 </div>
 
@@ -443,7 +450,7 @@ export default function LessonContent() {
               </div>
             </div>
 
-            <div className="text-center pb-8">
+            <div className="text-center">
               <p className="text-gray-500 text-sm mb-2">Scroll down to begin</p>
               <ChevronDown className="w-6 h-6 mx-auto text-gray-400 animate-bounce" />
             </div>
@@ -471,11 +478,11 @@ export default function LessonContent() {
                       Back to Overview
                     </Button>
                     <Badge className="bg-cyan-100 text-cyan-700 border-cyan-200">
-                      {lessonData.unit}
+                      {subjectItem?.title}
                     </Badge>
                   </div>
                   <h2 className="text-lg font-semibold bg-gradient-to-r from-violet-600 to-cyan-600 bg-clip-text text-transparent">
-                    {lessonData.title}
+                    {subjectItem?.title}
                   </h2>
                 </div>
               </div>
@@ -491,7 +498,7 @@ export default function LessonContent() {
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-2 overflow-y-auto max-h-[calc(100%-80px)]">
-                      {lessonData.sections.map((section) => (
+                      {subjectItem?.units?.map((section) => (
                         <div
                           key={section.id}
                           className={`p-3 rounded-lg cursor-pointer transition-all duration-300 ease-in-out transform ${
@@ -504,14 +511,16 @@ export default function LessonContent() {
                           <div className="flex items-center gap-3">
                             <div
                               className={`flex-shrink-0 transition-colors duration-300 ${
-                                section.completed
+                                filterUnit(section.id)?.status === "COMPLETED"
                                   ? "text-emerald-600"
                                   : "text-gray-400"
                               }`}
                             >
-                              {section.completed ? (
+                              {filterUnit(section.id)?.status === "COMPLETED" ? (
                                 <CheckCircle className="w-5 h-5" />
                               ) : (
+                                filterUnit(section.id)?.is_started ?
+                                <CirclePlay className="w-5 h-5 text-cyan-700" /> :
                                 <Circle className="w-5 h-5" />
                               )}
                             </div>
@@ -524,7 +533,9 @@ export default function LessonContent() {
                                       : "text-gray-500"
                                   }`}
                                 >
-                                  {getContentIcon(section.type)}
+                                  {getContentIcon(
+                                    String(section.contents?.[0]?.content_type)
+                                  )}
                                 </div>
                                 <span
                                   className={`text-sm font-medium truncate transition-colors duration-300 ${
@@ -538,17 +549,12 @@ export default function LessonContent() {
                               </div>
                               <div className="flex items-center gap-2 text-xs text-gray-500">
                                 <Clock className="w-3 h-3" />
-                                <span>{section.duration}</span>
-                                <Badge
-                                  variant="outline"
-                                  className={`text-xs px-1 py-0 transition-colors duration-300 ${
-                                    activeSection === section.id
-                                      ? "border-violet-300 text-violet-600 bg-violet-50"
-                                      : "border-gray-300 text-gray-500"
-                                  }`}
-                                >
-                                  {section.type}
-                                </Badge>
+                                <span>
+                                  {section.completion_time}{" "}
+                                  {section.completion_time === 1
+                                    ? `minute`
+                                    : `minutes`}
+                                </span>
                               </div>
                             </div>
                           </div>
@@ -568,61 +574,80 @@ export default function LessonContent() {
                 <div className="flex-1 min-w-0">
                   <div
                     ref={scrollContainerRef}
-                    className="h-full overflow-y-auto pr-2 space-y-8"
+                    className="h-full overflow-y-auto pr-2 space-y-8 md:min-w-[800px] lg:min-w-[800px]"
                   >
-                    {lessonData.sections.map((section) => (
+                    {subjectItem?.units?.map((section) => (
                       <div
                         key={section.id}
-                        ref={(el) => {contentRefs.current[section.id] = el}}
+                        ref={(el) => {
+                          contentRefs.current[section.id] = el;
+                        }}
                         className="scroll-mt-4"
                       >
-                        <Card className="bg-white/90 backdrop-blur-sm border-violet-200">
-                          <CardHeader>
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <CardTitle className="text-xl bg-gradient-to-r from-violet-600 to-cyan-600 bg-clip-text text-transparent">
-                                  {section.title}
-                                </CardTitle>
-                                <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
-                                  <div className="flex items-center gap-1">
-                                    {getContentIcon(section.type)}
-                                    <span className="capitalize">
-                                      {section.type} Content
-                                    </span>
+                        <Card className="border-gray-200  px-2">
+                          <Badge variant="secondary">{section.title}</Badge>
+                          {section?.contents?.map((content) => (
+                            <Card
+                              key={content.id}
+                              className="bg-white/90 backdrop-blur-sm border-violet-200"
+                            >
+                              <CardHeader>
+                                <div className="flex items-center justify-between">
+                                  <div>
+                                    <CardTitle className="text-xl bg-gradient-to-r from-violet-600 to-cyan-600 bg-clip-text text-transparent">
+                                      {content.title}
+                                    </CardTitle>
+                                    <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
+                                      <div className="flex items-center gap-1">
+                                        {getContentIcon(content.content_type)}
+                                        <span className="capitalize">
+                                          {mapChoice(
+                                            content.content_type,
+                                            ContentType
+                                          )}{" "}
+                                          Content
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center gap-1">
+                                        <Clock className="w-4 h-4" />
+                                        <span>
+                                          {content.completion_time}{" "}
+                                          {content.completion_time === 1
+                                            ? `minute`
+                                            : `minutes`}
+                                        </span>
+                                      </div>
+                                    </div>
                                   </div>
-                                  <div className="flex items-center gap-1">
-                                    <Clock className="w-4 h-4" />
-                                    <span>{section.duration}</span>
-                                  </div>
+                                  <Button
+                                    onClick={() =>
+                                      handleSectionComplete(section.id)
+                                    }
+                                    className={`${
+                                      section.is_completed
+                                        ? "bg-emerald-500 hover:bg-emerald-600"
+                                        : "bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-700 hover:to-cyan-700"
+                                    }`}
+                                  >
+                                    {section.is_completed ? (
+                                      <>
+                                        <CheckCircle className="w-4 h-4 mr-2" />
+                                        Completed
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Circle className="w-4 h-4 mr-2" />
+                                        Mark Complete
+                                      </>
+                                    )}
+                                  </Button>
                                 </div>
-                              </div>
-                              <Button
-                                onClick={() =>
-                                  handleSectionComplete(section.id)
-                                }
-                                className={`${
-                                  section.completed
-                                    ? "bg-emerald-500 hover:bg-emerald-600"
-                                    : "bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-700 hover:to-cyan-700"
-                                }`}
-                              >
-                                {section.completed ? (
-                                  <>
-                                    <CheckCircle className="w-4 h-4 mr-2" />
-                                    Completed
-                                  </>
-                                ) : (
-                                  <>
-                                    <Circle className="w-4 h-4 mr-2" />
-                                    Mark Complete
-                                  </>
-                                )}
-                              </Button>
-                            </div>
-                          </CardHeader>
-                          <CardContent className="space-y-6">
-                            {renderContent(section)}
-                          </CardContent>
+                              </CardHeader>
+                              <CardContent className="space-y-6">
+                                {renderContent(content)}
+                              </CardContent>
+                            </Card>
+                          ))}
                         </Card>
                       </div>
                     ))}

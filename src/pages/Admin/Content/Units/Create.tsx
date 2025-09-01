@@ -95,7 +95,7 @@ const modalActions=[
                     options={subjectMinimalList}
                     getOptionLabel={(option) => option.title}
                     getOptionValue={(option) => String(option.id)}
-                    onValueChange={(value) => updateField("subject_id", value)}
+                    onValueChange={(value: any) => updateField("subject_id", value.id)}
                 />
             </div>
           </div>

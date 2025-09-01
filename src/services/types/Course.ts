@@ -14,16 +14,16 @@ export interface MinimalCourse {
 export interface CourseDetail {
     id: number
     title: string
-    description: string | null
+    description?: string
     price: number
     completion_time: number
     student_count: number
-    course_rating: number | null
-    instructor: Profile | null
-    image_url: string | null
+    course_rating?: number
+    instructor?: Profile
+    image_url?: string
     subjects: SubjectDetail[] | []
     categories: string[] | []
-    total_revenue: number | null
+    total_revenue?: number
     status: string
     is_enrolled: boolean
 }
@@ -31,13 +31,13 @@ export interface CourseDetail {
 export interface SubjectDetail {
     id: number
     title: string
-    completion_time: number | null
-    order: number | null
+    completion_time?: number
+    order?: number
     units: UserUnitDetail[]
-    course: CourseDetail | null
-    total_units: number | null
-    completed_units: number | null
-    completion_percent: number | null
+    course?: CourseDetail
+    total_units?: number
+    completed_units?: number
+    completion_percent?: number
 }
 
 export interface UserUnitDetail {
@@ -75,7 +75,7 @@ export interface CourseState {
     setCourseItem: (courseItem: CourseDetail) => void;
     setCoursePayload: (data: CoursePayload) => void;
     fetchCourseDetails: () => void;
-    fetchCourseById: (course_id: number) => void;
+    fetchCourseById: (course_id: number) => Promise<void>;
     createCourse: () => Promise<void>;
     fetchCategoryList: () => Promise<void>;
     fetchMinimal: () => Promise<void>;
@@ -150,7 +150,7 @@ export interface UnitContentData{
 export interface ContentVideoTimeStamps {
     id: string;
     title: string
-    time_stamp: string
+    time_stamp: string | number
 }
 
 export interface UnitContentPayload {

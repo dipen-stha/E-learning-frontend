@@ -26,12 +26,47 @@ export interface UserCourseState {
     userCourseStats: UserCourseStats | null
     isEnrolledToCourse: boolean
 
-    fetchUserCourseStats: (userId: number) => void;
-    fetchUserCourseDetails: (userId: number) => void;
-    fetchUserCourseByCourse: (courseId: number) => void;
+
+    createUserCourse: (userId: number, courseId:number) => void;
+    fetchUserCourseStats: (userId: number) => Promise<void>;
+    fetchUserCourseDetails: (userId: number) => Promise<void>;
+    fetchUserCourseByCourse: (courseId: number) => Promise<void>;
+
 
     setUserStats: (userStats: UserCourseStats) => void;
     setUserCourseDetails: (detailList: UserCourseDetail[]) => void;
     setUserCourseItem: (item: UserCourseDetail) => void;
 
+}
+
+
+export interface UserSubjectDetail {
+
+}
+
+export interface UserSubjectStats {
+    total_units: number
+    completed_units: number
+    completion_percent: number
+}
+
+export interface UserSubjectState {
+    userSubjectStatus: UserSubjectStats | null
+
+    createUserSubject: () => void;
+    fetchUserSubjectStats: (subjectId: number) => Promise<void>;
+
+}
+
+export interface UserUnitDetail {
+    unit_id: number
+    status: string
+    is_started: boolean
+}
+
+export interface UserUnitState {
+    userUnitStatus: UserUnitDetail[];
+
+    userUnitCreate: (unitId: number) => Promise<void>;
+    fetchUserUnitBySubject: (subjectId: number) => Promise<void>;
 }

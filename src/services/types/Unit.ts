@@ -1,3 +1,4 @@
+import { ContentDetail } from "./Content"
 import { CourseDetail, SubjectDetail } from "./Course"
 
 export interface UnitDetail {
@@ -9,7 +10,9 @@ export interface UnitDetail {
     course: CourseDetail | string
     subject: SubjectDetail | string
     completion_time: number
-    objectives: string
+    objectives: string,
+    contents?: ContentDetail[]
+    is_completed?: boolean
 }
 
 export interface UnitPayload {
@@ -35,6 +38,7 @@ export interface UnitState {
     isLoading: boolean
 
     setPayload: (payloadData: UnitPayload) => void;
+    resetPayload: () => void;
 
     fetchAllUnits: () => Promise<void>;
     fetchMinimalUnitList: (subjectId: number | null) => Promise<void>;

@@ -64,6 +64,7 @@ export default function UnitContents() {
   const unitDetailList = useUnitStore((state) => state.unitListDetails);
   // const fetchSubjectsByCourse = useUnitStore(state => state.fetchSubjectsByCourse)
   const isUnitLoading = useUnitStore((state) => state.isLoading);
+  const resetPayload = useUnitStore((state) => state.resetPayload)
   const courseMinimal = useCourseStore((state) => state.courseMinimal);
   const fetchCourseMinimal = useCourseStore((state) => state.fetchMinimal);
   const fetchSubjectMinimal = useSubjectStore(
@@ -77,6 +78,11 @@ export default function UnitContents() {
     fetchSubjectMinimal(Number(courseId));
     // fetchSubjectsByCourse(Number(courseId));
   };
+
+  const handleModalClose = () => {
+    resetPayload();
+    setIsCreateModalOpen(false);
+  }
 
   const handleCreateUnit = async () => {
     try {
@@ -390,7 +396,7 @@ export default function UnitContents() {
       <CreateUnitForm
         isOpen={isCreateModalOpen}
         onSubmit={handleCreateUnit}
-        onCancel={() => setIsCreateModalOpen(false)}
+        onCancel={handleModalClose}
       />
     </div>
   );

@@ -47,6 +47,7 @@ export default function SubjectsPage() {
   const subjectDetailList = useSubjectStore(state => state.subjectDetailList)
   const fetchSubjectsByCourse = useSubjectStore(state => state.fetchSubjectsByCourse)
   const isSubjectsLoading = useSubjectStore(state => state.isLoading)
+  const resetSubjectPayload = useSubjectStore(state => state.resetSubjectPayload)
   const courseMinimal = useCourseStore(state => state.courseMinimal)
   const fetchMinimal = useCourseStore(state => state.fetchMinimal)
   const reset = useSubjectStore(state => state.reset)
@@ -64,6 +65,11 @@ export default function SubjectsPage() {
     } catch {
 
     }
+  }
+
+  const handleModalClose = () => {
+    resetSubjectPayload()
+    setIsCreateModalOpen(false);
   }
 
   useEffect(() => {
@@ -315,7 +321,7 @@ export default function SubjectsPage() {
         </CardContent>
       </Card>
 
-        <CreateSubjectForm isOpen={isCreateModalOpen} onSubmit={handleCreateSubject} onCancel={() => setIsCreateModalOpen(false)} />
+        <CreateSubjectForm isOpen={isCreateModalOpen} onSubmit={handleCreateSubject} onCancel={handleModalClose} />
     </div>
   )
 }

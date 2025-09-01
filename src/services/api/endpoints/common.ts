@@ -5,3 +5,13 @@ export const UserCourseAPI = {
     fetchUserCourseStats: (user_id: number) => `${prefix}/user-course/fetch-user-stats/${user_id}`,
     fetchUserCourseByCourse: (course_id: number) => `${prefix}/user-course/fetch-by-course/${course_id}`,
 }
+
+export const userSubjectAPI = {
+    create: `${prefix}/user-subject/create/`,
+    fetchUserSubjectStatus: (id: number) => `${prefix}/user-subject/${id}/status/`
+}
+
+export const userUnitAPI = {
+    createUserUnit: `${prefix}/user-unit/create/`,
+    fetchUserUnitStatus: (subject_id: number) => `${prefix}/user-unit/${subject_id}/status/`
+}
