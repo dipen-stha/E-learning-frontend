@@ -21,7 +21,6 @@ import { Progress } from "@/components/ui/Progress";
 import { Badge } from "@/components/ui/Badge";
 import Navigation from "@/components/Navigation";
 import { useNavigate, useParams } from "react-router-dom";
-import { useCourseStore } from "@/stores/Courses/Course";
 import { useSubjectStore } from "@/stores/Subjects/Subjects";
 import { ContentDetail } from "@/services/types/Content";
 import { ContentType, mapChoice } from "@/services/utils/choiceUtils";
@@ -49,14 +48,24 @@ export default function LessonContent() {
   const fetchUserUnitBySubject = useUserUnitStore(
     (state) => state.fetchUserUnitBySubject
   );
+
+  const userUnitCreate = useUserUnitStore((state) => state.userUnitCreate);
+  const updatePayload = useUserUnitStore((state) => state.updatePayload);
+  const updateUserUnitStatus = useUserUnitStore(
+    (state) => state.updateUserUnitStatus
+  );
+  const setUpdatePayload = useUserUnitStore((state) => state.setUpdatePayload);
+  const resetPayload = useUserUnitStore((state) => state.resetUpdatePayload);
+
   const userUnitStatus = useUserUnitStore((state) => state.userUnitStatus);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-
-  const togglePlay = () => {
+  const [focusedContentId, setFocusedContentId] = useState<number | null>(null);
+  const togglePlay = (canPlay: boolean) => {
+    if (!canPlay) return;
     if (videoRef.current) {
       if (isVideoPlaying) {
         videoRef.current.pause();
@@ -118,8 +127,27 @@ export default function LessonContent() {
     navigate("/course-detail/2");
   };
 
-  const handleSectionComplete = (sectionId: number) => {
-    console.log(`Mark section ${sectionId} as complete`);
+  const handleUnitButtonClicked = async (contentId: number) => {
+    let status = checkuserContentStatus(contentId);
+    if (status === "COMPLETED") {
+    } else if (status === "NOT_STARTED") {
+      try {
+        await userUnitCreate(contentId);
+        setFocusedContentId(contentId);
+        await fetchUserUnitBySubject(Number(subject_id));
+      } catch {
+        console.log("Error starting the unit");
+      }
+    } else if (status === "IN_PROGRESS") {
+      const payload = {
+        unit_id: contentId,
+        status: "COMPLETED",
+      };
+      setUpdatePayload(payload);
+      await updateUserUnitStatus();
+      resetPayload();
+      await fetchUserUnitBySubject(Number(subject_id));
+    }
   };
 
   const scrollToContent = () => {
@@ -128,6 +156,10 @@ export default function LessonContent() {
 
   const scrollToHeader = () => {
     setCurrentPage(0);
+  };
+
+  const checkuserContentStatus = (contentId: number) => {
+    return userUnitStatus.find((item) => item.unit_id === contentId)?.status;
   };
 
   useEffect(() => {
@@ -211,6 +243,7 @@ export default function LessonContent() {
         }
 
       if (newActiveSection !== activeSection) {
+        console.log(newActiveSection);
         setActiveSection(newActiveSection);
       }
     };
@@ -238,7 +271,8 @@ export default function LessonContent() {
     }
   };
 
-  const renderContent = (content: ContentDetail) => {
+  const renderContent = (content: ContentDetail, contentFocused: boolean) => {
+    // let contentFocused  =  status === "NOT_STARTED" || status === "IN_PROGRESS" ? false : true
     switch (content.content_type) {
       case "VIDEO":
         // const handleVideoEnded = () => {
@@ -265,7 +299,8 @@ export default function LessonContent() {
                 <Button
                   size="lg"
                   className="bg-white/90 hover:bg-white text-gray-900 rounded-full w-16 h-16"
-                  onClick={togglePlay}
+                  disabled={!contentFocused}
+                  onClick={() => togglePlay(contentFocused)}
                 >
                   {isVideoPlaying ? (
                     <Pause className="w-6 h-6" />
@@ -281,6 +316,7 @@ export default function LessonContent() {
                   size="sm"
                   variant="secondary"
                   className="bg-black/50 hover:bg-black/70 text-white"
+                  disabled={!contentFocused}
                   onClick={toggleMute}
                 >
                   {isMuted ? (
@@ -292,7 +328,7 @@ export default function LessonContent() {
               </div>
             </div>
             {/* Progress Bar */}
-            <div className="absolute bottom-0 left-0 right-0 px-4 pb-2 flex items-center gap-2 text-white text-sm">
+            <div className=" bottom-0 left-0 right-0 px-4 pb-2 flex items-center gap-2 text-gray-500 text-sm">
               <span>{formatTime(currentTime)}</span>
               <input
                 type="range"
@@ -301,6 +337,7 @@ export default function LessonContent() {
                 value={currentTime}
                 onChange={handleSeek}
                 className="flex-1 accent-regal-blue"
+                disabled={!contentFocused}
               />
               <span>{formatTime(duration)}</span>
             </div>
@@ -516,11 +553,12 @@ export default function LessonContent() {
                                   : "text-gray-400"
                               }`}
                             >
-                              {filterUnit(section.id)?.status === "COMPLETED" ? (
+                              {filterUnit(section.id)?.status ===
+                              "COMPLETED" ? (
                                 <CheckCircle className="w-5 h-5" />
+                              ) : filterUnit(section.id)?.status === "IN_PROGRESS" ? (
+                                <CirclePlay className="w-5 h-5 text-cyan-700" />
                               ) : (
-                                filterUnit(section.id)?.is_started ?
-                                <CirclePlay className="w-5 h-5 text-cyan-700" /> :
                                 <Circle className="w-5 h-5" />
                               )}
                             </div>
@@ -585,69 +623,83 @@ export default function LessonContent() {
                         className="scroll-mt-4"
                       >
                         <Card className="border-gray-200  px-2">
-                          <Badge variant="secondary">{section.title}</Badge>
-                          {section?.contents?.map((content) => (
-                            <Card
-                              key={content.id}
-                              className="bg-white/90 backdrop-blur-sm border-violet-200"
-                            >
-                              <CardHeader>
-                                <div className="flex items-center justify-between">
-                                  <div>
-                                    <CardTitle className="text-xl bg-gradient-to-r from-violet-600 to-cyan-600 bg-clip-text text-transparent">
-                                      {content.title}
-                                    </CardTitle>
-                                    <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
-                                      <div className="flex items-center gap-1">
-                                        {getContentIcon(content.content_type)}
-                                        <span className="capitalize">
-                                          {mapChoice(
-                                            content.content_type,
-                                            ContentType
-                                          )}{" "}
-                                          Content
-                                        </span>
-                                      </div>
-                                      <div className="flex items-center gap-1">
-                                        <Clock className="w-4 h-4" />
-                                        <span>
-                                          {content.completion_time}{" "}
-                                          {content.completion_time === 1
-                                            ? `minute`
-                                            : `minutes`}
-                                        </span>
+                          <CardHeader>
+                            <div className="flex items-center justify-between">
+                              <CardTitle className="text-3xl bg-gradient-to-r from-violet-600 to-cyan-600 bg-clip-text text-transparent">
+                                {section.title}
+                              </CardTitle>
+                            </div>
+                          </CardHeader>
+                          {section?.contents?.map((content) => {
+                            let isFocused = false;
+                            return (
+                              <Card
+                                key={content.id}
+                                className="bg-white/90 backdrop-blur-sm border-violet-200"
+                              >
+                                <CardHeader>
+                                  <div className="flex items-center justify-between">
+                                    <div>
+                                      <CardTitle className="text-xl bg-gradient-to-r from-violet-600 to-cyan-600 bg-clip-text text-transparent">
+                                        {content.title}
+                                      </CardTitle>
+                                      <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
+                                        <div className="flex items-center gap-1">
+                                          {getContentIcon(content.content_type)}
+                                          <span className="capitalize">
+                                            {mapChoice(
+                                              content.content_type,
+                                              ContentType
+                                            )}{" "}
+                                            Content
+                                          </span>
+                                        </div>
+                                        <div className="flex items-center gap-1">
+                                          <Clock className="w-4 h-4" />
+                                          <span>
+                                            {content.completion_time}{" "}
+                                            {content.completion_time === 1
+                                              ? `minute`
+                                              : `minutes`}
+                                          </span>
+                                        </div>
                                       </div>
                                     </div>
+                                    <Button
+                                      onClick={() =>
+                                        handleUnitButtonClicked(content.id)
+                                      }
+                                      className={`${
+                                        checkuserContentStatus(content.id) ===
+                                        "COMPLETED"
+                                          ? "bg-emerald-500 hover:bg-emerald-600"
+                                          : "bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-700 hover:to-cyan-700"
+                                      }`}
+                                    >
+                                      {checkuserContentStatus(content.id) ===
+                                      "COMPLETED" ? (
+                                        <>
+                                          <CheckCircle className="w-4 h-4 mr-2" />
+                                          Completed
+                                        </>
+                                      ) : (
+                                        <>
+                                          <Circle className="w-4 h-4 mr-2" />
+                                          {checkuserContentStatus(section.id) ===
+                                          "NOT_STARTED"
+                                            ? `Start Unit`
+                                            : `Mark Complete`}
+                                        </>
+                                      )}
+                                    </Button>
                                   </div>
-                                  <Button
-                                    onClick={() =>
-                                      handleSectionComplete(section.id)
-                                    }
-                                    className={`${
-                                      section.is_completed
-                                        ? "bg-emerald-500 hover:bg-emerald-600"
-                                        : "bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-700 hover:to-cyan-700"
-                                    }`}
-                                  >
-                                    {section.is_completed ? (
-                                      <>
-                                        <CheckCircle className="w-4 h-4 mr-2" />
-                                        Completed
-                                      </>
-                                    ) : (
-                                      <>
-                                        <Circle className="w-4 h-4 mr-2" />
-                                        Mark Complete
-                                      </>
-                                    )}
-                                  </Button>
-                                </div>
-                              </CardHeader>
-                              <CardContent className="space-y-6">
-                                {renderContent(content)}
-                              </CardContent>
-                            </Card>
-                          ))}
+                                </CardHeader>
+                                <CardContent className="space-y-6">
+                                  {renderContent(content, isFocused)}
+                                </CardContent>
+                              </Card>
+                            );
+                          })}
                         </Card>
                       </div>
                     ))}

@@ -2,6 +2,7 @@ import { create } from "zustand";
 import api from "@/services/api/interceptor";
 import { courseAPI } from "@/services/api/endpoints/courses";
 import { CourseState, CourseDetail, CoursePayload } from "@/services/types/Course";
+import { P } from "node_modules/framer-motion/dist/types.d-Cjd591yU";
 
 // Initial payload
 const initialCoursePayload: CoursePayload = {
@@ -48,7 +49,16 @@ export const useCourseStore = create<CourseState>((set, get) => ({
       throw error;
     }
   },
-
+  fetchLatestCourses: async() => {
+    set({isLoading: true})
+    try{
+      const response = await api.get(courseAPI.fetchLatestCourses)
+      set({courseDetails: response.data})
+    } catch (error) {
+      set({isLoading: false});
+      throw error
+    }
+  },
   fetchCourseById: async (courseId: number) => {
     set({ isLoading: true });
     try {

@@ -1,4 +1,5 @@
 import { CourseDetail, SubjectDetail } from "./Course";
+import { SubjectMinimal } from "./Subject";
 
 export interface UserCourseDetail {
     user_name: string,
@@ -19,18 +20,32 @@ export interface UserCourseStats {
 }
 
 
+export interface UserSubjectStatus {
+    id: number
+    status: string
+}
+
+export interface UpcomingSubjects {
+    course_id: number
+    subject: SubjectMinimal
+}
+
 export interface UserCourseState {
     userCourseDetails: UserCourseDetail[]
     userCourseItem: UserCourseDetail | null
     isLoading: boolean
     userCourseStats: UserCourseStats | null
     isEnrolledToCourse: boolean
+    userSubjectStatus: UserSubjectStatus[]
+    upcomingSubjects: UpcomingSubjects[]
 
 
     createUserCourse: (userId: number, courseId:number) => void;
     fetchUserCourseStats: (userId: number) => Promise<void>;
     fetchUserCourseDetails: (userId: number) => Promise<void>;
     fetchUserCourseByCourse: (courseId: number) => Promise<void>;
+    fetchCourseUserSubjectStatus: (courseId: number) => Promise<void>;
+    fetchUpcomingCourse: () => Promise<void>;
 
 
     setUserStats: (userStats: UserCourseStats) => void;
@@ -53,20 +68,38 @@ export interface UserSubjectStats {
 export interface UserSubjectState {
     userSubjectStatus: UserSubjectStats | null
 
-    createUserSubject: () => void;
+    createUserSubject: (subjectId: number) => Promise<void>;
     fetchUserSubjectStats: (subjectId: number) => Promise<void>;
 
+}
+
+export interface UpdatePayload {
+    status: string
+}
+
+export interface UserUnitUpdatePayload extends UpdatePayload {
+    unit_id: number | null
 }
 
 export interface UserUnitDetail {
     unit_id: number
     status: string
-    is_started: boolean
+    contents?: UserContentStatus[]
 }
 
 export interface UserUnitState {
     userUnitStatus: UserUnitDetail[];
+    updatePayload: UserUnitUpdatePayload;
+
+    setUpdatePayload: (data: UserUnitUpdatePayload) => void;
+    resetUpdatePayload: () => void;
 
     userUnitCreate: (unitId: number) => Promise<void>;
     fetchUserUnitBySubject: (subjectId: number) => Promise<void>;
+    updateUserUnitStatus: () => Promise<void>;
+}
+
+export interface UserContentStatus{
+    content_id: number
+    status: string
 }

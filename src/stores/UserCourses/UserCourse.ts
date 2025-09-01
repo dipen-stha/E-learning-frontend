@@ -14,6 +14,8 @@ export const useUserCourseStore = create<UserCourseState>((set, get) => ({
   userCourseItem: null,
   isLoading: false,
   isEnrolledToCourse: false,
+  userSubjectStatus: [],
+  upcomingSubjects: [],
 
   setUserCourseDetails: (detailList: UserCourseDetail[]) =>
     set({ userCourseDetails: detailList }),
@@ -70,5 +72,23 @@ export const useUserCourseStore = create<UserCourseState>((set, get) => ({
     } catch (error) {
         console.log(error)
     }
-  }
+  },
+  fetchCourseUserSubjectStatus: async(courseId: number) => {
+    try{
+      const response = await api.get(UserCourseAPI.fetchCourseUserSubjectStatus(courseId))
+      set({userSubjectStatus: response.data})
+    } catch (error) {
+      console.log(error)
+      throw error
+    }
+  },
+  fetchUpcomingCourse: async() => {
+    try{
+      const response =  await api.get(UserCourseAPI.fetchUpcomingSubjects)
+      set({upcomingSubjects: response.data})
+    } catch(error) {
+      console.log(error)
+      throw error
+    }
+  },
 }));
