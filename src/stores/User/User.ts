@@ -139,6 +139,48 @@ export const useUserStore = create<UserState>((set, get) => ({
       throw error;
     }
   },
+
+  updateUser: async(userId: number) => {
+    set({isLoading: true})
+    const formData = new FormData();
+    const payload = get().userPayload
+    const user = payload?.user
+    const file = payload?.avatar
+    formData.append(
+      "user",
+      JSON.stringify(user)
+    );
+    if (file && file instanceof File) {
+      formData.append("file", file);
+    }
+    try {
+      await api.patch(userAPI.updateUser(userId), formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      set({ hasError: false, isLoading: false, userPayload: initialPayload });
+      return;
+    } catch (error) {
+      set({ isLoading: false, hasError: true });
+      throw error;
+    }
+    
+  },
+
+  fetchUserById: async(userId: number) => {
+    set({isLoading: true})
+    try{
+      const response = await api.get(userAPI.fetchById(userId))
+      if(response.data){
+        set({userDetail: response.data})
+      }
+    } catch (error) {
+      set({isLoading: false})
+      throw error
+    }
+  },
+
   fetchStudents: async () => {
     get().isLoading = true;
     try {

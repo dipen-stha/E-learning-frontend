@@ -16,7 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/DropDown"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select"
-import { CreateSubjectForm } from "@/components/Admin/Subject"
+import { CreateSubjectForm } from "@/pages/Admin/Subject/Create"
 import {
   BookOpen,
   Search,

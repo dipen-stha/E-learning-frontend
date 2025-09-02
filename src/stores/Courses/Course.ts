@@ -1,7 +1,11 @@
 import { create } from "zustand";
 import api from "@/services/api/interceptor";
 import { courseAPI } from "@/services/api/endpoints/courses";
-import { CourseState, CourseDetail, CoursePayload } from "@/services/types/Course";
+import {
+  CourseState,
+  CourseDetail,
+  CoursePayload,
+} from "@/services/types/Course";
 import { P } from "node_modules/framer-motion/dist/types.d-Cjd591yU";
 
 // Initial payload
@@ -15,10 +19,10 @@ const initialCoursePayload: CoursePayload = {
     objectives: "",
     categories_id: [],
     instructor_id: null,
-    status: ""
+    status: "",
   },
   file: null,
-}
+};
 
 // Initial store state
 const initialState = {
@@ -32,11 +36,12 @@ const initialState = {
 
 export const useCourseStore = create<CourseState>((set, get) => ({
   // States
-    ...initialState,
+  ...initialState,
   // Setters
-  setCourseDetails: (details: CourseDetail[]) => set({ courseDetails: details }),
+  setCourseDetails: (details: CourseDetail[]) =>
+    set({ courseDetails: details }),
   setCourseItem: (item: CourseDetail) => set({ courseItem: item }),
-  setCoursePayload: (data) => set({coursePayload: data}),
+  setCoursePayload: (data) => set({ coursePayload: data }),
 
   // Async actions
   fetchCourseDetails: async () => {
@@ -49,14 +54,14 @@ export const useCourseStore = create<CourseState>((set, get) => ({
       throw error;
     }
   },
-  fetchLatestCourses: async() => {
-    set({isLoading: true})
-    try{
-      const response = await api.get(courseAPI.fetchLatestCourses)
-      set({courseDetails: response.data})
+  fetchLatestCourses: async () => {
+    set({ isLoading: true });
+    try {
+      const response = await api.get(courseAPI.fetchLatestCourses);
+      set({ courseDetails: response.data });
     } catch (error) {
-      set({isLoading: false});
-      throw error
+      set({ isLoading: false });
+      throw error;
     }
   },
   fetchCourseById: async (courseId: number) => {
@@ -73,7 +78,7 @@ export const useCourseStore = create<CourseState>((set, get) => ({
   createCourse: async () => {
     set({ isLoading: true });
     const formData = new FormData();
-    const payload = get().coursePayload
+    const payload = get().coursePayload;
     formData.append("course", JSON.stringify(payload?.course));
     if (payload?.file) formData.append("file", payload?.file);
 
@@ -83,7 +88,7 @@ export const useCourseStore = create<CourseState>((set, get) => ({
       });
       return response.data;
     } catch (error) {
-      set({isLoading: false})
+      set({ isLoading: false });
       console.error("Failed to create course:", error);
       throw error;
     }
@@ -110,12 +115,13 @@ export const useCourseStore = create<CourseState>((set, get) => ({
   },
 
   // Reset
-  reset: () => set({
-    courseDetails: [],
-    courseItem: null,
-    isLoading: false,
-    coursePayload: initialCoursePayload,
-    categoryList: [],
-    courseMinimal: [],
-  }),
+  reset: () =>
+    set({
+      courseDetails: [],
+      courseItem: null,
+      isLoading: false,
+      coursePayload: initialCoursePayload,
+      categoryList: [],
+      courseMinimal: [],
+    }),
 }));

@@ -48,8 +48,8 @@ export interface UserDataPayload{
   name: string
   username: string
   email: string
-  password: string
-  confirm_password: string
+  password?: string
+  confirm_password?: string
   gender: string
   dob: Date
   is_active: boolean
@@ -68,14 +68,14 @@ export interface UserStats {
 
 export interface UserPayload {
   user: UserDataPayload;
-  avatar: File | null
+  avatar: File | string | null
 }
 
 export interface UserState {
   userDetailList: UserDetail[] | [];
   userMinimalList: UserMinimal[] | [];
   userDetail: UserDetail | null;
-  userPayload: UserPayload | null;
+  userPayload: UserPayload;
   userStats: UserStats;
   isAuthChecked: boolean;
   isAdminAuthChecked: boolean;
@@ -89,6 +89,7 @@ export interface UserState {
   setUserDetails: (userDetail: UserDetail) => void;
   setUserPayload: (data: UserPayload) => void;
   setUserDetailList: (userList: UserDetail[]) => void;
+
   fetchStudents: () => Promise<void>;
   fetchStudentStats: () => Promise<void>;
   fetchTutors: () => Promise<void>;
@@ -96,5 +97,8 @@ export interface UserState {
   fetchSelf: () => void;
   fetchAdminSelf: () => void;
   createUser: () => Promise<void>;
+  fetchUserById: (userId: number) => Promise<void>;
+  updateUser: (userId: number) => Promise<void>;
+
   reset: () => void;
 }

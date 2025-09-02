@@ -100,6 +100,20 @@ export interface UserUnitState {
 }
 
 export interface UserContentStatus{
-    content_id: number
+    content_id: number | null
     status: string
+}
+
+export interface UserContentUpdatePayload extends UpdatePayload{
+    content_id: number | null
+}
+
+export interface UserContentState {
+    updatePayload: UserContentUpdatePayload;
+
+    setUpdatePayload: (data: UserContentUpdatePayload) => void;
+    resetPayload: () => void;
+
+    userContentCreate: (content_id: number) => Promise<void>
+    updateUserContentStatus: () => Promise<void>;
 }

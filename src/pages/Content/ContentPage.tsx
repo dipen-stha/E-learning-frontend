@@ -26,6 +26,7 @@ import { ContentDetail } from "@/services/types/Content";
 import { ContentType, mapChoice } from "@/services/utils/choiceUtils";
 import { useUserSubjectStore } from "@/stores/UserSubject/UserSubject";
 import { useUserUnitStore } from "@/stores/UserUnit/UserUnit";
+import { useUserContentStore } from "@/stores/UserContent/UserContent";
 
 export default function LessonContent() {
   const [currentPage, setCurrentPage] = useState(0); // 0 for header page, 1 for content page
@@ -49,13 +50,17 @@ export default function LessonContent() {
     (state) => state.fetchUserUnitBySubject
   );
 
-  const userUnitCreate = useUserUnitStore((state) => state.userUnitCreate);
-  const updatePayload = useUserUnitStore((state) => state.updatePayload);
-  const updateUserUnitStatus = useUserUnitStore(
-    (state) => state.updateUserUnitStatus
+  const userContentCreate = useUserContentStore(
+    (state) => state.userContentCreate
   );
-  const setUpdatePayload = useUserUnitStore((state) => state.setUpdatePayload);
-  const resetPayload = useUserUnitStore((state) => state.resetUpdatePayload);
+  const updatePayload = useUserContentStore((state) => state.updatePayload);
+  const updateUserContentStatus = useUserContentStore(
+    (state) => state.updateUserContentStatus
+  );
+  const setUserContentUpdatePayload = useUserContentStore(
+    (state) => state.setUpdatePayload
+  );
+  const resetPayload = useUserContentStore((state) => state.resetPayload);
 
   const userUnitStatus = useUserUnitStore((state) => state.userUnitStatus);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -127,12 +132,12 @@ export default function LessonContent() {
     navigate("/course-detail/2");
   };
 
-  const handleUnitButtonClicked = async (contentId: number) => {
-    let status = checkuserContentStatus(contentId);
+  const handleUnitButtonClicked = async (unitId: number, contentId: number) => {
+    let status = checkuserContentStatus(unitId, contentId);
     if (status === "COMPLETED") {
     } else if (status === "NOT_STARTED") {
       try {
-        await userUnitCreate(contentId);
+        await userContentCreate(contentId);
         setFocusedContentId(contentId);
         await fetchUserUnitBySubject(Number(subject_id));
       } catch {
@@ -140,13 +145,14 @@ export default function LessonContent() {
       }
     } else if (status === "IN_PROGRESS") {
       const payload = {
-        unit_id: contentId,
+        content_id: contentId,
         status: "COMPLETED",
       };
-      setUpdatePayload(payload);
-      await updateUserUnitStatus();
+      setUserContentUpdatePayload(payload);
+      await updateUserContentStatus();
       resetPayload();
       await fetchUserUnitBySubject(Number(subject_id));
+      await fetchUserSubjectStats(Number(subject_id));
     }
   };
 
@@ -158,8 +164,22 @@ export default function LessonContent() {
     setCurrentPage(0);
   };
 
-  const checkuserContentStatus = (contentId: number) => {
-    return userUnitStatus.find((item) => item.unit_id === contentId)?.status;
+  // const checkUserUnitStatus = (unitId: number) => {
+  //   return userUnitStatus.find((item) => item.unit_id === unitId)?.status
+  // }
+
+  const checkuserContentStatus = (unitId: number, contentId: number) => {
+    if (userUnitStatus.length > 0) {
+      let unit = userUnitStatus.find((item) => item.unit_id === unitId);
+      if (!unit || !unit.contents) return "NOT_STARTED";
+      if (unit.contents.length === 0) return "NOT_STARTED";
+      const status = unit.contents?.find(
+        (content) => content.content_id === contentId
+      )?.status;
+      console.log(unitId, contentId, status);
+      return status ?? "NOT_STARTED";
+    }
+    return "NOT_STARTED";
   };
 
   useEffect(() => {
@@ -243,7 +263,6 @@ export default function LessonContent() {
         }
 
       if (newActiveSection !== activeSection) {
-        console.log(newActiveSection);
         setActiveSection(newActiveSection);
       }
     };
@@ -466,7 +485,7 @@ export default function LessonContent() {
                     </span>
                   </div>
                   <Progress
-                    value={(userSubjectStats?.completion_percent || 0) * 100}
+                    value={userSubjectStats?.completion_percent}
                     className="h-3 mb-4"
                   />
                   <p className="text-gray-600">
@@ -556,7 +575,8 @@ export default function LessonContent() {
                               {filterUnit(section.id)?.status ===
                               "COMPLETED" ? (
                                 <CheckCircle className="w-5 h-5" />
-                              ) : filterUnit(section.id)?.status === "IN_PROGRESS" ? (
+                              ) : filterUnit(section.id)?.status ===
+                                "IN_PROGRESS" ? (
                                 <CirclePlay className="w-5 h-5 text-cyan-700" />
                               ) : (
                                 <Circle className="w-5 h-5" />
@@ -632,6 +652,13 @@ export default function LessonContent() {
                           </CardHeader>
                           {section?.contents?.map((content) => {
                             let isFocused = false;
+                            if (
+                              checkuserContentStatus(section.id, content.id) ===
+                                "IN_PROGRESS" ||
+                              checkuserContentStatus(section.id, content.id) ===
+                                "COMPLETED"
+                            )
+                              isFocused = true;
                             return (
                               <Card
                                 key={content.id}
@@ -667,17 +694,24 @@ export default function LessonContent() {
                                     </div>
                                     <Button
                                       onClick={() =>
-                                        handleUnitButtonClicked(content.id)
+                                        handleUnitButtonClicked(
+                                          section.id,
+                                          content.id
+                                        )
                                       }
                                       className={`${
-                                        checkuserContentStatus(content.id) ===
-                                        "COMPLETED"
+                                        checkuserContentStatus(
+                                          section.id,
+                                          content.id
+                                        ) === "COMPLETED"
                                           ? "bg-emerald-500 hover:bg-emerald-600"
                                           : "bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-700 hover:to-cyan-700"
                                       }`}
                                     >
-                                      {checkuserContentStatus(content.id) ===
-                                      "COMPLETED" ? (
+                                      {checkuserContentStatus(
+                                        section.id,
+                                        content.id
+                                      ) === "COMPLETED" ? (
                                         <>
                                           <CheckCircle className="w-4 h-4 mr-2" />
                                           Completed
@@ -685,10 +719,12 @@ export default function LessonContent() {
                                       ) : (
                                         <>
                                           <Circle className="w-4 h-4 mr-2" />
-                                          {checkuserContentStatus(section.id) ===
-                                          "NOT_STARTED"
-                                            ? `Start Unit`
-                                            : `Mark Complete`}
+                                          {checkuserContentStatus(
+                                            section.id,
+                                            content.id
+                                          ) === "IN_PROGRESS"
+                                            ? `Mark Complete`
+                                            : `Start  Unit`}
                                         </>
                                       )}
                                     </Button>

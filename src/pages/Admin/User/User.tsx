@@ -41,34 +41,30 @@ import {
   Download,
   Calendar,
 } from "lucide-react";
-import { CreateUserForm } from "@/components/Admin/User";
+import { CreateUserForm } from "@/pages/Admin/User/Create";
 import { useUserStore } from "@/stores/User/User";
 
 export default function UsersPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const createUser = useUserStore(state => state.createUser)
-  const fetchStudents = useUserStore(state => state.fetchStudents)
-  const userDetailList = useUserStore(state => state.userDetailList)
-  const fetchStudentStats = useUserStore(state => state.fetchStudentStats)
-  const userStats = useUserStore(state => state.userStats)
+  const fetchStudents = useUserStore((state) => state.fetchStudents);
+  const userDetailList = useUserStore((state) => state.userDetailList);
+  const fetchStudentStats = useUserStore((state) => state.fetchStudentStats);
+  const userStats = useUserStore((state) => state.userStats);
+
+  const [isModalEdit, setIsModalEdit] = useState<boolean>(false);
+  const [editId, setEditId] = useState<number | null>(null);
 
   useEffect(() => {
     fetchStudents();
     fetchStudentStats();
-  }, [])
-
-  // useEffect(() => {
-  //   return(() => {
-  //     reset();
-  //   }) 
-  // },[reset])
+  }, []);
 
   const getStatusColor = (status: boolean) => {
-    if(status) {
-      return "bg-green-100 text-green-800"
+    if (status) {
+      return "bg-green-100 text-green-800";
     } else {
-      return "bg-gray-100 text-gray-800"
+      return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -85,14 +81,21 @@ export default function UsersPage() {
     }
   };
 
-  const handleCreateUser =  async () => {
-    try{
-      await createUser()
+  const handleModalSubmit = async () => {
+    try {
       await fetchStudents();
       setIsCreateModalOpen(false);
+      setIsModalEdit(false);
+      setEditId(null);
     } catch {
-      console.log('error')
+      console.log("error");
     }
+  };
+
+  const handleUserEdit = (userId: number) => {
+    setEditId(userId);
+    setIsCreateModalOpen(true);
+    setIsModalEdit(true);
   };
 
   return (
@@ -130,8 +133,12 @@ export default function UsersPage() {
             <Users className="h-4 w-4 text-gray-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-600">{userStats.total_count}</div>
-            <p className="text-xs text-green-600">+{userStats.percent_total_count}% from last month</p>
+            <div className="text-2xl font-bold text-gray-600">
+              {userStats.total_count}
+            </div>
+            <p className="text-xs text-green-600">
+              +{userStats.percent_total_count}% from last month
+            </p>
           </CardContent>
         </Card>
 
@@ -143,8 +150,12 @@ export default function UsersPage() {
             <UserCheck className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-600">{userStats.active_count}</div>
-            <p className="text-xs text-green-600">{userStats.percent_active_count}% of total users</p>
+            <div className="text-2xl font-bold text-gray-600">
+              {userStats.active_count}
+            </div>
+            <p className="text-xs text-green-600">
+              {userStats.percent_active_count}% of total users
+            </p>
           </CardContent>
         </Card>
 
@@ -156,8 +167,12 @@ export default function UsersPage() {
             <Calendar className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-600">{userStats.monthly_creation}</div>
-            <p className="text-xs text-green-600">+{userStats.percent_monthly_creation}% from last month</p>
+            <div className="text-2xl font-bold text-gray-600">
+              {userStats.monthly_creation}
+            </div>
+            <p className="text-xs text-green-600">
+              +{userStats.percent_monthly_creation}% from last month
+            </p>
           </CardContent>
         </Card>
 
@@ -169,8 +184,12 @@ export default function UsersPage() {
             <UserX className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-600">{userStats.suspended_count}</div>
-            <p className="text-xs text-green-600">{userStats.percent_suspended_count}% of total users</p>
+            <div className="text-2xl font-bold text-gray-600">
+              {userStats.suspended_count}
+            </div>
+            <p className="text-xs text-green-600">
+              {userStats.percent_suspended_count}% of total users
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -210,28 +229,16 @@ export default function UsersPage() {
                   Filter by Status
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  className="text-gray-600"
-                  onClick={() => ""}
-                >
+                <DropdownMenuItem className="text-gray-600" onClick={() => ""}>
                   All Users
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="text-gray-600"
-                  onClick={() => ""}
-                >
+                <DropdownMenuItem className="text-gray-600" onClick={() => ""}>
                   Active
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="text-gray-600"
-                  onClick={() => ""}
-                >
+                <DropdownMenuItem className="text-gray-600" onClick={() => ""}>
                   Inactive
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="text-gray-600"
-                  onClick={() => ""}
-                >
+                <DropdownMenuItem className="text-gray-600" onClick={() => ""}>
                   Suspended
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -257,7 +264,9 @@ export default function UsersPage() {
                 <TableRow key={user.id} className="border-gray-200">
                   <TableCell className="flex items-center space-x-3">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={user.profile.avatar || "/placeholder.svg"} />
+                      <AvatarImage
+                        src={user.profile.avatar || "/placeholder.svg"}
+                      />
                       <AvatarFallback>
                         {user.profile.name
                           .split(" ")
@@ -285,7 +294,7 @@ export default function UsersPage() {
                       variant="secondary"
                       className={getStatusColor(user.is_active)}
                     >
-                      {user.is_active ? 'Active' : 'Inactive'}
+                      {user.is_active ? "Active" : "Inactive"}
                     </Badge>
                   </TableCell>
                   <TableCell>
@@ -320,7 +329,10 @@ export default function UsersPage() {
                           Actions
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-gray-600">
+                        <DropdownMenuItem
+                          className="text-gray-600"
+                          onClick={() => handleUserEdit(user.id)}
+                        >
                           <Edit className="mr-2 h-4 w-4" />
                           Edit User
                         </DropdownMenuItem>
@@ -349,11 +361,13 @@ export default function UsersPage() {
 
       {/* Create User Modal */}
 
-        <CreateUserForm
-          isOpen={isCreateModalOpen}
-          onSubmit={handleCreateUser}
-          onCancel={() => setIsCreateModalOpen(false)}
-        />
+      <CreateUserForm
+        isOpen={isCreateModalOpen}
+        onSubmit={handleModalSubmit}
+        onCancel={() => setIsCreateModalOpen(false)}
+        isEdit={isModalEdit}
+        editId={editId}
+      />
     </div>
   );
 }
