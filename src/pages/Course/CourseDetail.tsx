@@ -22,6 +22,8 @@ import { EnrollCourse } from "../Enrollment/Payment";
 import { useEnrollStore } from "@/stores/Courses/Enrollment";
 import { useStripe, useElements } from "@stripe/react-stripe-js";
 import { useUserStore } from "@/stores/User/User";
+import { useUserSubjectStore } from "@/stores/UserSubject/UserSubject";
+import { mapChoice, Status } from "@/services/utils/choiceUtils";
 // Mock course data with detailed units
 const courseData = {
   id: 1,
@@ -121,12 +123,22 @@ export default function CourseDetails() {
   const [activeUnit, setActiveUnit] = useState<number | null>(null);
   const { course_id } = useParams();
   const navigate = useNavigate();
-  const fetchCourseById = useCourseStore(state => state.fetchCourseById)
-  const courseItem = useCourseStore(state => state.courseItem)
+  const fetchCourseById = useCourseStore((state) => state.fetchCourseById);
+  const courseItem = useCourseStore((state) => state.courseItem);
   const [showEnrollModal, setShowEnrollModal] = useState(false);
-  const fetchUserCourseByCourse = useUserCourseStore(state => state.fetchUserCourseByCourse);
-  const userCourseItem = useUserCourseStore(state => state.userCourseItem);
-  const isEnrolledToCourse = useUserCourseStore(state => state.isEnrolledToCourse);
+  const fetchUserCourseByCourse = useUserCourseStore(
+    (state) => state.fetchUserCourseByCourse
+  );
+  const userCourseItem = useUserCourseStore((state) => state.userCourseItem);
+  const isEnrolledToCourse = useUserCourseStore(
+    (state) => state.isEnrolledToCourse
+  );
+  const fetchCourseUserSubjectStatus = useUserCourseStore(
+    (state) => state.fetchCourseUserSubjectStatus
+  );
+  const userSubjectStatus = useUserCourseStore(
+    (state) => state.userSubjectStatus
+  );
   const userItem = useUserStore((state) => state.userDetail);
   const plan = {
     id: "full",
@@ -144,14 +156,23 @@ export default function CourseDetails() {
   };
 
   const [selectedPlan, setSelectedPlan] = useState("full");
-  const makePayment = useEnrollStore(state => state.makePayment);
-  const fetchUserEnrollmentByCourse = useEnrollStore(state => state.fetchUserEnrollmentByCourse)
-  const userCourseEnrollmentItem = useEnrollStore(state => state.userCourseEnrollmentItem)
-  const enrollPayload = useEnrollStore(state => state.enrollmentPayload)
-  const setEnrollPayload = useEnrollStore(state => state.setPayload)
+  const makePayment = useEnrollStore((state) => state.makePayment);
+  const fetchUserEnrollmentByCourse = useEnrollStore(
+    (state) => state.fetchUserEnrollmentByCourse
+  );
+  const userCourseEnrollmentItem = useEnrollStore(
+    (state) => state.userCourseEnrollmentItem
+  );
+  const enrollPayload = useEnrollStore((state) => state.enrollmentPayload);
+  const setEnrollPayload = useEnrollStore((state) => state.setPayload);
   const [payload, setPayload] = useState(enrollPayload);
-  const createUserCourse = useUserCourseStore(state => state.createUserCourse)
-  const userDetail = useUserStore(state => state.userDetail)
+  const createUserCourse = useUserCourseStore(
+    (state) => state.createUserCourse
+  );
+  const userDetail = useUserStore((state) => state.userDetail);
+  const createUserSubject = useUserSubjectStore(
+    (state) => state.createUserSubject
+  );
 
   const handleBackToDashboard = () => {
     // This would handle navigation back to dashboard
@@ -162,7 +183,7 @@ export default function CourseDetails() {
     setShowEnrollModal(true);
   };
   const enrollCourse = () => {
-    if(courseItem && userItem){
+    if (courseItem && userItem) {
       const updatedPayload = {
         ...payload,
         course_id: courseItem.id,
@@ -170,13 +191,11 @@ export default function CourseDetails() {
         amount: courseItem.price,
         provider: "STRIPE",
         status: "PENDING",
-      }
-    setPayload(updatedPayload);
-    setEnrollPayload(updatedPayload);
-    makePayment();
+      };
+      setPayload(updatedPayload);
+      setEnrollPayload(updatedPayload);
+      makePayment();
     }
-
-
   };
 
   const onCancelCourseEnrollment = () => {
@@ -195,19 +214,37 @@ export default function CourseDetails() {
     : courseItem?.subjects;
 
   const handleStartCourse = (is_enrolled: boolean) => {
-    if(is_enrolled){
-      
-    }
-    else{
-      if(userDetail && course_id)
-      createUserCourse(userDetail.id, Number(course_id))
-      navigate(`/subject/${course_id}/contents/`)
+    if (is_enrolled) {
+    } else {
+      if (userDetail && course_id)
+        createUserCourse(userDetail.id, Number(course_id));
+      navigate(`/subject/${course_id}/contents/`);
     }
   };
 
-  const handleStartLesson = (subject_id: number) => {
-    navigate(`/subject/${subject_id}/contents/`)
-  }
+  const handleStartLesson = async (subject_id: number) => {
+    try {
+      await createUserSubject(subject_id);
+      navigate(`/subject/${subject_id}/contents/`);
+    } catch (error) {
+      console.log("Could not create user subject");
+    }
+  };
+
+  const handleReviewContinueLesson = async (subject_id: number) => {
+    navigate(`/subject/${subject_id}/contents/`);
+  };
+
+  const compareSubjectStatus = (subjectId: number) => {
+    let subject = userSubjectStatus.find((item) => item.id === subjectId);
+    console.log(subject);
+    if (subject) {
+      if (subject.status === "NOT_STARTED") return 1;
+      if (subject.status === "IN_PROGRESS") return 2;
+      if (subject.status === "COMPLETED") return 3;
+    }
+    return 1;
+  };
 
   const toggleUnit = (unitId: number) => {
     setActiveUnit(activeUnit === unitId ? null : unitId);
@@ -215,17 +252,18 @@ export default function CourseDetails() {
 
   useEffect(() => {
     const load = async () => {
-      try{
-        await fetchUserEnrollmentByCourse(Number(course_id))
-        await fetchCourseById(Number(course_id))
-        await fetchUserCourseByCourse(Number(course_id))
+      try {
+        await fetchUserEnrollmentByCourse(Number(course_id));
+        await fetchCourseById(Number(course_id));
+        await fetchUserCourseByCourse(Number(course_id));
+        await fetchCourseUserSubjectStatus(Number(course_id));
       } catch (error: any) {
-        if (error?.status === 404){
-          navigate("/dashboard")
+        if (error?.status === 404) {
+          navigate("/dashboard");
         }
       }
-    }
-    load()
+    };
+    load();
   }, []);
 
   return (
@@ -296,8 +334,8 @@ export default function CourseDetails() {
               <p className="text-gray-600 mb-6">{courseItem?.description}</p>
 
               {/* Overall Progress */}
-              {userCourseEnrollmentItem ?
-                (<div className="bg-gradient-to-r from-white/80 to-rose-50/80 backdrop-blur-sm rounded-lg p-4 mb-6 border border-rose-200">
+              {userCourseEnrollmentItem ? (
+                <div className="bg-gradient-to-r from-white/80 to-rose-50/80 backdrop-blur-sm rounded-lg p-4 mb-6 border border-rose-200">
                   <div className="flex items-center justify-between mb-2">
                     <span className="font-semibold text-gray-800">
                       Course Progress
@@ -317,7 +355,8 @@ export default function CourseDetails() {
                     </span>{" "}
                     in {userCourseEnrollmentItem?.course.title}
                   </p>
-                </div>) : (
+                </div>
+              ) : (
                 <>
                   <Button
                     variant="outline"
@@ -342,10 +381,14 @@ export default function CourseDetails() {
                       />
                       <Button
                         className="w-full bg-gradient-to-r from-emerald-500 to-cyan-600 hover:from-emerald-600 hover:to-cyan-700 mb-3 shadow-lg"
-                        onClick={() => handleStartCourse(userCourseEnrollmentItem.is_started)}
+                        onClick={() =>
+                          handleStartCourse(userCourseEnrollmentItem.is_started)
+                        }
                       >
                         <Play className="w-4 h-4 mr-2" />
-                        {userCourseEnrollmentItem.is_started ? 'Continute Learning' : `Start Course`}
+                        {userCourseEnrollmentItem.is_started
+                          ? "Continute Learning"
+                          : `Start Course`}
                       </Button>
                       <Button
                         variant="outline"
@@ -438,7 +481,9 @@ export default function CourseDetails() {
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                      {userCourseEnrollmentItem && (userCourseEnrollmentItem.is_started || userCourseEnrollmentItem.is_completed) &&
+                      {userCourseEnrollmentItem &&
+                        (userCourseEnrollmentItem.is_started ||
+                          userCourseEnrollmentItem.is_completed) &&
                         subject.completion_percent != null && (
                           <div
                             className={`flex items-center justify-center w-10 h-10 rounded-full ${
@@ -475,16 +520,20 @@ export default function CourseDetails() {
                             <Clock className="w-3 h-3 text-emerald-500" />
                             {`${subject.completion_time} hours`}
                           </span>
-                          {userCourseEnrollmentItem && (userCourseEnrollmentItem.is_started || userCourseEnrollmentItem.is_completed) && (
-                            <span className="text-amber-600 font-medium">
-                              {subject.completed_units}/{subject.total_units}{" "}
-                              completed
-                            </span>
-                          )}
+                          {userCourseEnrollmentItem &&
+                            (userCourseEnrollmentItem.is_started ||
+                              userCourseEnrollmentItem.is_completed) && (
+                              <span className="text-amber-600 font-medium">
+                                {subject.completed_units}/{subject.total_units}{" "}
+                                completed
+                              </span>
+                            )}
                         </div>
                       </div>
                     </div>
-                    {userCourseEnrollmentItem && (userCourseEnrollmentItem.is_started || userCourseEnrollmentItem.is_completed) &&
+                    {userCourseEnrollmentItem &&
+                      (userCourseEnrollmentItem.is_started ||
+                        userCourseEnrollmentItem.is_completed) &&
                       subject.completion_percent != null && (
                         <div className="text-right">
                           <div
@@ -546,21 +595,41 @@ export default function CourseDetails() {
                               </div>
                             ))}
                       </div>
-                      {isEnrolledToCourse && <div className="mt-4 pt-4 border-t border-indigo-100">
-                        <Button
-                          className={`${
-                            subject.completion_percent === 100
-                              ? "bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700"
-                              : "bg-gradient-to-r from-sky-700 to-cyan-600 hover:from-sky-800 hover:to-cyan-700"
-                          } shadow-lg`}
-                          onClick={() => handleStartLesson(subject.id)}
-                        >
-                          <Play className="w-4 h-4 mr-2" />
-                          {subject.completion_percent === 100
-                            ? "Review Unit"
-                            : subject.completion_percent === 0 ? "Start Unit" : "Continue Unit"}
-                        </Button>
-                      </div>}
+                      {isEnrolledToCourse && (
+                        <div className="mt-4 pt-4 border-t border-indigo-100">
+                          {compareSubjectStatus(subject.id) === 1 && (
+                            <Button
+                              className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700"
+                              onClick={() => handleStartLesson(subject.id)}
+                            >
+                              <Play className="w-4 h-4 mr-2" />
+                              Start Subject
+                            </Button>
+                          )}
+                          {compareSubjectStatus(subject.id) === 2 && (
+                            <Button
+                              className="bg-gradient-to-r from-sky-700 to-cyan-600 hover:from-sky-800 hover:to-cyan-700"
+                              onClick={() =>
+                                handleReviewContinueLesson(subject.id)
+                              }
+                            >
+                              <Play className="w-4 h-4 mr-2" />
+                              Continue Lesson
+                            </Button>
+                          )}
+                          {compareSubjectStatus(subject.id) === 3 && (
+                            <Button
+                              className="bg-gradient-to-r from-rose-300 to-violet-500"
+                              onClick={() =>
+                                handleReviewContinueLesson(subject.id)
+                              }
+                            >
+                              <Play className="w-4 h-4 mr-2" />
+                              Review Subject
+                            </Button>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 )}

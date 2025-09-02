@@ -16,7 +16,7 @@ import { Badge } from "@/components/ui/Badge";
 import { useUserStore } from "@/stores/User/User";
 import { useUserCourseStore } from "@/stores/UserCourses/UserCourse";
 import { useCourseStore } from "@/stores/Courses/Course";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useEnrollStore } from "@/stores/Courses/Enrollment";
 
 // Mock data for courses
@@ -32,16 +32,17 @@ export default function Dashboard() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const { userDetail } = useUserStore();
   const {
-    fetchUserCourseDetails,
     fetchUserCourseStats,
-    userCourseDetails,
     userCourseStats,
   } = useUserCourseStore();
-  const { fetchCourseDetails, courseDetails } = useCourseStore();
+  const { fetchLatestCourses, courseDetails } = useCourseStore();
   const enrolledCourses = useEnrollStore(state => state.userCourseEnrollmentsList);
   const fetchEnrolledCourses = useEnrollStore(state => state.fetchUserEnrollments)
+  const fetchUpcomingCourse = useUserCourseStore(state => state.fetchUpcomingCourse)
+  const upcomingSubjects = useUserCourseStore(state => state.upcomingSubjects)
   const userName = userDetail?.profile.name;
   const userId = userDetail?.id;
+  const navigate = useNavigate();
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % courseDetails.length);
@@ -53,12 +54,17 @@ export default function Dashboard() {
     );
   };
 
+  const handleContinueLearning = (courseId: number) => {
+      const subjectId = upcomingSubjects.find((item) => item.course_id === courseId)?.subject.id
+      navigate(`/subject/${subjectId}/contents/`)
+  }
+
   useEffect(() => {
     if (userId) {
-      fetchUserCourseDetails(userId);
       fetchUserCourseStats(userId);
     }
-    fetchCourseDetails();
+    fetchUpcomingCourse();
+    fetchLatestCourses();
     fetchEnrolledCourses();
   }, []);
 
@@ -115,7 +121,7 @@ export default function Dashboard() {
                             {course.title}
                           </h3>
                           <p className="text-gray-600 mb-4">
-                            by {`${course.instructor?.name}`}
+                            by {`${course.instructor_name}`}
                           </p>
                           <div className="flex items-center gap-4 mb-6 text-sm text-gray-500">
                             <span className="flex items-center gap-1">
@@ -242,15 +248,13 @@ export default function Dashboard() {
                         </div>
                       </div>
                       <p className="text-sm text-gray-500 mb-4">
-                        Next: {userCourse.next_subject}
+                        Next: {(upcomingSubjects.find((item) => item.course_id === userCourse.course.id))?.subject.title}
                       </p>
                     </div>
-                    <Link to={`/subject/${userCourse.course.id}/contents`}>
-                    <Button className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-700 hover:to-cyan-700">
+                    <Button className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-700 hover:to-cyan-700" onClick={() => handleContinueLearning(userCourse.course.id as number)}>
                       <Play className="w-4 h-4 mr-2" />
                       Continue
                     </Button>
-                    </Link>
                   </div>
                 </CardContent>
               </Card>

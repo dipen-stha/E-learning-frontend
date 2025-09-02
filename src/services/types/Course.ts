@@ -20,6 +20,7 @@ export interface CourseDetail {
     student_count: number
     course_rating?: number
     instructor?: Profile
+    instructor_name?: string
     image_url?: string
     subjects: SubjectDetail[] | []
     categories: string[] | []
@@ -74,7 +75,9 @@ export interface CourseState {
     setCourseDetails: (userDetails: CourseDetail[]) => void;
     setCourseItem: (courseItem: CourseDetail) => void;
     setCoursePayload: (data: CoursePayload) => void;
+
     fetchCourseDetails: () => void;
+    fetchLatestCourses: () => Promise<void>;
     fetchCourseById: (course_id: number) => Promise<void>;
     createCourse: () => Promise<void>;
     fetchCategoryList: () => Promise<void>;
@@ -100,6 +103,7 @@ export interface UserEnrollment {
     instructor: string
     course: MinimalCourse
     next_subject: string
+    next_subject_id? : number
     completion_percent: number
     total_subjects:number
     completed_subjects: number
