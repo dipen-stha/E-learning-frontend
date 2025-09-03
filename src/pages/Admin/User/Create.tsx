@@ -1,6 +1,5 @@
 import type React from "react";
 
-import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
@@ -14,96 +13,97 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
 import { Upload, User } from "lucide-react";
 import { useUserStore } from "@/stores/User/User";
-import { Checkbox } from "../ui/Checkbox";
-import { UserDataPayload, UserPayload } from "@/services/types/user";
+import { Checkbox } from "../../../components/ui/Checkbox";
 import { ModalCompProps } from "@/services/types/Extras";
-import { CreateModal } from "../Modal";
-
+import { CreateModal } from "../../../components/Modal";
+import { useUpdater } from "@/services/utils/storeUtils";
+import { UserPayload } from "@/services/types/user";
+import { useEffect } from "react";
 
 export function CreateUserForm({
   onSubmit,
   onCancel,
   isOpen,
+  isEdit,
+  editId,
 }: ModalCompProps) {
-  // const { userPayload, setUserPayload, createUser } = useUserStore();
-  const setUserPayload = useUserStore(state => state.setUserPayload)
-  const initialPayload: UserPayload = {
-    user: {
-      name: "",
-      username: "",
-      email: "",
-      password: "",
-      confirm_password: "",
-      gender: "",
-      dob: new Date(),
-      is_active: true,
-    },
-    avatar: null,
-  };
-
-  const [payload, setPayload] = useState<UserPayload>(initialPayload);
+  const setUserPayload = useUserStore((state) => state.setUserPayload);
+  const createUser = useUserStore((state) => state.createUser);
+  const updateUser = useUserStore((state) => state.updateUser);
+  const userPayload = useUserStore((state) => state.userPayload);
+  const fetchUserById = useUserStore((state) => state.fetchUserById);
+  const userDetail = useUserStore((state) => state.userDetail);
+  const { payload, updateField } = useUpdater<UserPayload>(userPayload);
 
   const handleSubmit = async () => {
     setUserPayload(payload);
+    if (isEdit && editId) {
+      updateUser(editId as number);
+    } else {
+      createUser();
+    }
     await onSubmit();
-  };
-
-  const updatePayload = (updates: Partial<UserPayload>) => {
-    const updated = { ...payload, ...updates };
-    setPayload(updated);
-  };
-
-  const updateUserField = (
-    field: keyof UserDataPayload,
-    value: string | boolean | Date
-  ) => {
-    updatePayload({
-      user: { ...payload.user, [field]: value },
-    });
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    updateUserField(name as keyof UserDataPayload, value);
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && file.type.startsWith("image/")) {
-      // const previewUrl = URL.createObjectURL(file)
-      updatePayload({ avatar: file });
+      updateField("avatar", file);
     }
-  };
-
-  const handleSelectValueChange = (value: string) => {
-    updateUserField("gender", value);
   };
 
   const modalOptions = [
     {
       title: "Create User",
       onAction: handleSubmit,
-      variant: "primary"
+      variant: "primary",
     },
     {
       title: "Cancel",
       onAction: onCancel,
-      variant: "danger"
+      variant: "danger",
+    },
+  ];
+  useEffect(() => {
+    if (isEdit && editId) {
+      fetchUserById(editId);
     }
-  ]
+  }, [isEdit, editId]);
+
+  useEffect(() => {
+    if (userDetail){
+      updateField("user", {
+      name: userDetail.profile.name || "",
+      gender: userDetail.profile.gender || "",
+      username: userDetail.username || "",
+      dob: userDetail.profile.dob || "",
+      is_active: userDetail.is_active ?? true,
+      email: userDetail.email || "",
+      password: "",
+      confirm_password: "",
+      })
+      updateField("avatar", userDetail.profile.avatar)
+    }
+  }, [userDetail])
 
   return (
     <CreateModal
-        isOpen={isOpen}
-        onClose={onCancel}
-        title="Create New User"
-        actions={modalOptions}
-      >
+      isOpen={isOpen}
+      onClose={onCancel}
+      title="Create New User"
+      actions={modalOptions}
+    >
       <div className="grid gap-6 md:grid-cols-2">
         {/* Profile Picture */}
         <div className="md:col-span-2 flex items-center space-x-4">
           <Avatar className="h-20 w-20">
-            <AvatarImage src={String(payload?.avatar) || "/placeholder.svg"} />
+            <AvatarImage
+              src={
+                payload?.avatar instanceof File
+                  ? URL.createObjectURL(payload.avatar)
+                  : (payload?.avatar as string) || "/placeholder.svg"
+              }
+            />
             <AvatarFallback className="bg-gray-100">
               <User className="h-8 w-8 text-gray-400" />
             </AvatarFallback>
@@ -128,7 +128,10 @@ export function CreateUserForm({
             <p className="text-xs text-gray-600 mt-1">JPG, PNG up to 2MB</p>
             {payload?.avatar && (
               <p className="text-xs text-cyan-600 mt-1">
-                Selected: {payload?.avatar.name}
+                Selected:{" "}
+                {payload?.avatar instanceof File
+                  ? payload.avatar.name
+                  : payload.avatar}
               </p>
             )}
           </div>
@@ -143,7 +146,7 @@ export function CreateUserForm({
             id="name"
             name="name"
             value={payload?.user.name || ""}
-            onChange={(e) => handleChange(e)}
+            onChange={(e) => updateField("user.name", e.target.value)}
             className="bg-white border-gray-300"
             required
           />
@@ -162,7 +165,7 @@ export function CreateUserForm({
             name="username"
             autoComplete="userName"
             value={payload?.user.username || ""}
-            onChange={(e) => handleChange(e)}
+            onChange={(e) => updateField("user.username", e.target.value)}
             className="bg-white border-gray-300"
             required
           />
@@ -177,7 +180,7 @@ export function CreateUserForm({
             type="email"
             name="email"
             value={payload?.user.email || ""}
-            onChange={(e) => handleChange(e)}
+            onChange={(e) => updateField("user.email", e.target.value)}
             className="bg-white border-gray-300"
             required
           />
@@ -189,7 +192,7 @@ export function CreateUserForm({
           </Label>
           <Select
             value={payload?.user.gender}
-            onValueChange={(value) => handleSelectValueChange(value)}
+            onValueChange={(value) => updateField("user.gender", value)}
             name="gender"
           >
             <SelectTrigger className="bg-white border-gray-300">
@@ -216,7 +219,7 @@ export function CreateUserForm({
             type="password"
             autoComplete="new-password"
             value={payload?.user.password || ""}
-            onChange={(e) => handleChange(e)}
+            onChange={(e) => updateField("user.password", e.target.value)}
             className="bg-white border-gray-300"
             required
           />
@@ -235,7 +238,9 @@ export function CreateUserForm({
             type="password"
             autoComplete="confirm_password"
             value={payload?.user.confirm_password || ""}
-            onChange={(e) => handleChange(e)}
+            onChange={(e) =>
+              updateField("user.confirm_password", e.target.value)
+            }
             className="bg-white border-gray-300"
             required
           />
@@ -248,8 +253,8 @@ export function CreateUserForm({
           <Checkbox
             id="isActive"
             name="is_active"
-            checked={payload?.user.is_active || true}
-            onChange={(e) => handleChange(e)}
+            checked={payload?.user.is_active}
+            onChange={(e) => updateField("user.is_active", e.target.checked)}
           ></Checkbox>
         </div>
       </div>

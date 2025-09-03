@@ -18,3 +18,8 @@ export const userUnitAPI = {
     fetchUserUnitStatus: (subject_id: number) => `${prefix}/user-unit/${subject_id}/status/`,
     updateStatus: `${prefix}/user-unit/status-update/`
 }
+
+export const userContentAPI = {
+    createuserContent: `${prefix}/user-content/create/`,
+    updateStatus: `${prefix}/user-content/status-update/` 
+}

@@ -41,7 +41,7 @@ import {
   TrendingUp,
   Play,
 } from "lucide-react";
-import { CreateCourseForm } from "@/components/Admin/Course";
+import { CreateCourseForm } from "@/pages/Admin/Course/Create";
 import { useCourseStore } from "@/stores/Courses/Course";
 import { getStatusColor, mapStatus } from "@/services/utils/choiceUtils";
 

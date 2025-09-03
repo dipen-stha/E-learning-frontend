@@ -1,23 +1,24 @@
 import type React from "react";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import { Textarea } from "@/components/ui/Textarea";
-import { FileVideoCamera, Upload, User } from "lucide-react";
+import { Upload, User } from "lucide-react";
 import { useCourseStore } from "@/stores/Courses/Course";
+import { CoursePayload } from "@/services/types/Course";
 import {
-  CoursePayload,
-  CourseData,
-  CategoryDetail,
-} from "@/services/types/Course";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/Avatar";
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "../../../components/ui/Avatar";
 import { useUserStore } from "@/stores/User/User";
-import { MultiSelect } from "../ui/MultiSelect";
+import { MultiSelect } from "../../../components/ui/MultiSelect";
 import { ModalCompProps } from "@/services/types/Extras";
-import { CreateModal } from "../Modal";
+import { CreateModal } from "../../../components/Modal";
 import { Status } from "@/services/utils/choiceUtils";
+import { useUpdater } from "@/services/utils/storeUtils";
 
 export function CreateCourseForm({
   onSubmit,
@@ -30,82 +31,34 @@ export function CreateCourseForm({
 
   const fetchTutors = useUserStore((state) => state.fetchTutors);
   const userMinimalList = useUserStore((state) => state.userMinimalList);
+  const coursePayload = useCourseStore((state) => state.coursePayload);
 
-  const initialPayload: CoursePayload = {
-    course: {
-      title: "",
-      description: "",
-      completion_time: 0,
-      price: 0,
-      requirements: "",
-      objectives: "",
-      categories_id: [],
-      instructor_id: null,
-      status: "",
-    },
-    file: null,
-  };
+  const initialPayload = coursePayload;
 
-  const [payload, setPayload] = useState<CoursePayload>(initialPayload);
+  const { payload, updateField } = useUpdater<CoursePayload>(initialPayload);
 
   const handleSubmit = async () => {
     setCoursePayload(payload);
     await onSubmit();
   };
 
-  const updatePayload = (updates: Partial<CoursePayload>) => {
-    const updated = { ...payload, ...updates };
-    setPayload(updated);
-  };
-
-  const updateCourseField = (
-    field: keyof CourseData,
-    value: string | boolean | number | string[]
-  ) => {
-    updatePayload({
-      course: { ...payload.course, [field]: value },
-    });
-  };
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    updateCourseField(name as keyof CourseData, value);
-  };
-
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && file.type.startsWith("image/")) {
-      updatePayload({ file: file });
+      updateField("file", file);
     }
-  };
-
-  const handleSelectValueChange = (field: keyof CourseData, value: any) => {
-    if(typeof value === 'string') {
-      updateCourseField(field, value)
-    } else{
-      updateCourseField(field, value.id);
-    }
-  };
-
-  const handleCategoriesChange = (value: any) => {
-    updateCourseField(
-      "categories_id",
-      value.map((item: CategoryDetail) => item.id)
-    );
   };
 
   const modalActions = [
     {
       title: "Create Course",
       onAction: handleSubmit,
-      variant: "primary"
+      variant: "primary",
     },
     {
       title: "Cancel",
       onAction: onCancel,
-      variant: "danger"
+      variant: "danger",
     },
   ];
 
@@ -113,13 +66,6 @@ export function CreateCourseForm({
     fetchCategoryList();
     fetchTutors();
   }, []);
-
-  // useEffect(() => {
-  //   return(() => {
-  //     userReset();
-  //     courseReset();
-  //   })
-  // }, [userReset, courseReset])
 
   return (
     <CreateModal
@@ -173,7 +119,7 @@ export function CreateCourseForm({
             id="title"
             name="title"
             value={payload.course.title}
-            onChange={(e) => handleChange(e)}
+            onChange={(e) => updateField("course.title", e.target.value)}
             className="bg-white border-gray-300"
             placeholder="Enter course title"
             required
@@ -191,7 +137,7 @@ export function CreateCourseForm({
             id="description"
             name="description"
             value={payload.course.description}
-            onChange={(e) => handleChange(e)}
+            onChange={(e) => updateField("course.description", e.target.value)}
             className="border-gray-300"
             rows={4}
             placeholder="Describe what students will learn in this course..."
@@ -212,7 +158,9 @@ export function CreateCourseForm({
             getOptionValue={(option) => option.id}
             options={categoryList}
             // value={categories}
-            onValueChange={handleCategoriesChange}
+            onValueChange={(value) =>
+              updateField("course.categories_id", value)
+            }
             placeholder="Select categories"
             className="basic-multi-select"
             classNamePrefix="select"
@@ -230,8 +178,8 @@ export function CreateCourseForm({
             getOptionLabel={(option) => option.name}
             getOptionValue={(option) => option.id}
             options={userMinimalList}
-            onValueChange={(value) =>
-              handleSelectValueChange("instructor_id", value)
+            onValueChange={(value: any) =>
+              updateField("instructor_id", value.id)
             }
           />
         </div>
@@ -248,7 +196,9 @@ export function CreateCourseForm({
             name="completion_time"
             type="number"
             value={payload.course.completion_time}
-            onChange={(e) => handleChange(e)}
+            onChange={(e) =>
+              updateField("course.completion_time", e.target.value)
+            }
             className="bg-white border-gray-300"
             placeholder="e.g., 10"
           />
@@ -263,7 +213,7 @@ export function CreateCourseForm({
             type="number"
             name="price"
             value={payload.course.price}
-            onChange={(e) => handleChange(e)}
+            onChange={(e) => updateField("course.price", e.target.value)}
             className="bg-white border-gray-300"
             placeholder="0.00"
           />
@@ -277,9 +227,7 @@ export function CreateCourseForm({
             options={Status}
             getOptionLabel={(option) => option.label}
             getOptionValue={(option) => option.value}
-            onValueChange={(value: any) =>
-              handleSelectValueChange("status", value?.value)
-            }
+            onValueChange={(value: any) => updateField("status", value?.value)}
           />
         </div>
         <div className="md:col-span-2 space-y-2">
@@ -293,7 +241,7 @@ export function CreateCourseForm({
             id="requirements"
             name="requirements"
             value={payload.course.requirements}
-            onChange={(e) => handleChange(e)}
+            onChange={(e) => updateField("course.requirements", e.target.value)}
             className="bg-white border-gray-300"
             rows={3}
             placeholder="What do students need to know before taking this course?"
@@ -311,7 +259,7 @@ export function CreateCourseForm({
             id="objectives"
             name="objectives"
             value={payload.course.objectives}
-            onChange={(e) => handleChange(e)}
+            onChange={(e) => updateField("course.objectives", e.target.value)}
             className="bg-white border-gray-300"
             rows={3}
             placeholder="What will students learn from this course?"

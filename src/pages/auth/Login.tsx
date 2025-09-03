@@ -1,19 +1,23 @@
-
-
-import type React from "react"
-import { useState } from "react"
-import { Link } from "react-router-dom"
-import { Button } from "@/components/ui/Button"
-import { Input } from "@/components/ui/Input"
-import { Label } from "@/components/ui/Label"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/Card"
-import { Checkbox } from "@/components/ui/Checkbox"
-import { useAuthStore } from "@/stores/User/Auth"
-import { useNavigate } from "react-router-dom"
-import { useUserStore } from "@/stores/User/User"
+import type React from "react";
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { Label } from "@/components/ui/Label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/Card";
+import { Checkbox } from "@/components/ui/Checkbox";
+import { useAuthStore } from "@/stores/User/Auth";
+import { useNavigate } from "react-router-dom";
+import { useUserStore } from "@/stores/User/User";
 
 const LoginPage: React.FC = () => {
-
   const { loginDetails, setLoginDetails, login } = useAuthStore();
   const { fetchSelf, isAuthenticated } = useUserStore();
   const [loginPayload, setLoginPaylod] = useState(loginDetails);
@@ -21,21 +25,21 @@ const LoginPage: React.FC = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    const updatedDetails = { ...loginPayload, [name]: value};
+    const updatedDetails = { ...loginPayload, [name]: value };
     setLoginPaylod(updatedDetails);
     setLoginDetails(updatedDetails);
-  }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const loggedIn = await login();
-    if(loggedIn){
+    if (loggedIn) {
       fetchSelf();
-      if(isAuthenticated){
+      if (isAuthenticated) {
         navigate("/dashboard");
       }
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 via-cyan-50 to-blue-100 flex items-center justify-center p-4">
@@ -44,7 +48,9 @@ const LoginPage: React.FC = () => {
           <CardTitle className="text-3xl font-bold bg-gradient-to-r from-sky-400 to-cyan-600 bg-clip-text text-transparent">
             Welcome Back
           </CardTitle>
-          <CardDescription className="text-gray-600">Sign in to your account to continue</CardDescription>
+          <CardDescription className="text-gray-600">
+            Sign in to your account to continue
+          </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
@@ -86,7 +92,10 @@ const LoginPage: React.FC = () => {
                 onChange={handleChange}
                 label="Remember me"
               />
-              <Link to="/forgot-password" className="text-sm text-sky-700 hover:text-sky-800 hover:underline">
+              <Link
+                to="/forgot-password"
+                className="text-sm text-sky-700 hover:text-sky-800 hover:underline"
+              >
                 Forgot password?
               </Link>
             </div>
@@ -100,7 +109,10 @@ const LoginPage: React.FC = () => {
             </Button>
             <p className="text-center text-sm text-gray-600">
               {"Don't have an account? "}
-              <Link to="/signup" className="font-medium text-cyan-700 hover:text-cyan-800 hover:underline">
+              <Link
+                to="/signup"
+                className="font-medium text-cyan-700 hover:text-cyan-800 hover:underline"
+              >
                 Sign up
               </Link>
             </p>
@@ -108,7 +120,7 @@ const LoginPage: React.FC = () => {
         </form>
       </Card>
     </div>
-  )
-}
+  );
+};
 
-export default LoginPage
+export default LoginPage;

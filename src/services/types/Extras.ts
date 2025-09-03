@@ -1,7 +1,9 @@
 export interface ModalCompProps {
-    onSubmit: (data?: any | null, file?: any | null) => void;
-    isOpen: boolean;
-    onCancel: () => void;
+  onSubmit: (data?: any | null, file?: any | null) => void;
+  isOpen: boolean;
+  onCancel: () => void;
+  isEdit?: boolean;
+  editId?: number | null;
 }
 
 export interface ModalActionProps {
@@ -20,8 +22,8 @@ export interface CreateModalProps {
 }
 
 export interface NavItem {
-  title: string
-  href?: string
-  icon: React.ComponentType<{ className?: string }>
-  children?: NavItem[]
+  title: string;
+  href?: string;
+  icon: React.ComponentType<{ className?: string }>;
+  children?: NavItem[];
 }
