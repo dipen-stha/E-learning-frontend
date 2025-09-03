@@ -80,6 +80,7 @@ export interface CourseState {
   fetchLatestCourses: () => Promise<void>;
   fetchCourseById: (course_id: number) => Promise<void>;
   createCourse: () => Promise<void>;
+  updateCourse: (courseId: number) => Promise<void>;
   fetchCategoryList: () => Promise<void>;
   fetchMinimal: () => Promise<void>;
   reset: () => void;

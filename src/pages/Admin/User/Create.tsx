@@ -54,7 +54,7 @@ export function CreateUserForm({
 
   const modalOptions = [
     {
-      title: "Create User",
+      title: `${isEdit ? "Create User" : "Update User"}`,
       onAction: handleSubmit,
       variant: "primary",
     },

@@ -6,7 +6,6 @@ import {
   CourseDetail,
   CoursePayload,
 } from "@/services/types/Course";
-import { P } from "node_modules/framer-motion/dist/types.d-Cjd591yU";
 
 // Initial payload
 const initialCoursePayload: CoursePayload = {
@@ -91,6 +90,15 @@ export const useCourseStore = create<CourseState>((set, get) => ({
       set({ isLoading: false });
       console.error("Failed to create course:", error);
       throw error;
+    }
+  },
+  updateCourse: async (courseId: number) => {
+    set({ isLoading: true });
+    try {
+      await api.patch(courseAPI.updateCourse(courseId), get().coursePayload);
+      set({ isLoading: false });
+    } catch (error) {
+      set({ isLoading: false });
     }
   },
 

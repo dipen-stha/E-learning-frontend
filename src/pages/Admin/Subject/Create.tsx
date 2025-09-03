@@ -31,7 +31,7 @@ export function CreateSubjectForm({
 
   const modalOptions = [
     {
-      title: "Create Subject",
+      title: `Create Subject`,
       onAction: handleSubmit,
       variant: "primary",
     },

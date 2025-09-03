@@ -24,10 +24,15 @@ export function CreateCourseForm({
   onSubmit,
   onCancel,
   isOpen,
+  isEdit,
+  editId,
 }: ModalCompProps) {
   const setCoursePayload = useCourseStore((state) => state.setCoursePayload);
+  const createCourse = useCourseStore((state) => state.createCourse);
   const fetchCategoryList = useCourseStore((state) => state.fetchCategoryList);
   const categoryList = useCourseStore((state) => state.categoryList);
+  const fetchCourseById = useCourseStore((state) => state.fetchCourseById);
+  const courseItem = useCourseStore((state) => state.courseItem);
 
   const fetchTutors = useUserStore((state) => state.fetchTutors);
   const userMinimalList = useUserStore((state) => state.userMinimalList);
@@ -39,6 +44,10 @@ export function CreateCourseForm({
 
   const handleSubmit = async () => {
     setCoursePayload(payload);
+    if (isEdit && editId) {
+    } else {
+      createCourse();
+    }
     await onSubmit();
   };
 
@@ -51,7 +60,7 @@ export function CreateCourseForm({
 
   const modalActions = [
     {
-      title: "Create Course",
+      title: `${isEdit ? "Create Course" : "Update Course"}`,
       onAction: handleSubmit,
       variant: "primary",
     },
@@ -66,6 +75,28 @@ export function CreateCourseForm({
     fetchCategoryList();
     fetchTutors();
   }, []);
+
+  useEffect(() => {
+    if (isEdit && editId) {
+      fetchCourseById(editId);
+    }
+  }, [isEdit, editId]);
+
+  useEffect(() => {
+    if (courseItem) {
+      updateField("course", {
+        title: courseItem.title,
+        description: courseItem.description,
+        categories_id: [],
+        completion_time: courseItem.completion_time,
+        price: courseItem.price,
+        instructor_id: courseItem.instructor,
+        requirements: "",
+        objectives: "",
+        status: courseItem.status,
+      });
+    }
+  }, [courseItem]);
 
   return (
     <CreateModal

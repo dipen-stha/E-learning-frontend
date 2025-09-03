@@ -4,6 +4,7 @@ export const courseAPI = {
     fetchAll: `${prefix}/get/all/`,
     fetchById: (courseId: number) =>`${prefix}/get/${courseId}/`,
     createCourse: `${prefix}/create/`,
+    updateCourse: (courseId: number) =>  `${prefix}/${courseId}/update/`,
     fetchCategoryList: `${prefix}/category/get/`,
     minimalFetch: `${prefix}/get/minimal/`
 }
