@@ -12,6 +12,7 @@ export const courseAPI = {
 export const subjectAPI = {
     createSubject: `${prefix}/subject/create/`,
     fetchSubjects: `${prefix}/subject/get/all/`,
+    updateSubject: (subjectId: number) => `${prefix}/subject/${subjectId}/update/`,
     fetchSubjectsByCourse: (id: number) => `${prefix}/subject/by_course/${id}/`,
     fetchSubjectMinimal: (id: number) => `${prefix}/subject/minimal/${id}/`,
     fetchSubjectById: (id: number) => `${prefix}/subject/get_by_id/${id}/`

@@ -1,7 +1,7 @@
 import { Profile } from "./user";
 
 export interface CategoryDetail {
-  id: string;
+  id: number;
   title: string;
 }
 
@@ -23,7 +23,7 @@ export interface CourseDetail {
   instructor_name?: string;
   image_url?: string;
   subjects: SubjectDetail[] | [];
-  categories: string[] | [];
+  categories: CategoryDetail[] | [];
   total_revenue?: number;
   status: string;
   is_enrolled: boolean;

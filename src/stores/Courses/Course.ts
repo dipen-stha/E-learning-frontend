@@ -94,8 +94,17 @@ export const useCourseStore = create<CourseState>((set, get) => ({
   },
   updateCourse: async (courseId: number) => {
     set({ isLoading: true });
+    const formData = new FormData();
+    const payload = get().coursePayload;
+    const file = payload.file
+    formData.append("course", JSON.stringify(payload?.course));
+    if(file && file instanceof File) formData.append("file", file)
     try {
-      await api.patch(courseAPI.updateCourse(courseId), get().coursePayload);
+      await api.patch(courseAPI.updateCourse(courseId), formData, {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
+      });
       set({ isLoading: false });
     } catch (error) {
       set({ isLoading: false });

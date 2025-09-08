@@ -25,6 +25,7 @@ export interface UserMinimal {
 }
 
 export interface Profile {
+  id?: number
   name: string;
   dob: Date;
   gender: string;
@@ -32,17 +33,22 @@ export interface Profile {
   role: string;
 }
 
-export interface UserDetail {
-  id: number;
+export interface UserItem {
+  id: number
   profile: Profile;
   email: string;
-  username: string;
-  is_active: boolean
+  username: string
+  is_active: boolean;
+}
+
+export interface UserDetail extends UserItem {
   total_courses: number | null;
   courses_completed: number | null;
   joined_date: string | null;
   last_login: string | null;
 }
+
+
 
 export interface UserDataPayload{
   name: string
@@ -74,6 +80,7 @@ export interface UserPayload {
 export interface UserState {
   userDetailList: UserDetail[] | [];
   userMinimalList: UserMinimal[] | [];
+  userItem: UserItem | null;
   userDetail: UserDetail | null;
   userPayload: UserPayload;
   userStats: UserStats;

@@ -49,7 +49,9 @@ export default function CoursesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const createCourse = useCourseStore((state) => state.createCourse);
+  const [isModalEdit, setIsModalEdit] = useState<boolean>(false);
+  const [editId, setEditId] = useState<number | null>(null);
+
   const fetchCourseDetails = useCourseStore(
     (state) => state.fetchCourseDetails
   );
@@ -74,12 +76,26 @@ export default function CoursesPage() {
   const handleCreateCourse = async () => {
     try {
 
-      await createCourse();
+      await fetchCourseDetails();
+      setEditId(null);
+      setIsModalEdit(false);
       setIsCreateModalOpen(false);
     } catch (error) {
       // setIsCreateModalOpen(true);
     }
   };
+
+  const handleCourseEdit = (courseId: number) => {
+    setIsCreateModalOpen(true)
+    setIsModalEdit(true);
+    setEditId(courseId);
+  }
+
+  const handleModalClose = () => {
+    setIsCreateModalOpen(false)
+    setIsCreateModalOpen(false)
+    setEditId(null);
+  }
 
   useEffect(() => {
     fetchCourseDetails();
@@ -290,9 +306,9 @@ export default function CoursesPage() {
                       <Badge
                         key={index}
                         variant="secondary"
-                        className={getCategoryColor(category)}
+                        className={getCategoryColor(category.title)}
                       >
-                        {category}
+                        {category.title}
                       </Badge>
                     ))}
                   </TableCell>
@@ -353,7 +369,7 @@ export default function CoursesPage() {
                           <Eye className="mr-2 h-4 w-4" />
                           View Course
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleCourseEdit(course.id)}>
                           <Edit className="mr-2 h-4 w-4" />
                           Edit Course
                         </DropdownMenuItem>
@@ -390,7 +406,9 @@ export default function CoursesPage() {
         <CreateCourseForm
           isOpen={isCreateModalOpen}
           onSubmit={handleCreateCourse}
-          onCancel={() => setIsCreateModalOpen(false)}
+          onCancel={handleModalClose}
+          editId={editId}
+          isEdit={isModalEdit}
         />
     </div>
   );
