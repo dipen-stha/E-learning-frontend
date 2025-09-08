@@ -23,6 +23,7 @@ const initialPayload = {
 
 export const useUserStore = create<UserState>((set, get) => ({
   userDetail: null,
+  userItem: null,
   userDetailList: [],
   userMinimalList: [],
   isLoading: false,
@@ -173,7 +174,7 @@ export const useUserStore = create<UserState>((set, get) => ({
     try{
       const response = await api.get(userAPI.fetchById(userId))
       if(response.data){
-        set({userDetail: response.data})
+        set({userItem: response.data})
       }
     } catch (error) {
       set({isLoading: false})

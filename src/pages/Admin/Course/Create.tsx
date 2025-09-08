@@ -1,13 +1,13 @@
 import type React from "react";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import { Textarea } from "@/components/ui/Textarea";
 import { Upload, User } from "lucide-react";
 import { useCourseStore } from "@/stores/Courses/Course";
-import { CoursePayload } from "@/services/types/Course";
+import { CategoryDetail, CoursePayload } from "@/services/types/Course";
 import {
   Avatar,
   AvatarFallback,
@@ -24,22 +24,38 @@ export function CreateCourseForm({
   onSubmit,
   onCancel,
   isOpen,
+  isEdit,
+  editId,
 }: ModalCompProps) {
   const setCoursePayload = useCourseStore((state) => state.setCoursePayload);
+  const createCourse = useCourseStore((state) => state.createCourse);
   const fetchCategoryList = useCourseStore((state) => state.fetchCategoryList);
   const categoryList = useCourseStore((state) => state.categoryList);
+  const fetchCourseById = useCourseStore((state) => state.fetchCourseById);
+  const courseItem = useCourseStore((state) => state.courseItem);
 
   const fetchTutors = useUserStore((state) => state.fetchTutors);
   const userMinimalList = useUserStore((state) => state.userMinimalList);
   const coursePayload = useCourseStore((state) => state.coursePayload);
+  const updateCourse = useCourseStore((state) => state.updateCourse);
 
   const initialPayload = coursePayload;
 
-  const { payload, updateField } = useUpdater<CoursePayload>(initialPayload);
+  const { payload, updateField, reset } =
+    useUpdater<CoursePayload>(initialPayload);
 
   const handleSubmit = async () => {
-    setCoursePayload(payload);
+    console.log(payload)
+    await setCoursePayload(payload);
+    if (isEdit && editId) {
+      try {
+        await updateCourse(editId);
+      } catch (error) {}
+    } else {
+      createCourse();
+    }
     await onSubmit();
+    // reset();
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -49,15 +65,24 @@ export function CreateCourseForm({
     }
   };
 
+  const handleClose = () => {
+    onCancel();
+    reset();
+  };
+
+  const handleValueChange = (value: any) => {
+    updateField("course.categories_id", value.map((cat: CategoryDetail) => cat.id))
+  }
+  
   const modalActions = [
     {
-      title: "Create Course",
+      title: `${isEdit ? "Create Course" : "Update Course"}`,
       onAction: handleSubmit,
       variant: "primary",
     },
     {
       title: "Cancel",
-      onAction: onCancel,
+      onAction: handleClose,
       variant: "danger",
     },
   ];
@@ -67,10 +92,32 @@ export function CreateCourseForm({
     fetchTutors();
   }, []);
 
+  useEffect(() => {
+    if (isEdit && editId) {
+      fetchCourseById(editId);
+    }
+  }, [isEdit, editId]);
+
+  useEffect(() => {
+    if (courseItem) {
+      updateField("course", {
+        title: courseItem.title,
+        description: courseItem.description || "",
+        categories_id: courseItem.categories.map((category) => category.id),
+        completion_time: courseItem.completion_time,
+        price: courseItem.price,
+        instructor_id: courseItem.instructor?.id,
+        status: courseItem.status,
+      },
+    );
+    updateField("file", courseItem.image_url)
+    }
+  }, [courseItem]);
+
   return (
     <CreateModal
       isOpen={isOpen}
-      onClose={onCancel}
+      onClose={handleClose}
       title="Create New Course"
       actions={modalActions}
     >
@@ -155,11 +202,11 @@ export function CreateCourseForm({
           <MultiSelect
             isMulti
             getOptionLabel={(option) => option.title}
-            getOptionValue={(option) => option.id}
+            getOptionValue={(option) => String(option.id)}
             options={categoryList}
-            // value={categories}
-            onValueChange={(value) =>
-              updateField("course.categories_id", value)
+            value={payload.course.categories_id}
+            onValueChange={(value: any) =>
+              handleValueChange(value)
             }
             placeholder="Select categories"
             className="basic-multi-select"
@@ -176,10 +223,11 @@ export function CreateCourseForm({
           </Label>
           <MultiSelect
             getOptionLabel={(option) => option.name}
-            getOptionValue={(option) => option.id}
+            getOptionValue={(option) => String(option.id)}
+            value={payload.course.instructor_id}
             options={userMinimalList}
             onValueChange={(value: any) =>
-              updateField("instructor_id", value.id)
+              updateField("course.instructor_id", value.id)
             }
           />
         </div>
@@ -227,7 +275,8 @@ export function CreateCourseForm({
             options={Status}
             getOptionLabel={(option) => option.label}
             getOptionValue={(option) => option.value}
-            onValueChange={(value: any) => updateField("status", value?.value)}
+            value={payload.course.status as string}
+            onValueChange={(value: any) => updateField("course.status", value?.value)}
           />
         </div>
         <div className="md:col-span-2 space-y-2">

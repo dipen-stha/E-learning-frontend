@@ -1,12 +1,25 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card"
-import { Button } from "@/components/ui/Button"
-import { Input } from "@/components/ui/Input"
-import { Badge } from "@/components/ui/Badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table"
+import { useEffect, useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { Badge } from "@/components/ui/Badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/Table";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,9 +27,15 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/DropDown"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select"
-import { CreateSubjectForm } from "@/pages/Admin/Subject/Create"
+} from "@/components/ui/DropDown";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/Select";
+import { CreateSubjectForm } from "@/pages/Admin/Subject/Create";
 import {
   BookOpen,
   Search,
@@ -32,56 +51,66 @@ import {
   Pause,
   CheckCircle,
   Circle,
-} from "lucide-react"
-import { useSubjectStore } from "@/stores/Subjects/Subjects"
-import { getStatusColor, mapStatus } from "@/services/utils/choiceUtils"
-import { useCourseStore } from "@/stores/Courses/Course"
+} from "lucide-react";
+import { useSubjectStore } from "@/stores/Subjects/Subjects";
+import { getStatusColor, mapStatus } from "@/services/utils/choiceUtils";
+import { useCourseStore } from "@/stores/Courses/Course";
 
 export default function SubjectsPage() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [selectedCourse, setSelectedCourse] = useState("all")
-  const [selectedStatus, setSelectedStatus] = useState("all")
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-  const createSubject = useSubjectStore(state => state.createSubject)
-  const fetchSubjects = useSubjectStore(state => state.fetchSubjects)
-  const subjectDetailList = useSubjectStore(state => state.subjectDetailList)
-  const fetchSubjectsByCourse = useSubjectStore(state => state.fetchSubjectsByCourse)
-  const isSubjectsLoading = useSubjectStore(state => state.isLoading)
-  const resetSubjectPayload = useSubjectStore(state => state.resetSubjectPayload)
-  const courseMinimal = useCourseStore(state => state.courseMinimal)
-  const fetchMinimal = useCourseStore(state => state.fetchMinimal)
-  const reset = useSubjectStore(state => state.reset)
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCourse, setSelectedCourse] = useState("all");
+  const [selectedStatus, setSelectedStatus] = useState("all");
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [editId, setEditId] = useState<number | null>(null);
+  const [isModalEdit, setIsModalEdit] = useState<boolean>(false);
+  const fetchSubjects = useSubjectStore((state) => state.fetchSubjects);
+  const subjectDetailList = useSubjectStore((state) => state.subjectDetailList);
+  const fetchSubjectsByCourse = useSubjectStore(
+    (state) => state.fetchSubjectsByCourse
+  );
+  const isSubjectsLoading = useSubjectStore((state) => state.isLoading);
+  const resetSubjectPayload = useSubjectStore(
+    (state) => state.resetSubjectPayload
+  );
+  const courseMinimal = useCourseStore((state) => state.courseMinimal);
+  const fetchMinimal = useCourseStore((state) => state.fetchMinimal);
+  const reset = useSubjectStore((state) => state.reset);
 
   const handleCourseChange = (courseId: string) => {
     setSelectedCourse(courseId);
     fetchSubjectsByCourse(Number(courseId));
-  }
+  };
+
 
   const handleCreateSubject = async () => {
-    try{
-      await createSubject();
-      setIsCreateModalOpen(false)
+    try {
+      // await createSubject();
+      setIsCreateModalOpen(false);
       await fetchSubjects();
-    } catch {
+    } catch {}
+  };
 
-    }
-  }
+  const handleSubjectEdit = (subjectId: number) => {
+    setEditId(subjectId)
+    setIsModalEdit(true)
+    setIsCreateModalOpen(true)
+}
 
   const handleModalClose = () => {
-    resetSubjectPayload()
+    resetSubjectPayload();
     setIsCreateModalOpen(false);
-  }
+  };
 
   useEffect(() => {
     fetchSubjects();
     fetchMinimal();
-  }, [])
+  }, []);
 
   useEffect(() => {
     return () => {
       reset();
-    }
-  }, [reset])
+    };
+  }, [reset]);
 
   return (
     <div className="space-y-6">
@@ -89,15 +118,22 @@ export default function SubjectsPage() {
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Subjects Management</h1>
-          <p className="text-gray-600 mt-1">Manage course subjects, lessons, and learning materials.</p>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Subjects Management
+          </h1>
+          <p className="text-gray-600 mt-1">
+            Manage course subjects, lessons, and learning materials.
+          </p>
         </div>
         <div className="flex space-x-2">
           <Button variant="outline">
             <Eye className="mr-2 h-4 w-4" />
             Preview Mode
           </Button>
-          <Button className="bg-cyan-600 hover:bg-cyan-700 text-white" onClick={() => setIsCreateModalOpen(true)}>
+          <Button
+            className="bg-cyan-600 hover:bg-cyan-700 text-white"
+            onClick={() => setIsCreateModalOpen(true)}
+          >
             <Plus className="mr-2 h-4 w-4" />
             Create Subject
           </Button>
@@ -108,7 +144,9 @@ export default function SubjectsPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card className="border-gray-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Subjects</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Subjects
+            </CardTitle>
             <BookOpen className="h-4 w-4 text-gray-600" />
           </CardHeader>
           <CardContent>
@@ -119,7 +157,9 @@ export default function SubjectsPage() {
 
         <Card className="border-gray-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Published Subjects</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Published Subjects
+            </CardTitle>
             <CheckCircle className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
@@ -130,7 +170,9 @@ export default function SubjectsPage() {
 
         <Card className="border-gray-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Draft Subjects</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Draft Subjects
+            </CardTitle>
             <Circle className="h-4 w-4 text-yellow-600" />
           </CardHeader>
           <CardContent>
@@ -141,7 +183,9 @@ export default function SubjectsPage() {
 
         <Card className="border-gray-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg. Completion</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Avg. Completion
+            </CardTitle>
             <Users className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
@@ -155,7 +199,9 @@ export default function SubjectsPage() {
       <Card className="border-gray-200">
         <CardHeader>
           <CardTitle>Course Subjects</CardTitle>
-          <CardDescription>Manage individual subjects and lessons within your courses.</CardDescription>
+          <CardDescription>
+            Manage individual subjects and lessons within your courses.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center space-x-4 mb-6">
@@ -193,10 +239,20 @@ export default function SubjectsPage() {
               <DropdownMenuContent className="bg-white border-gray-200">
                 <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => setSelectedStatus("all")}>All Status</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSelectedStatus("published")}>Published</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSelectedStatus("draft")}>Draft</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSelectedStatus("archived")}>Archived</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSelectedStatus("all")}>
+                  All Status
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setSelectedStatus("published")}
+                >
+                  Published
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSelectedStatus("draft")}>
+                  Draft
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSelectedStatus("archived")}>
+                  Archived
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -214,53 +270,75 @@ export default function SubjectsPage() {
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
-            {isSubjectsLoading ? <TableBody><TableRow><td>Loading.... </td></TableRow></TableBody> : (
-            <TableBody>
-              {subjectDetailList && subjectDetailList?.map((subject) => (
-                <TableRow key={subject.id} className="border-gray-200">
-                  <TableCell>
-                    <div className="flex items-center space-x-3">
-                      <div className="flex items-center justify-center w-8 h-8 bg-gray-100 rounded-full text-sm font-medium text-gray-600">
-                        {subject.order}
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-sm font-medium text-gray-900">{subject.title}</p>
-                        <p className="text-xs text-gray-600 max-w-xs truncate">{subject.description}</p>
-                        {subject.completion_time && (
-                          <div className="flex items-center text-xs text-gray-600">
-                            <Clock className="mr-1 h-3 w-3" />
-                            {subject.completion_time}
+            {isSubjectsLoading ? (
+              <TableBody>
+                <TableRow>
+                  <td>Loading.... </td>
+                </TableRow>
+              </TableBody>
+            ) : (
+              <TableBody>
+                {subjectDetailList &&
+                  subjectDetailList?.map((subject) => (
+                    <TableRow key={subject.id} className="border-gray-200">
+                      <TableCell>
+                        <div className="flex items-center space-x-3">
+                          <div className="flex items-center justify-center w-8 h-8 bg-gray-100 rounded-full text-sm font-medium text-gray-600">
+                            {subject.order}
                           </div>
-                        )}
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <p className="text-sm font-medium text-gray-900">{subject.course?.title}</p>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center space-x-2">
-                      <Avatar className="h-6 w-6">
-                        <AvatarImage src={subject.instructor?.name || "/placeholder.svg"} />
-                        <AvatarFallback>
-                          {subject.instructor?.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="text-sm text-gray-900">{subject.instructor?.name}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="secondary" className={getStatusColor(subject.status)}>
-                      {mapStatus(subject.status)}
-                    </Badge>
-                  </TableCell>
-                  {/* <TableCell>
+                          <div className="space-y-1">
+                            <p className="text-sm font-medium text-gray-900">
+                              {subject.title}
+                            </p>
+                            <p className="text-xs text-gray-600 max-w-xs truncate">
+                              {subject.description}
+                            </p>
+                            {subject.completion_time && (
+                              <div className="flex items-center text-xs text-gray-600">
+                                <Clock className="mr-1 h-3 w-3" />
+                                {subject.completion_time}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <p className="text-sm font-medium text-gray-900">
+                          {subject.course?.title}
+                        </p>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center space-x-2">
+                          <Avatar className="h-6 w-6">
+                            <AvatarImage
+                              src={
+                                subject.instructor?.name || "/placeholder.svg"
+                              }
+                            />
+                            <AvatarFallback>
+                              {subject.instructor?.name
+                                .split(" ")
+                                .map((n) => n[0])
+                                .join("")}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="text-sm text-gray-900">
+                            {subject.instructor?.name}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant="secondary"
+                          className={getStatusColor(subject.status)}
+                        >
+                          {mapStatus(subject.status)}
+                        </Badge>
+                      </TableCell>
+                      {/* <TableCell>
                     <p className="text-sm font-medium">{subject.student_count.toLocaleString()}</p>
                   </TableCell> */}
-                  {/* <TableCell>
+                      {/* <TableCell>
                     {subject.completionRate > 0 ? (
                       <div className="space-y-1">
                         <div className="flex items-center justify-between text-xs">
@@ -272,56 +350,65 @@ export default function SubjectsPage() {
                       <span className="text-sm text-gray-400">No data</span>
                     )}
                   </TableCell> */}
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="bg-white border-gray-200">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem>
-                          <Eye className="mr-2 h-4 w-4" />
-                          Preview Subject
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Edit className="mr-2 h-4 w-4" />
-                          Edit Subject
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Users className="mr-2 h-4 w-4" />
-                          View Analytics
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        {subject.status === "Published" ? (
-                          <DropdownMenuItem>
-                            <Pause className="mr-2 h-4 w-4" />
-                            Unpublish
-                          </DropdownMenuItem>
-                        ) : (
-                          <DropdownMenuItem>
-                            <Play className="mr-2 h-4 w-4" />
-                            Publish
-                          </DropdownMenuItem>
-                        )}
-                        <DropdownMenuItem className="text-red-600">
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Delete Subject
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent
+                            align="end"
+                            className="bg-white border-gray-200"
+                          >
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem>
+                              <Eye className="mr-2 h-4 w-4" />
+                              Preview Subject
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleSubjectEdit(subject.id)}>
+                              <Edit className="mr-2 h-4 w-4" />
+                              Edit Subject
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              <Users className="mr-2 h-4 w-4" />
+                              View Analytics
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            {subject.status === "Published" ? (
+                              <DropdownMenuItem>
+                                <Pause className="mr-2 h-4 w-4" />
+                                Unpublish
+                              </DropdownMenuItem>
+                            ) : (
+                              <DropdownMenuItem>
+                                <Play className="mr-2 h-4 w-4" />
+                                Publish
+                              </DropdownMenuItem>
+                            )}
+                            <DropdownMenuItem className="text-red-600">
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete Subject
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
             )}
           </Table>
         </CardContent>
       </Card>
 
-        <CreateSubjectForm isOpen={isCreateModalOpen} onSubmit={handleCreateSubject} onCancel={handleModalClose} />
+      <CreateSubjectForm
+        isOpen={isCreateModalOpen}
+        onSubmit={handleCreateSubject}
+        onCancel={handleModalClose}
+        isEdit={isModalEdit}
+        editId={editId}
+      />
     </div>
-  )
+  );
 }

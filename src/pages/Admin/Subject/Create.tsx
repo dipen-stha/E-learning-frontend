@@ -16,22 +16,36 @@ export function CreateSubjectForm({
   onSubmit,
   onCancel,
   isOpen,
+  isEdit,
+  editId,
 }: ModalCompProps) {
   const { fetchMinimal, courseMinimal } = useCourseStore();
-  const { subjectPayload, setSubjectPayload } = useSubjectStore();
+  const setSubjectPayload = useSubjectStore((state) => state.setSubjectPayload);
+  const subjectPayload = useSubjectStore((state) => state.subjectPayload);
+  const fetchSubjectById = useSubjectStore((state) => state.fetchSubjectById);
+  const subjectItem = useSubjectStore((state) => state.subjectItem);
+  const updateSubject = useSubjectStore((state) => state.updateSubject);
+  const createSubject = useSubjectStore((state) => state.createSubject)
 
-  const initialPayload = subjectPayload;
+  const { payload, updateField, reset } = useUpdater<SubjectPayload>(subjectPayload);
 
-  const { payload, updateField } = useUpdater<SubjectPayload>(initialPayload);
-
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setSubjectPayload(payload);
+    if(editId && isEdit) {
+      try{
+        await updateSubject(editId)
+      } catch (error) {
+
+      }
+    } else{
+      await createSubject()
+    }
     onSubmit();
   };
 
   const modalOptions = [
     {
-      title: "Create Subject",
+      title: `Create Subject`,
       onAction: handleSubmit,
       variant: "primary",
     },
@@ -45,6 +59,25 @@ export function CreateSubjectForm({
   useEffect(() => {
     fetchMinimal();
   }, []);
+
+  useEffect(() => {
+    if (editId && isEdit) {
+      fetchSubjectById(editId);
+    }
+  }, [editId, isEdit]);
+
+  useEffect(() => {
+    if (subjectItem) {
+      updateField("title", subjectItem.title);
+      updateField("description", subjectItem.description);
+      updateField("course_id", subjectItem.course.id);
+      updateField("completion_time", subjectItem.completion_time);
+      updateField("order", subjectItem.order);
+      updateField("objectives", subjectItem.objectives);
+      updateField("status", subjectItem.status);
+    }
+  }, [subjectItem]);
+
 
   return (
     <CreateModal
@@ -78,7 +111,8 @@ export function CreateSubjectForm({
             options={courseMinimal}
             getOptionLabel={(option) => option.title}
             getOptionValue={(option) => String(option.id)}
-            onValueChange={(value) => updateField("course_id", value)}
+            value={payload.course_id}
+            onValueChange={(value: any) => updateField("course_id", value.id)}
           />
         </div>
       </div>
@@ -121,6 +155,7 @@ export function CreateSubjectForm({
             options={Status}
             getOptionLabel={(option) => option.label}
             getOptionValue={(option) => option.value}
+            value={payload.status}
             onValueChange={(value: any) => updateField("status", value?.value)}
           />
         </div>

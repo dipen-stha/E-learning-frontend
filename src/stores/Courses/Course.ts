@@ -6,7 +6,6 @@ import {
   CourseDetail,
   CoursePayload,
 } from "@/services/types/Course";
-import { P } from "node_modules/framer-motion/dist/types.d-Cjd591yU";
 
 // Initial payload
 const initialCoursePayload: CoursePayload = {
@@ -91,6 +90,24 @@ export const useCourseStore = create<CourseState>((set, get) => ({
       set({ isLoading: false });
       console.error("Failed to create course:", error);
       throw error;
+    }
+  },
+  updateCourse: async (courseId: number) => {
+    set({ isLoading: true });
+    const formData = new FormData();
+    const payload = get().coursePayload;
+    const file = payload.file
+    formData.append("course", JSON.stringify(payload?.course));
+    if(file && file instanceof File) formData.append("file", file)
+    try {
+      await api.patch(courseAPI.updateCourse(courseId), formData, {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
+      });
+      set({ isLoading: false });
+    } catch (error) {
+      set({ isLoading: false });
     }
   },
 

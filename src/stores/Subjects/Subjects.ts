@@ -41,7 +41,15 @@ export const useSubjectStore = create<SubjectState>((set, get) => ({
       throw err;
     }
   },
-
+  updateSubject: async (subjectId: number) => {
+    set({isLoading: true})
+    try{
+      await api.patch(subjectAPI.updateSubject(subjectId), get().subjectPayload)
+      set({isLoading: false})
+    } catch (error){
+      set({isLoading: false})
+    }
+  },
   fetchSubjects: async () => {
     set({isLoading: true})
     try {
@@ -82,12 +90,10 @@ export const useSubjectStore = create<SubjectState>((set, get) => ({
     }
   },
   fetchSubjectById: async(subjectId) => {
-    set({isLoading: true})
     try{
       const response = await api.get(subjectAPI.fetchSubjectById(subjectId))
       set({subjectItem: response.data})
     } catch {
-
     }
   },
 

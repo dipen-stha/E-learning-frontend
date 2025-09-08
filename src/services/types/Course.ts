@@ -1,7 +1,7 @@
 import { Profile } from "./user";
 
 export interface CategoryDetail {
-  id: string;
+  id: number;
   title: string;
 }
 
@@ -23,7 +23,7 @@ export interface CourseDetail {
   instructor_name?: string;
   image_url?: string;
   subjects: SubjectDetail[] | [];
-  categories: string[] | [];
+  categories: CategoryDetail[] | [];
   total_revenue?: number;
   status: string;
   is_enrolled: boolean;
@@ -80,6 +80,7 @@ export interface CourseState {
   fetchLatestCourses: () => Promise<void>;
   fetchCourseById: (course_id: number) => Promise<void>;
   createCourse: () => Promise<void>;
+  updateCourse: (courseId: number) => Promise<void>;
   fetchCategoryList: () => Promise<void>;
   fetchMinimal: () => Promise<void>;
   reset: () => void;

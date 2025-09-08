@@ -32,18 +32,28 @@ export function CreateUserForm({
   const updateUser = useUserStore((state) => state.updateUser);
   const userPayload = useUserStore((state) => state.userPayload);
   const fetchUserById = useUserStore((state) => state.fetchUserById);
-  const userDetail = useUserStore((state) => state.userDetail);
-  const { payload, updateField } = useUpdater<UserPayload>(userPayload);
+  const userItem = useUserStore((state) => state.userItem);
+  const { payload, updateField, reset } = useUpdater<UserPayload>(userPayload);
 
   const handleSubmit = async () => {
     setUserPayload(payload);
     if (isEdit && editId) {
-      updateUser(editId as number);
+      try{
+        updateUser(editId as number);
+        reset();
+      } catch (error) {
+        
+      }
     } else {
       createUser();
     }
     await onSubmit();
   };
+
+  const handleClose = () => {
+    reset()
+    onCancel();
+  }
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -54,13 +64,13 @@ export function CreateUserForm({
 
   const modalOptions = [
     {
-      title: "Create User",
+      title: `${isEdit ? "Create User" : "Update User"}`,
       onAction: handleSubmit,
       variant: "primary",
     },
     {
       title: "Cancel",
-      onAction: onCancel,
+      onAction: handleClose,
       variant: "danger",
     },
   ];
@@ -71,25 +81,25 @@ export function CreateUserForm({
   }, [isEdit, editId]);
 
   useEffect(() => {
-    if (userDetail){
+    if (userItem){
       updateField("user", {
-      name: userDetail.profile.name || "",
-      gender: userDetail.profile.gender || "",
-      username: userDetail.username || "",
-      dob: userDetail.profile.dob || "",
-      is_active: userDetail.is_active ?? true,
-      email: userDetail.email || "",
+      name: userItem.profile.name || "",
+      gender: userItem.profile.gender || "",
+      username: userItem.username || "",
+      dob: userItem.profile.dob || "",
+      is_active: userItem.is_active ?? true,
+      email: userItem.email || "",
       password: "",
       confirm_password: "",
       })
-      updateField("avatar", userDetail.profile.avatar)
+      updateField("avatar", userItem.profile.avatar)
     }
-  }, [userDetail])
+  }, [userItem])
 
   return (
     <CreateModal
       isOpen={isOpen}
-      onClose={onCancel}
+      onClose={handleClose}
       title="Create New User"
       actions={modalOptions}
     >

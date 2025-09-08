@@ -98,6 +98,12 @@ export default function UsersPage() {
     setIsModalEdit(true);
   };
 
+  const handleModalClose = () => {
+      setIsCreateModalOpen(false);
+      setIsModalEdit(false);
+      setEditId(null);
+  }
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -364,7 +370,7 @@ export default function UsersPage() {
       <CreateUserForm
         isOpen={isCreateModalOpen}
         onSubmit={handleModalSubmit}
-        onCancel={() => setIsCreateModalOpen(false)}
+        onCancel={handleModalClose}
         isEdit={isModalEdit}
         editId={editId}
       />

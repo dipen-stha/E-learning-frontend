@@ -42,6 +42,7 @@ export interface SubjectState {
     setSubjectPayload: (data: SubjectPayload) => void;
 
     createSubject: () => Promise<void>
+    updateSubject: (subjectId: number) => Promise<void>;
     fetchSubjects: () => Promise<void>
     fetchSubjectsByCourse: (courseId: number) => Promise<void>
     fetchSubjectMinimal: (courseId: number) => Promise<void>;
