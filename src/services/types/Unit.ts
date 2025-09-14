@@ -7,8 +7,8 @@ export interface UnitDetail {
     description: string
     status: string
     order: number
-    course: CourseDetail | string
-    subject: SubjectDetail | string
+    course: CourseDetail
+    subject: SubjectDetail
     completion_time: number
     objectives: string,
     contents?: ContentDetail[]
@@ -17,6 +17,7 @@ export interface UnitDetail {
 
 export interface UnitPayload {
     title: string
+    course_id: number | null
     subject_id: number | null
     description: string
     objectives: string
@@ -43,5 +44,7 @@ export interface UnitState {
     fetchAllUnits: () => Promise<void>;
     fetchMinimalUnitList: (subjectId: number | null) => Promise<void>;
     createUnit: () => Promise<void>;
+    editUnit: (unitId: number) => Promise<void>;
+    fetchUnitById: (unitId: number) => Promise<void>;
     reset: () => void;
 }

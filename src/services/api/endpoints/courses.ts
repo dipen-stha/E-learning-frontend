@@ -20,7 +20,9 @@ export const subjectAPI = {
 
 export const UnitAPI = {
     fetchAllUnits: `${prefix}/unit/get/all/`,
+    fetchUnitById: (unitId: number) => `${prefix}/unit/${unitId}`,
     createUnit: `${prefix}/unit/create/`,
+    updateUnit: (unitId: number) =>`${prefix}/unit/${unitId}/update/`,
     minimalUnit: `${prefix}/unit/minimal/`,
     minimalUnitBySubject: (id: number) => `${prefix}/unit/minimal/by_subject/${id}`
     
@@ -28,7 +30,9 @@ export const UnitAPI = {
 
 export const contentAPI = {
     createUnitContent: `${prefix}/content/create/`,
-    fetchAllContents: `${prefix}/content/fetch/all/`
+    updateContent: (contentId: number) => `${prefix}/content/${contentId}/update/`,
+    fetchAllContents: `${prefix}/content/fetch/all/`,
+    fetchContentById: (contentId: number) => `${prefix}/content/get/${contentId}/`
 }
 
 export const enrollAPI = {

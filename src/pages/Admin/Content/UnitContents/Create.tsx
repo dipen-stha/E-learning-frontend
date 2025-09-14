@@ -6,12 +6,7 @@ import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import { Textarea } from "@/components/ui/Textarea";
 import { Badge } from "@/components/ui/Badge";
-import {
-  Upload,
-  X,
-  Plus,
-  Clock,
-} from "lucide-react";
+import { Upload, X, Plus, Clock } from "lucide-react";
 import { ModalCompProps } from "@/services/types/Extras";
 import { CreateModal } from "@/components/Modal";
 import { MultiSelect } from "@/components/ui/MultiSelect";
@@ -20,7 +15,11 @@ import { useCourseStore } from "@/stores/Courses/Course";
 import { useSubjectStore } from "@/stores/Subjects/Subjects";
 import { useUnitStore } from "@/stores/Unit/Unit";
 import { useUpdater } from "@/services/utils/storeUtils";
-import { ContentVideoTimeStamps, UnitContentData, UnitContentPayload} from "@/services/types/Course";
+import {
+  ContentVideoTimeStamps,
+  UnitContentData,
+  UnitContentPayload,
+} from "@/services/types/Course";
 import { useUnitContentStore } from "@/stores/Courses/Content";
 import { Status } from "@/services/utils/choiceUtils";
 
@@ -28,13 +27,14 @@ export function CreateContentForm({
   onSubmit,
   onCancel,
   isOpen,
+  editId,
+  isEdit,
 }: ModalCompProps) {
   const [timestamps, setTimestamps] = useState<ContentVideoTimeStamps[]>([]);
   const [newTimestamp, setNewTimestamp] = useState({
     time: "",
     description: "",
   });
-
 
   const fetchCourses = useCourseStore((state) => state.fetchMinimal);
   const courseDetails = useCourseStore((state) => state.courseMinimal);
@@ -48,7 +48,13 @@ export function CreateContentForm({
   const unitList = useUnitStore((state) => state.unitMinimalList);
 
   const contentPayload = useUnitContentStore((state) => state.payload);
-  const setPayload = useUnitContentStore((state) => state.setPayload)
+  const setPayload = useUnitContentStore((state) => state.setPayload);
+  const createContent = useUnitContentStore((state) => state.createUnitContent);
+  const updateContent = useUnitContentStore((state) => state.updateContent);
+  const fetchContentById = useUnitContentStore(
+    (state) => state.fetchContentById
+  );
+  const contentItem = useUnitContentStore((state) => state.contentItem);
 
   const initialPayload = contentPayload;
 
@@ -57,20 +63,20 @@ export function CreateContentForm({
 
   const handleModalClose = () => {
     reset();
-    // setContentFile(null);
-    // setTimestamps([]);
     onCancel();
   };
 
   const handleCourseChange = (course: any) => {
     if (course) {
       fetchSubjectMinimal(course?.id);
+      updateField("content.course_id", course.id);
     }
   };
 
   const handleSubjectChange = (subject: any) => {
     if (subject) {
       fetchMinimalList(subject.id);
+      updateField("content.subject_id", subject.id);
     }
   };
 
@@ -82,9 +88,9 @@ export function CreateContentForm({
         title: newTimestamp.description.trim(),
       };
       setTimestamps((prev) => {
-        const updated = [...prev, timestamp]
-        updateField("content.video_time_stamps", updated)
-        return updated
+        const updated = [...prev, timestamp];
+        updateField("content.video_time_stamps", updated);
+        return updated;
       });
       setNewTimestamp({ time: "", description: "" });
     }
@@ -96,27 +102,53 @@ export function CreateContentForm({
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file)(
-      updateField("file", file)
-    )
+    if (file) updateField("file", file);
   };
 
-
-  const handleSubmit = () => {
-    console.log(timestamps)
-    setPayload(payload)
-    console.log(useUnitContentStore.getState().payload)
+  const handleSubmit = async () => {
+    setPayload(payload);
+    if(editId && isEdit) {
+      await updateContent(editId)
+    } else {
+      createContent();
+    }
     onSubmit();
   };
-
 
   useEffect(() => {
     fetchCourses();
   }, []);
 
+  useEffect(() => {
+    if (editId && isEdit) {
+      fetchContentById(editId);
+    }
+  }, [editId, isEdit]);
+
+  useEffect(() => {
+    if (contentItem) {
+      updateField("content", {
+        title: contentItem.title,
+        description: contentItem.description,
+        completion_time: contentItem.completion_time,
+        content_type: contentItem.content_type,
+        order: contentItem.order,
+        unit_id: contentItem.unit.id,
+        subject_id: contentItem.subject.id,
+        course_id: contentItem.course.id,
+        status: contentItem.status,
+        video_time_stamps: contentItem.video_time_stamps,
+      });
+      updateField("file", contentItem.file_url);
+      if(contentItem.video_time_stamps.length > 0) setTimestamps(contentItem.video_time_stamps);
+      fetchSubjectMinimal(contentItem.course.id);
+      fetchMinimalList(contentItem.subject.id);
+    }
+  }, [contentItem]);
+
   const modalActions = [
     {
-      title: "Create Content",
+      title: `${isEdit ? "Update Content": "Create Content"}`,
       onAction: handleSubmit,
       variant: "primary",
     },
@@ -163,7 +195,7 @@ export function CreateContentForm({
               <p className="text-xs text-gray-600 mt-2">
                 Supports videos, documents, images, and archives up to 100MB
               </p>
-              {payload.file && <p>Selected: {payload.file.name}</p>}
+              {payload.file && <p>Selected: {payload.file.name ?? payload.file}</p>}
             </div>
           </div>
         </div>
@@ -242,6 +274,7 @@ export function CreateContentForm({
             options={ContentType}
             getOptionLabel={(option) => option.label}
             getOptionValue={(option) => option.value}
+            value={payload.content.content_type}
             onValueChange={(value: any) =>
               updateField("content.content_type", String(value?.value))
             }
@@ -256,6 +289,7 @@ export function CreateContentForm({
             options={courseDetails}
             getOptionLabel={(option) => option.title}
             getOptionValue={(option) => String(option.id)}
+            value={payload.content.course_id}
             onValueChange={handleCourseChange}
           />
         </div>
@@ -267,6 +301,7 @@ export function CreateContentForm({
             options={subjectList}
             getOptionLabel={(option) => option.title}
             getOptionValue={(option) => String(option.id)}
+            value={payload.content.subject_id}
             onValueChange={handleSubjectChange}
           />
         </div>
@@ -278,8 +313,10 @@ export function CreateContentForm({
             options={unitList}
             getOptionLabel={(option) => option.title}
             getOptionValue={(option) => String(option.id)}
-            defaultInputValue=""
-            onValueChange={(value: any) => updateField("content.unit_id", value?.id)}
+            value={payload.content.unit_id}
+            onValueChange={(value: any) =>
+              updateField("content.unit_id", value?.id)
+            }
           />
         </div>
 
@@ -302,10 +339,13 @@ export function CreateContentForm({
           />
         </div>
         <div className="space-y-2">
-            <Label htmlFor="duration" className="text-sm font-medium text-gray-700">
-              Order
-            </Label>
-            <Input
+          <Label
+            htmlFor="duration"
+            className="text-sm font-medium text-gray-700"
+          >
+            Order
+          </Label>
+          <Input
             id="order"
             type="number"
             value={payload.content.order}
@@ -317,10 +357,21 @@ export function CreateContentForm({
           />
         </div>
         <div>
-            <Label htmlFor="duration" className="text-sm font-medium text-gray-700">
-              Status
-            </Label>
-            <MultiSelect options={Status} onValueChange={(value:any) => updateField("content.status", value.value)}/>
+          <Label
+            htmlFor="duration"
+            className="text-sm font-medium text-gray-700"
+          >
+            Status
+          </Label>
+          <MultiSelect
+            options={Status}
+            getOptionLabel={(option) => option.label}
+            getOptionValue={(option) => option.value}
+            value={payload.content.status}
+            onValueChange={(value: any) =>
+              updateField("content.status", value.value)
+            }
+          />
         </div>
         {payload.content.content_type === "VIDEO" && (
           <div className="md:col-span-2 space-y-4 p-4 bg-red-50 rounded-lg border border-red-200">

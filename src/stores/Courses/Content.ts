@@ -13,6 +13,8 @@ const initialPayload = {
     status: "",
     video_time_stamps: [],
     unit_id: null,
+    subject_id: null,
+    course_id: null, 
   },
   file: null,
 };
@@ -21,7 +23,7 @@ const initialState = {
   payload: initialPayload,
   isLoading: false,
   contentsList: [],
-  contentItem: null
+  contentItem: null,
 };
 
 export const useUnitContentStore = create<UnitContentState>((set, get) => ({
@@ -32,31 +34,54 @@ export const useUnitContentStore = create<UnitContentState>((set, get) => ({
     const formData = new FormData();
     const payload = get().payload;
     formData.append("content", JSON.stringify(payload?.content));
-    if(payload?.file) formData.append("file", payload.file) 
+    if (payload?.file) formData.append("file", payload.file);
     try {
       await api.post(contentAPI.createUnitContent, formData, {
         headers: {
-          "Content-Type": "multipart/form-data"
-        }
+          "Content-Type": "multipart/form-data",
+        },
       });
       set({ isLoading: false });
-      return true
+      return true;
     } catch (error) {
       set({ isLoading: false });
       return false;
     }
   },
-  resetPayload: () => set({payload: initialPayload}),
+  updateContent: async (contentId: number) => {
+    try {
+      const formData = new FormData();
+      const payload = get().payload;
+      const file = payload.file
+      formData.append("content", JSON.stringify(payload?.content));
+      if (file && file instanceof File) formData.append("file", file);
+      await api.patch(contentAPI.updateContent(contentId), formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+  },
+  resetPayload: () => set({ payload: initialPayload }),
+  fetchContentById: async (contentId: number) => {
+    try {
+      const response = await api.get(contentAPI.fetchContentById(contentId));
+      set({ contentItem: response.data });
+    } catch (error) {
+      throw error;
+    }
+  },
   fetchAllContents: async () => {
-    set({isLoading: true})
-    try{
-      const response = await api.get(contentAPI.fetchAllContents)
-      if(response.data){
-        set({contentsList: response.data, isLoading: false})
+    set({ isLoading: true });
+    try {
+      const response = await api.get(contentAPI.fetchAllContents);
+      if (response.data) {
+        set({ contentsList: response.data, isLoading: false });
       }
     } catch (error) {
-      set({isLoading: false})
+      set({ isLoading: false });
     }
-  }
-
+  },
 }));

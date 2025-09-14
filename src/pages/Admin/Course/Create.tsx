@@ -76,7 +76,7 @@ export function CreateCourseForm({
   
   const modalActions = [
     {
-      title: `${isEdit ? "Create Course" : "Update Course"}`,
+      title: `${isEdit ? "Update Course" : "Create Course"}`,
       onAction: handleSubmit,
       variant: "primary",
     },

@@ -3,6 +3,13 @@
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
+import Skeleton from "react-loading-skeleton"
+
+interface TableBodyProps extends React.ComponentProps<"tbody"> {
+  loading?: boolean
+  rows?: number
+  columns?: number
+}
 
 function Table({ className, ...props }: React.ComponentProps<"table">) {
   return (
@@ -29,14 +36,39 @@ function TableHeader({ className, ...props }: React.ComponentProps<"thead">) {
   )
 }
 
-function TableBody({ className, ...props }: React.ComponentProps<"tbody">) {
-  return (
-    <tbody
+function TableBody({
+  className,
+  loading = false,
+  rows = 3,
+  columns = 4,
+  children,
+  ...props
+}: TableBodyProps) {
+    return (
+      loading ?
+      <tbody
+        data-slot="table-body"
+        className={cn("[&_tr:last-child]:border-0", className)}
+        {...props}
+      >
+        {Array.from({ length: rows }).map((_, rowIdx) => (
+          <tr key={rowIdx} className="border-gray-200">
+            {Array.from({ length: columns }).map((_, colIdx) => (
+              <td key={colIdx} className="px-3 py-5">
+                <Skeleton height={20} />
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody> :     
+      <tbody
       data-slot="table-body"
       className={cn("[&_tr:last-child]:border-0", className)}
       {...props}
-    />
-  )
+    >
+      {children}
+    </tbody>
+    )
 }
 
 function TableFooter({ className, ...props }: React.ComponentProps<"tfoot">) {

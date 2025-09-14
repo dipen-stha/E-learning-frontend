@@ -208,7 +208,7 @@ export function AdminSidebar({
 
       <div
         className={cn(
-          "hidden lg:flex flex-col bg-white border-r border-gray-200 transition-all duration-300 ease-in-out h-screen",
+          "hidden lg:flex fixed left-0 right-0 flex-col bg-white border-r border-gray-200 transition-all duration-300 ease-in-out h-screen",
           isCollapsed ? "w-16" : "w-64",
         )}
       >

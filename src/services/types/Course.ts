@@ -1,3 +1,5 @@
+import { SubjectMinimal } from "./Subject";
+import { UnitMinimal } from "./Unit";
 import { Profile } from "./user";
 
 export interface CategoryDetail {
@@ -132,12 +134,15 @@ export interface UnitContentDetail {
   title: string;
   completion_time: number;
   order: number;
-  course: string;
+  course: MinimalCourse;
+  subject: SubjectMinimal;
+  unit: UnitMinimal
   instructor: Profile;
   content_type: string;
   description: string;
   file_url?: string;
   status: string;
+  video_time_stamps: ContentVideoTimeStamps[];
 }
 
 export interface UnitContentData {
@@ -149,6 +154,8 @@ export interface UnitContentData {
   status: string;
   video_time_stamps: ContentVideoTimeStamps[];
   unit_id: number | null;
+  subject_id: number | null;
+  course_id: number | null;
 }
 
 export interface ContentVideoTimeStamps {
@@ -169,6 +176,8 @@ export interface UnitContentState {
   isLoading: boolean;
   setPayload: (data: UnitContentPayload) => void;
   createUnitContent: () => Promise<boolean>;
+  updateContent: (contentId: number) => Promise<void>;
   fetchAllContents: () => Promise<void>;
+  fetchContentById: (contentId: number) => Promise<void>;
   resetPayload: () => void;
 }

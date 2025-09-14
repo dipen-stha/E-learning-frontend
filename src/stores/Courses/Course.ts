@@ -6,6 +6,7 @@ import {
   CourseDetail,
   CoursePayload,
 } from "@/services/types/Course";
+import toast from "react-hot-toast";
 
 // Initial payload
 const initialCoursePayload: CoursePayload = {
@@ -48,6 +49,7 @@ export const useCourseStore = create<CourseState>((set, get) => ({
     try {
       const response = await api.get(courseAPI.fetchAll);
       if (response.data) set({ courseDetails: response.data });
+      set({isLoading: false})
     } catch (error) {
       set({ isLoading: false });
       throw error;
@@ -57,7 +59,7 @@ export const useCourseStore = create<CourseState>((set, get) => ({
     set({ isLoading: true });
     try {
       const response = await api.get(courseAPI.fetchLatestCourses);
-      set({ courseDetails: response.data });
+      set({ courseDetails: response.data, isLoading: false });
     } catch (error) {
       set({ isLoading: false });
       throw error;
@@ -67,7 +69,7 @@ export const useCourseStore = create<CourseState>((set, get) => ({
     set({ isLoading: true });
     try {
       const response = await api.get(courseAPI.fetchById(courseId));
-      if (response.data) set({ courseItem: response.data });
+      if (response.data) set({ courseItem: response.data, isLoading: false });
     } catch (error) {
       set({ isLoading: false });
       throw error;
@@ -85,9 +87,12 @@ export const useCourseStore = create<CourseState>((set, get) => ({
       const response = await api.post(courseAPI.createCourse, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
+      set({isLoading: false})
+      toast.success("Course created successfully")
       return response.data;
     } catch (error) {
       set({ isLoading: false });
+      toast.error("Error creating course")
       console.error("Failed to create course:", error);
       throw error;
     }
@@ -106,8 +111,10 @@ export const useCourseStore = create<CourseState>((set, get) => ({
         }
       });
       set({ isLoading: false });
+      toast.success("Course updated successfully")
     } catch (error) {
       set({ isLoading: false });
+      toast.error("Error updating course")
     }
   },
 

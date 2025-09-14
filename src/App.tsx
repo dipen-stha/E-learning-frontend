@@ -18,10 +18,12 @@ import SubjectsPage from "./pages/Admin/Subject/Subject";
 import AuthLayout from "./components/layouts/AuthLayout";
 import UnitsPage from "./pages/Admin/Content/Units/Unit";
 import UnitContents from "./pages/Admin/Content/UnitContents/UnitContents";
+import CustomToaster from "./components/ui/Toast";
 
 function App() {
   return (
     <div className="App">
+      <CustomToaster />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route

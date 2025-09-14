@@ -47,6 +47,9 @@ import {
   Clock,
   Play,
   Pause,
+  BookOpen,
+  CheckCircle,
+  Circle,
 } from "lucide-react";
 import { useSubjectStore } from "@/stores/Subjects/Subjects";
 import { getStatusColor, mapStatus } from "@/services/utils/choiceUtils";
@@ -59,12 +62,14 @@ export default function UnitContents() {
   const [selectedSubject, setSelectedSubject] = useState("all");
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const createUnit = useUnitStore((state) => state.createUnit);
+  const [isModalEdit, setIsModalEdit] = useState<boolean>(false);
+  const [editId, setEditId] = useState<number | null>(null);
+
   const fetchAllUnits = useUnitStore((state) => state.fetchAllUnits);
   const unitDetailList = useUnitStore((state) => state.unitListDetails);
   // const fetchSubjectsByCourse = useUnitStore(state => state.fetchSubjectsByCourse)
   const isUnitLoading = useUnitStore((state) => state.isLoading);
-  const resetPayload = useUnitStore((state) => state.resetPayload)
+  const resetPayload = useUnitStore((state) => state.resetPayload);
   const courseMinimal = useCourseStore((state) => state.courseMinimal);
   const fetchCourseMinimal = useCourseStore((state) => state.fetchMinimal);
   const fetchSubjectMinimal = useSubjectStore(
@@ -82,18 +87,25 @@ export default function UnitContents() {
   const handleModalClose = () => {
     resetPayload();
     setIsCreateModalOpen(false);
-  }
+    setIsModalEdit(false);
+    setEditId(null);
+  };
 
   const handleCreateUnit = async () => {
     try {
-      await createUnit();
       setIsCreateModalOpen(false);
       await fetchAllUnits();
     } catch {}
   };
 
+  const handleEditUnit = async(unitId: number) => {
+      setIsModalEdit(true);
+      setEditId(unitId);
+      setIsCreateModalOpen(true)
+  }
+
   const handleSubjectChanage = (value: any) => {
-    setSelectedSubject(value)
+    setSelectedSubject(value);
   };
 
   useEffect(() => {
@@ -132,7 +144,7 @@ export default function UnitContents() {
       </div>
 
       {/* Stats Cards */}
-      {/* <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card className="border-gray-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Subjects</CardTitle>
@@ -176,7 +188,7 @@ export default function UnitContents() {
             <p className="text-xs text-gray-600">Across all subjects</p>
           </CardContent>
         </Card>
-      </div> */}
+      </div>
 
       {/* Units Table */}
       <Card className="border-gray-200">
@@ -211,7 +223,10 @@ export default function UnitContents() {
                 ))}
               </SelectContent>
             </Select>
-            <Select value={selectedSubject} onValueChange={handleSubjectChanage}>
+            <Select
+              value={selectedSubject}
+              onValueChange={handleSubjectChanage}
+            >
               <SelectTrigger className="w-48">
                 <SelectValue placeholder="Filter by course" />
               </SelectTrigger>
@@ -292,17 +307,17 @@ export default function UnitContents() {
                             {unit.completion_time && (
                               <div className="flex items-center text-xs text-gray-600">
                                 <Clock className="mr-1 h-3 w-3" />
-                                {unit.completion_time}
+                                {unit.completion_time} minutes
                               </div>
                             )}
                           </div>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <p className="text-sm font-medium text-gray-900">{`${unit.course}`}</p>
+                        <p className="text-sm font-medium text-gray-900">{`${unit.course.title}`}</p>
                       </TableCell>
                       <TableCell>
-                        <p className="text-sm font-medium text-gray-900">{`${unit.subject}`}</p>
+                        <p className="text-sm font-medium text-gray-900">{`${unit.subject.title}`}</p>
                       </TableCell>
                       {/* <TableCell>
                     <div className="flex items-center space-x-2">
@@ -358,7 +373,7 @@ export default function UnitContents() {
                               <Eye className="mr-2 h-4 w-4" />
                               Preview unit
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleEditUnit(unit.id)}>
                               <Edit className="mr-2 h-4 w-4" />
                               Edit unit
                             </DropdownMenuItem>
@@ -397,6 +412,8 @@ export default function UnitContents() {
         isOpen={isCreateModalOpen}
         onSubmit={handleCreateUnit}
         onCancel={handleModalClose}
+        editId={editId}
+        isEdit={isModalEdit}
       />
     </div>
   );
