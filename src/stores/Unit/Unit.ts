@@ -8,6 +8,7 @@ const initialUnitPayload: UnitPayload = {
   description: "",
   completion_time: 0,
   status: "",
+  course_id: null,
   subject_id: null,
   objectives: "",
   order: 0,
@@ -36,6 +37,16 @@ export const useUnitStore = create<UnitState>((set, get) => ({
       set({ isLoading: false });
     }
   },
+  fetchUnitById: async(unitId: number) => {
+    try{
+      const response = await api.get(UnitAPI.fetchUnitById(unitId))
+      if(response.data) {
+       set({unitItem: response.data}) 
+      }
+    } catch (error) {
+      throw error
+    }
+  },
   createUnit: async () => {
     set({isLoading: true})
     try{
@@ -59,6 +70,14 @@ export const useUnitStore = create<UnitState>((set, get) => ({
       }
     } catch(error){
       console.log(error)
+      throw error
+    }
+  },
+  editUnit: async(unitId: number) => {
+    try{
+      const payload = get().unitPayload
+      await api.patch(UnitAPI.updateUnit(unitId), payload)
+    } catch (error){
       throw error
     }
   },

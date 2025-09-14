@@ -43,15 +43,20 @@ export function CreateSubjectForm({
     onSubmit();
   };
 
+  const handleClose = () => {
+    reset();
+    onCancel();
+  }
+
   const modalOptions = [
     {
-      title: `Create Subject`,
+      title: `${isEdit ? "Update Subject" : "Create Subject"}`,
       onAction: handleSubmit,
       variant: "primary",
     },
     {
       title: "Cancel",
-      onAction: onCancel,
+      onAction: handleClose,
       variant: "danger",
     },
   ];
@@ -82,7 +87,7 @@ export function CreateSubjectForm({
   return (
     <CreateModal
       isOpen={isOpen}
-      onClose={onCancel}
+      onClose={handleClose}
       title="Create New Subject"
       width="4xl"
       actions={modalOptions}

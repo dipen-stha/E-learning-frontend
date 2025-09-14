@@ -2,6 +2,7 @@ import { LoginDetails, AuthState } from "@/services/types/user";
 import {create} from "zustand";
 import api from "@/services/api/interceptor";
 import { authAPI } from "@/services/api/endpoints/user";
+import toast from "react-hot-toast";
 
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -43,10 +44,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             })
             set({accessToken: response.data.access_token, refreshToken: response.data.refresh_token, hasError: false})
             localStorage.setItem("access", response.data.access_token)
-            localStorage.setItem("access", response.data.access_token)
+            localStorage.setItem("refresh", response.data.refresh_token)
+            toast.success("Logged in Successfully")
             return true;
         } catch {
             get().hasLoginError();
+            toast.error("There was an error logging in")
             return false;
         }
     },
@@ -70,6 +73,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             localStorage.removeItem("access")
             localStorage.removeItem("refresh")
             set({accessToken: null, refreshToken: null, loginDetails: {username: "", password: "", remember: false}})
+            toast.success("Logged Out")
         } catch (e) {
             console.log("There was an error logging out")
         }

@@ -41,6 +41,7 @@ import {
   Download,
   Calendar,
 } from "lucide-react";
+
 import { CreateUserForm } from "@/pages/Admin/User/Create";
 import { useUserStore } from "@/stores/User/User";
 
@@ -51,6 +52,7 @@ export default function UsersPage() {
   const userDetailList = useUserStore((state) => state.userDetailList);
   const fetchStudentStats = useUserStore((state) => state.fetchStudentStats);
   const userStats = useUserStore((state) => state.userStats);
+  const isLoading = useUserStore((state) => state.isLoading)
 
   const [isModalEdit, setIsModalEdit] = useState<boolean>(false);
   const [editId, setEditId] = useState<number | null>(null);
@@ -254,18 +256,19 @@ export default function UsersPage() {
           <Table>
             <TableHeader>
               <TableRow className="border-gray-200">
-                <TableHead className="text-gray-600">User</TableHead>
-                <TableHead className="text-gray-600">Role</TableHead>
-                <TableHead className="text-gray-600">Status</TableHead>
-                <TableHead className="text-gray-600">Courses</TableHead>
-                <TableHead className="text-gray-600">Join Date</TableHead>
-                <TableHead className="text-gray-600">Last Logged In</TableHead>
+                <TableHead className="text-gray-600 w-[300px]">User</TableHead>
+                <TableHead className="text-gray-600 w-[100px]">Role</TableHead>
+                <TableHead className="text-gray-600 w-[120px]">Status</TableHead>
+                <TableHead className="text-gray-600 w-[200px]">Courses</TableHead>
+                <TableHead className="text-gray-600 w-[200px]">Join Date</TableHead>
+                <TableHead className="text-gray-600 w-[200px]">Last Logged In</TableHead>
                 <TableHead className="text-right text-gray-600">
                   Actions
                 </TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody>
+            
+            {<TableBody loading={isLoading} rows={5} columns={7}>
               {userDetailList.map((user) => (
                 <TableRow key={user.id} className="border-gray-200">
                   <TableCell className="flex items-center space-x-3">
@@ -360,7 +363,7 @@ export default function UsersPage() {
                   </TableCell>
                 </TableRow>
               ))}
-            </TableBody>
+            </TableBody>}
           </Table>
         </CardContent>
       </Card>

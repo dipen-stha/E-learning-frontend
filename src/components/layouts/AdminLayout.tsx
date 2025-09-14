@@ -4,6 +4,7 @@ import type React from "react"
 import { useState } from "react"
 import { AdminSidebar } from "@/components/Admin/Sidebar";
 import { AdminHeader } from "@/components/Admin/Header";
+import { cn } from "@/lib/utils";
 
 export default function AdminLayout({
   children,
@@ -18,7 +19,7 @@ export default function AdminLayout({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="flex">
+      <div className="flex h-screen">
         <AdminSidebar
           isCollapsed={isCollapsed}
           onToggle={handleToggle}
@@ -26,9 +27,8 @@ export default function AdminLayout({
           onMobileToggle={handleMobileToggle}
         />
 
-        <div className="flex-1 flex flex-col min-h-screen">
+        <div className={cn("flex-1 flex overflow-auto flex-col min-h-screen transition-all duration-300 ease-in-out", isCollapsed ? "ml-16" : "ml-64")}>
           <AdminHeader isCollapsed={isCollapsed} onToggle={handleToggle} onMobileToggle={handleMobileToggle} />
-
           {/* Page Content */}
           <main className="flex-1 p-6 bg-gray-100/50">
             <div className="max-w-7xl mx-auto">{children}</div>

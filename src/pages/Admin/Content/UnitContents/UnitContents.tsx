@@ -63,8 +63,10 @@ export default function UnitsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCourse, setSelectedCourse] = useState("all");
   const [selectedStatus, setSelectedStatus] = useState("all");
+  const [isModalEdit, setIsModalEdit] = useState<boolean>(false);
+  const [editId, setEditId] = useState<number | null>(null);
+
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const createContent = useUnitContentStore((state) => state.createUnitContent);
   const fetchAllContents = useUnitContentStore((state) => state.fetchAllContents)
   const contentList = useUnitContentStore((state) => state.contentsList)
 
@@ -74,113 +76,6 @@ export default function UnitsPage() {
     { id: 3, title: "Advanced JavaScript" },
     { id: 4, title: "UI/UX Design Principles" },
     { id: 5, title: "Data Science Basics" },
-  ];
-
-  const units = [
-    {
-      id: 1,
-      title: "Introduction to React",
-      course: "React Fundamentals",
-      courseId: 1,
-      instructor: "Sarah Miller",
-      instructorAvatar: "/diverse-students-studying.png",
-      order: 1,
-      status: "Published",
-      type: "Video",
-      duration: "15:30",
-      students: 1234,
-      completionRate: 95,
-      createdDate: "2024-01-15",
-      lastModified: "2024-01-20",
-      description: "Learn the basics of React components and JSX syntax",
-    },
-    {
-      id: 2,
-      title: "Components and Props",
-      course: "React Fundamentals",
-      courseId: 1,
-      instructor: "Sarah Miller",
-      instructorAvatar: "/diverse-students-studying.png",
-      order: 2,
-      status: "Published",
-      type: "Video",
-      duration: "22:45",
-      students: 1180,
-      completionRate: 89,
-      createdDate: "2024-01-16",
-      lastModified: "2024-01-21",
-      description:
-        "Understanding React components and how to pass data with props",
-    },
-    {
-      id: 3,
-      title: "State Management",
-      course: "React Fundamentals",
-      courseId: 1,
-      instructor: "Sarah Miller",
-      instructorAvatar: "/diverse-students-studying.png",
-      order: 3,
-      status: "Draft",
-      type: "Video",
-      duration: "18:20",
-      students: 0,
-      completionRate: 0,
-      createdDate: "2024-01-17",
-      lastModified: "2024-01-22",
-      description: "Managing component state with useState hook",
-    },
-    {
-      id: 4,
-      title: "Python Basics",
-      course: "Python for Beginners",
-      courseId: 2,
-      instructor: "Mike Johnson",
-      instructorAvatar: "/diverse-students-studying.png",
-      order: 1,
-      status: "Published",
-      type: "Video",
-      duration: "25:15",
-      students: 987,
-      completionRate: 92,
-      createdDate: "2023-11-20",
-      lastModified: "2023-11-25",
-      description:
-        "Introduction to Python syntax and basic programming concepts",
-    },
-    {
-      id: 5,
-      title: "Variables and Data Types",
-      course: "Python for Beginners",
-      courseId: 2,
-      instructor: "Mike Johnson",
-      instructorAvatar: "/diverse-students-studying.png",
-      order: 2,
-      status: "Published",
-      type: "Document",
-      duration: null,
-      students: 945,
-      completionRate: 87,
-      createdDate: "2023-11-21",
-      lastModified: "2023-11-26",
-      description: "Understanding different data types in Python",
-    },
-    {
-      id: 6,
-      title: "Functions and Modules",
-      course: "Python for Beginners",
-      courseId: 2,
-      instructor: "Mike Johnson",
-      instructorAvatar: "/diverse-students-studying.png",
-      order: 3,
-      status: "Published",
-      type: "Video",
-      duration: "30:45",
-      students: 876,
-      completionRate: 84,
-      createdDate: "2023-11-22",
-      lastModified: "2023-11-27",
-      description: "Creating reusable functions and working with modules",
-    },
   ];
 
   const getTypeIcon = (type: string) => {
@@ -194,29 +89,25 @@ export default function UnitsPage() {
     }
   };
 
-  const filteredUnits = units.filter((unit) => {
-    const matchesSearch =
-      unit.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      unit.course.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCourse =
-      selectedCourse === "all" || unit.courseId.toString() === selectedCourse;
-    const matchesStatus =
-      selectedStatus === "all" ||
-      unit.status.toLowerCase() === selectedStatus.toLowerCase();
-
-    return matchesSearch && matchesCourse && matchesStatus;
-  });
-
-  const handleCreateUnit = async () => {
+  const handleModalSubmit = async () => {
     // Here you would typically make an API call to create the unit
-    const created = await createContent();
-    if(created){
+      setIsModalEdit(false);
+      setEditId(null);
       setIsCreateModalOpen(false);
-    }
+      fetchAllContents();
   };
+
   const handleModalClose = () => {
-    handleModalClose();
+    setIsCreateModalOpen(false);
+    setIsModalEdit(false);
+    setEditId(null);
   };
+
+  const handleContentEdit = (contentId: number) => {
+    setIsCreateModalOpen(true);
+    setIsModalEdit(true);
+    setEditId(contentId);
+  }
 
   useEffect(() => {
     fetchAllContents();
@@ -227,9 +118,9 @@ export default function UnitsPage() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Units Management</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Contents Management</h1>
           <p className="text-gray-600 mt-1">
-            Manage course units, lessons, and learning materials.
+            Manage Units Contents
           </p>
         </div>
         <div className="flex space-x-2">
@@ -399,7 +290,7 @@ export default function UnitsPage() {
                   </TableCell>
                   <TableCell>
                     <p className="text-sm font-medium text-gray-900">
-                      {content.course}
+                      {content.course.title}
                     </p>
                   </TableCell>
                   <TableCell>
@@ -466,14 +357,14 @@ export default function UnitsPage() {
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
+                      <DropdownMenuContent align="end" className="border-gray-200">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem>
                           <Eye className="mr-2 h-4 w-4" />
                           Preview Unit
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleContentEdit(content.id)}>
                           <Edit className="mr-2 h-4 w-4" />
                           Edit Unit
                         </DropdownMenuItem>
@@ -508,8 +399,10 @@ export default function UnitsPage() {
       </Card>
       <CreateContentForm
         isOpen={isCreateModalOpen}
-        onSubmit={handleCreateUnit}
-        onCancel={() => setIsCreateModalOpen(false)}
+        onSubmit={handleModalSubmit}
+        onCancel={handleModalClose}
+        editId={editId}
+        isEdit={isModalEdit}
       />
     </div>
   );

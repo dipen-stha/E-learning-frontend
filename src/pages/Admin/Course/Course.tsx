@@ -57,6 +57,7 @@ export default function CoursesPage() {
   );
   const courseDetails = useCourseStore((state) => state.courseDetails);
   const reset = useCourseStore((state) => state.reset);
+  const isLoading = useCourseStore((state => state.isLoading))
 
   const getCategoryColor = (category: string) => {
     switch (category) {
@@ -255,9 +256,9 @@ export default function CoursesPage() {
           <Table>
             <TableHeader>
               <TableRow className="border-gray-300">
-                <TableHead className="text-gray-800">Course</TableHead>
-                <TableHead className="text-gray-800">Instructor</TableHead>
-                <TableHead className="text-gray-800">Category</TableHead>
+                <TableHead className="text-gray-800 w-[300px]">Course</TableHead>
+                <TableHead className="text-gray-800 w-[250px]">Instructor</TableHead>
+                <TableHead className="text-gray-800 w-[300px]">Category</TableHead>
                 <TableHead className="text-gray-800">Status</TableHead>
                 <TableHead className="text-gray-800">Students</TableHead>
                 <TableHead className="text-gray-800">Rating</TableHead>
@@ -265,7 +266,7 @@ export default function CoursesPage() {
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody>
+            <TableBody loading={isLoading} rows={5} columns={8}>
               {courseDetails.map((course) => (
                 <TableRow key={course.id} className="border-gray-200">
                   <TableCell>
@@ -276,7 +277,7 @@ export default function CoursesPage() {
                       <div className="flex items-center space-x-4 text-xs text-gray-800">
                         <span className="flex items-center">
                           <Clock className="mr-1 h-3 w-3" />
-                          {course.completion_time}
+                          {course.completion_time} minutes
                         </span>
                         <span>{course.subjects.length} lessons</span>
                         <span>${course.price}</span>
