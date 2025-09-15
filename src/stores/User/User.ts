@@ -26,7 +26,9 @@ export const useUserStore = create<UserState>((set, get) => ({
   userItem: null,
   userDetailList: [],
   userMinimalList: [],
-  isLoading: false,
+  isListLoading: false,
+  isItemLoading: false,
+  isCreateUpdateLoading: false,
   hasError: false,
   isAuthenticated: false,
   isAuthChecked: false,
@@ -50,15 +52,15 @@ export const useUserStore = create<UserState>((set, get) => ({
     set({ userDetailList: dataList }),
   hasFetchingError: () => set({ hasError: true }),
   setUserUnauthenticated: () => set({ isAuthenticated: false }),
-  completeLoader: () => set({ isLoading: false }),
+  completeLoader: () => set({ isItemLoading: false }),
 
   fetchSelf: async () => {
-    set({ isLoading: true });
+    set({ isItemLoading: true });
     const currentState = get();
     const accessToken = localStorage.getItem("access");
     if (accessToken) {
-      if (currentState.isAuthenticated && !currentState.isLoading) {
-        set({isLoading: false})
+      if (currentState.isAuthenticated && !currentState.isItemLoading) {
+        set({isItemLoading: false})
         return;
       }
       try {
@@ -69,25 +71,25 @@ export const useUserStore = create<UserState>((set, get) => ({
           isAuthenticated: true,
           isAuthChecked: true,
           hasError: false,
-          isLoading: false,
+          isItemLoading: false,
         });
         return;
       } catch {
-        set({ isLoading: false, isAuthChecked: true, hasError: true, isAuthenticated: false });
+        set({ isItemLoading: false, isAuthChecked: true, hasError: true, isAuthenticated: false });
         return;
       }
     } else {
       console.log("Token not found");
-      set({ isLoading: false, isAuthChecked: true, hasError: true, isAuthenticated: false });
+      set({ isItemLoading: false, isAuthChecked: true, hasError: true, isAuthenticated: false });
     }
   },
   fetchAdminSelf: async () => {
-    set({ isLoading: true });
+    set({ isItemLoading: true });
     const currentState = get();
     const accessToken = localStorage.getItem("access");
     if (accessToken) {
-      if (currentState.isAdminAuthenticated && !currentState.isLoading) {
-        set({ isLoading: false })
+      if (currentState.isAdminAuthenticated && !currentState.isItemLoading) {
+        set({ isItemLoading: false })
         return;
       }
       try {
@@ -98,21 +100,21 @@ export const useUserStore = create<UserState>((set, get) => ({
           isAdminAuthenticated: true,
           isAdminAuthChecked: true,
           hasError: false,
-          isLoading: false,
+          isItemLoading: false,
         });
         return;
       } catch {
         console.log("error")
-        set({ isLoading: false, hasError: true, isAdminAuthenticated: false, isAdminAuthChecked: true });
+        set({ isItemLoading: false, hasError: true, isAdminAuthenticated: false, isAdminAuthChecked: true });
         return;
       }
     } else {
       console.log("Token not found");
-      set({ isLoading: false, hasError: true, isAdminAuthenticated: false, isAdminAuthChecked: true });
+      set({ isItemLoading: false, hasError: true, isAdminAuthenticated: false, isAdminAuthChecked: true });
     }
   },
   createUser: async () => {
-    get().isLoading = true;
+    get().isCreateUpdateLoading = true;
     const formData = new FormData();
     const payload = get().userPayload
     const user = payload?.user
@@ -133,16 +135,16 @@ export const useUserStore = create<UserState>((set, get) => ({
           "Content-Type": "multipart/form-data",
         },
       });
-      set({ hasError: false, isLoading: false, userPayload: initialPayload });
+      set({ hasError: false, isCreateUpdateLoading: false, userPayload: initialPayload });
       return;
     } catch (error) {
-      set({ isLoading: false, hasError: true });
+      set({ isCreateUpdateLoading: false, hasError: true });
       throw error;
     }
   },
 
   updateUser: async(userId: number) => {
-    set({isLoading: true})
+    set({isCreateUpdateLoading: true})
     const formData = new FormData();
     const payload = get().userPayload
     const user = payload?.user
@@ -160,47 +162,47 @@ export const useUserStore = create<UserState>((set, get) => ({
           "Content-Type": "multipart/form-data",
         },
       });
-      set({ hasError: false, isLoading: false, userPayload: initialPayload });
+      set({ hasError: false, isCreateUpdateLoading: false, userPayload: initialPayload });
       return;
     } catch (error) {
-      set({ isLoading: false, hasError: true });
+      set({ isCreateUpdateLoading: false, hasError: true });
       throw error;
     }
     
   },
 
   fetchUserById: async(userId: number) => {
-    set({isLoading: true})
+    set({isItemLoading: true})
     try{
       const response = await api.get(userAPI.fetchById(userId))
       if(response.data){
         set({userItem: response.data})
       }
     } catch (error) {
-      set({isLoading: false})
+      set({isItemLoading: false})
       throw error
     }
   },
 
   fetchStudents: async () => {
-    get().isLoading = true;
+    get().isListLoading = true;
     try {
       const response = await api.get(userAPI.getStudentList);
       if (response.data) {
         get().setUserDetailList(response.data);
-        get().isLoading = false;
+        get().isListLoading = false;
       }
     } catch (error) {
       throw error;
     }
   },
   fetchTutors: async () => {
-    get().isLoading = true;
+    get().isListLoading = true;
     try {
       const response = await api.get(userAPI.getTutorsList);
       if (response.data) {
         set({ userMinimalList: response.data });
-        get().isLoading = false;
+        get().isListLoading = false;
       }
     } catch (error) {
       throw error;
@@ -222,7 +224,9 @@ export const useUserStore = create<UserState>((set, get) => ({
       userDetail: null,
       userDetailList: [],
       userMinimalList: [],
-      isLoading: false,
+      isListLoading: false,
+      isCreateUpdateLoading: false,
+      isItemLoading: false,
       hasError: false,
       isAuthChecked: false,
       isAdminAuthChecked: false,

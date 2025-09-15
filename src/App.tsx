@@ -19,6 +19,8 @@ import AuthLayout from "./components/layouts/AuthLayout";
 import UnitsPage from "./pages/Admin/Content/Units/Unit";
 import UnitContents from "./pages/Admin/Content/UnitContents/UnitContents";
 import CustomToaster from "./components/ui/Toast";
+import AssignmentsPage from "./pages/Admin/Assignments/Assignments";
+import AssessmentType from "./pages/Admin/Settings/Setup/AssessmentType/AssessmentType";
 
 function App() {
   return (
@@ -134,6 +136,20 @@ function App() {
             </AdminProtectedRoute>
           }
         />
+        <Route path="/admin/content/assignments" element={
+          <AdminProtectedRoute>
+            <AdminLayout>
+              <AssignmentsPage />
+            </AdminLayout>
+          </AdminProtectedRoute>
+        } />
+        <Route path="/admin/setup/assignement-types/" element={
+          <AdminProtectedRoute>
+            <AdminLayout>
+              <AssessmentType />
+            </AdminLayout>
+          </AdminProtectedRoute>
+        }/>
       </Routes>
     </div>
   );

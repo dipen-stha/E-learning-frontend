@@ -52,7 +52,7 @@ export default function UsersPage() {
   const userDetailList = useUserStore((state) => state.userDetailList);
   const fetchStudentStats = useUserStore((state) => state.fetchStudentStats);
   const userStats = useUserStore((state) => state.userStats);
-  const isLoading = useUserStore((state) => state.isLoading)
+  const isUserListLoading = useUserStore((state) => state.isListLoading);
 
   const [isModalEdit, setIsModalEdit] = useState<boolean>(false);
   const [editId, setEditId] = useState<number | null>(null);
@@ -268,7 +268,7 @@ export default function UsersPage() {
               </TableRow>
             </TableHeader>
             
-            {<TableBody loading={isLoading} rows={5} columns={7}>
+            {<TableBody loading={isUserListLoading} rows={5} columns={7}>
               {userDetailList.map((user) => (
                 <TableRow key={user.id} className="border-gray-200">
                   <TableCell className="flex items-center space-x-3">

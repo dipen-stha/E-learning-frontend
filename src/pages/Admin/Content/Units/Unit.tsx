@@ -68,7 +68,7 @@ export default function UnitContents() {
   const fetchAllUnits = useUnitStore((state) => state.fetchAllUnits);
   const unitDetailList = useUnitStore((state) => state.unitListDetails);
   // const fetchSubjectsByCourse = useUnitStore(state => state.fetchSubjectsByCourse)
-  const isUnitLoading = useUnitStore((state) => state.isLoading);
+  const isUnitLoading = useUnitStore((state) => state.isListLoading);
   const resetPayload = useUnitStore((state) => state.resetPayload);
   const courseMinimal = useCourseStore((state) => state.courseMinimal);
   const fetchCourseMinimal = useCourseStore((state) => state.fetchMinimal);
@@ -270,7 +270,7 @@ export default function UnitContents() {
           <Table>
             <TableHeader>
               <TableRow className="border-gray-200">
-                <TableHead>Unit</TableHead>
+                <TableHead className="w-[350px]">Unit</TableHead>
                 <TableHead>Course</TableHead>
                 <TableHead>Subject</TableHead>
                 {/* <TableHead>Instructor</TableHead> */}
@@ -281,14 +281,7 @@ export default function UnitContents() {
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
-            {isUnitLoading ? (
-              <TableBody>
-                <TableRow>
-                  <td>Loading.... </td>
-                </TableRow>
-              </TableBody>
-            ) : (
-              <TableBody>
+              <TableBody loading={isUnitLoading} rows={5} columns={5}>
                 {unitDetailList &&
                   unitDetailList?.map((unit) => (
                     <TableRow key={unit.id} className="border-gray-200">
@@ -403,7 +396,6 @@ export default function UnitContents() {
                     </TableRow>
                   ))}
               </TableBody>
-            )}
           </Table>
         </CardContent>
       </Card>

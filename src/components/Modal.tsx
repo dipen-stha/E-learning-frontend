@@ -12,14 +12,14 @@ export function CreateModal({
   width,
 }: CreateModalProps) {
   const widthClasses = {
-    sm: "min-w-sm",
-    md: "min-w-md",
-    lg: "min-w-lg",
-    xl: "min-w-xl",
+    "sm": "min-w-sm",
+    "md": "min-w-md",
+    "lg": "min-w-lg",
+    "xl": "min-w-xl",
     "2xl": "min-w-2xl",
     "3xl": "min-w-3xl",
     "4xl": "min-w-4xl",
-    full: "min-w-full mx-4",
+    "full": "min-w-full mx-4",
   };
 
   const modalVariants: Variants = {

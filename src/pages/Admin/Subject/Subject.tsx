@@ -68,7 +68,7 @@ export default function SubjectsPage() {
   const fetchSubjectsByCourse = useSubjectStore(
     (state) => state.fetchSubjectsByCourse
   );
-  const isSubjectsLoading = useSubjectStore((state) => state.isLoading);
+  const isSubjectsLoading = useSubjectStore((state) => state.isListLoading);
   const resetSubjectPayload = useSubjectStore(
     (state) => state.resetSubjectPayload
   );
@@ -259,25 +259,18 @@ export default function SubjectsPage() {
 
           <Table>
             <TableHeader>
-              <TableRow className="border-gray-200">
-                <TableHead>Subject</TableHead>
-                <TableHead>Course</TableHead>
-                <TableHead>Instructor</TableHead>
+              <TableRow className="border-gray-200 w-[300px]">
+                <TableHead className="min-w-[250px]">Subject</TableHead>
+                <TableHead className="">Course</TableHead>
+                <TableHead className="">Instructor</TableHead>
                 {/* <TableHead>Type</TableHead> */}
-                <TableHead>Status</TableHead>
+                <TableHead className="">Status</TableHead>
                 {/* <TableHead>Students</TableHead> */}
                 {/* <TableHead>Completion</TableHead> */}
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
-            {isSubjectsLoading ? (
-              <TableBody>
-                <TableRow>
-                  <td>Loading.... </td>
-                </TableRow>
-              </TableBody>
-            ) : (
-              <TableBody>
+              <TableBody loading={isSubjectsLoading} rows={5} columns={5}>
                 {subjectDetailList &&
                   subjectDetailList?.map((subject) => (
                     <TableRow key={subject.id} className="border-gray-200">
@@ -397,7 +390,6 @@ export default function SubjectsPage() {
                     </TableRow>
                   ))}
               </TableBody>
-            )}
           </Table>
         </CardContent>
       </Card>

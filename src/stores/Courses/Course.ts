@@ -28,7 +28,9 @@ const initialCoursePayload: CoursePayload = {
 const initialState = {
   courseDetails: [],
   courseItem: null,
-  isLoading: false,
+  isListLoading: false,
+  isItemLoading: false,
+  isCreateUpdateLoading: false,
   coursePayload: initialCoursePayload,
   categoryList: [],
   courseMinimal: [],
@@ -45,39 +47,39 @@ export const useCourseStore = create<CourseState>((set, get) => ({
 
   // Async actions
   fetchCourseDetails: async () => {
-    set({ isLoading: true });
+    set({ isListLoading: true });
     try {
       const response = await api.get(courseAPI.fetchAll);
       if (response.data) set({ courseDetails: response.data });
-      set({isLoading: false})
+      set({isListLoading: false})
     } catch (error) {
-      set({ isLoading: false });
+      set({ isListLoading: false });
       throw error;
     }
   },
   fetchLatestCourses: async () => {
-    set({ isLoading: true });
+    set({ isListLoading: true });
     try {
       const response = await api.get(courseAPI.fetchLatestCourses);
-      set({ courseDetails: response.data, isLoading: false });
+      set({ courseDetails: response.data, isListLoading: false });
     } catch (error) {
-      set({ isLoading: false });
+      set({ isListLoading: false });
       throw error;
     }
   },
   fetchCourseById: async (courseId: number) => {
-    set({ isLoading: true });
+    set({ isItemLoading: true });
     try {
       const response = await api.get(courseAPI.fetchById(courseId));
-      if (response.data) set({ courseItem: response.data, isLoading: false });
+      if (response.data) set({ courseItem: response.data, isItemLoading: false });
     } catch (error) {
-      set({ isLoading: false });
+      set({ isItemLoading: false });
       throw error;
     }
   },
 
   createCourse: async () => {
-    set({ isLoading: true });
+    set({ isCreateUpdateLoading: true });
     const formData = new FormData();
     const payload = get().coursePayload;
     formData.append("course", JSON.stringify(payload?.course));
@@ -87,18 +89,18 @@ export const useCourseStore = create<CourseState>((set, get) => ({
       const response = await api.post(courseAPI.createCourse, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      set({isLoading: false})
+      set({isCreateUpdateLoading: false})
       toast.success("Course created successfully")
       return response.data;
     } catch (error) {
-      set({ isLoading: false });
+      set({ isCreateUpdateLoading: false });
       toast.error("Error creating course")
       console.error("Failed to create course:", error);
       throw error;
     }
   },
   updateCourse: async (courseId: number) => {
-    set({ isLoading: true });
+    set({ isCreateUpdateLoading: true });
     const formData = new FormData();
     const payload = get().coursePayload;
     const file = payload.file
@@ -110,10 +112,10 @@ export const useCourseStore = create<CourseState>((set, get) => ({
           "Content-Type": "multipart/form-data"
         }
       });
-      set({ isLoading: false });
+      set({ isCreateUpdateLoading: false });
       toast.success("Course updated successfully")
     } catch (error) {
-      set({ isLoading: false });
+      set({ isCreateUpdateLoading: false });
       toast.error("Error updating course")
     }
   },
@@ -143,7 +145,9 @@ export const useCourseStore = create<CourseState>((set, get) => ({
     set({
       courseDetails: [],
       courseItem: null,
-      isLoading: false,
+      isListLoading: false,
+      isItemLoading: false,
+      isCreateUpdateLoading: false,
       coursePayload: initialCoursePayload,
       categoryList: [],
       courseMinimal: [],

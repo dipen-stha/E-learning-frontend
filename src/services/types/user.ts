@@ -89,7 +89,9 @@ export interface UserState {
   isAuthenticated: boolean;
   isAdminAuthenticated: boolean;
   hasError: boolean;
-  isLoading: boolean;
+  isItemLoading: boolean;
+  isListLoading: boolean;
+  isCreateUpdateLoading: boolean;
   hasFetchingError: () => void;
   setUserUnauthenticated: () => void;
   
