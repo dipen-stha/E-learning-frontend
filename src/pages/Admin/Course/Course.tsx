@@ -57,7 +57,7 @@ export default function CoursesPage() {
   );
   const courseDetails = useCourseStore((state) => state.courseDetails);
   const reset = useCourseStore((state) => state.reset);
-  const isLoading = useCourseStore((state => state.isLoading))
+  const isCourseListLoading = useCourseStore((state => state.isListLoading))
 
   const getCategoryColor = (category: string) => {
     switch (category) {
@@ -266,7 +266,7 @@ export default function CoursesPage() {
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody loading={isLoading} rows={5} columns={8}>
+            <TableBody loading={isCourseListLoading} rows={5} columns={8}>
               {courseDetails.map((course) => (
                 <TableRow key={course.id} className="border-gray-200">
                   <TableCell>

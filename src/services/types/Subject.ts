@@ -36,7 +36,9 @@ export interface SubjectState {
     subjectPayload: SubjectPayload
     subjectItem: SubjectDetail | null
     subjectDetailList: SubjectDetail[]
-    isLoading: boolean,
+    isItemLoading: boolean,
+    isListLoading: boolean;
+    isCreateUpdateLoading: boolean;
     subjectMinimalList: SubjectMinimal[],
 
     setSubjectPayload: (data: SubjectPayload) => void;

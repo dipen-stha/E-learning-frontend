@@ -18,7 +18,9 @@ const initialState = {
   unitListDetails: [],
   unitItem: null,
   unitPayload: initialUnitPayload,
-  isLoading: false,
+  isItemLoading: false,
+  isListLoading: false,
+  isCreateUpdateLoading: false,
   unitMinimalList: []
 };
 
@@ -27,34 +29,37 @@ export const useUnitStore = create<UnitState>((set, get) => ({
   setPayload: (data: UnitPayload) => set({ unitPayload: data }),
   resetPayload: () => set({unitPayload: initialUnitPayload}),
   fetchAllUnits: async () => {
-    set({ isLoading: true });
+    set({ isListLoading: true });
     try {
       const response = await api.get(UnitAPI.fetchAllUnits);
       set({ unitListDetails: response.data });
-      set({ isLoading: false });
+      set({ isListLoading: false });
     } catch {
       console.log("There was an error");
-      set({ isLoading: false });
+      set({ isListLoading: false });
     }
   },
   fetchUnitById: async(unitId: number) => {
+    set({isItemLoading: true})
     try{
       const response = await api.get(UnitAPI.fetchUnitById(unitId))
       if(response.data) {
        set({unitItem: response.data}) 
       }
+      set({isItemLoading: false})
     } catch (error) {
+      set({isItemLoading: false})
       throw error
     }
   },
   createUnit: async () => {
-    set({isLoading: true})
+    set({isCreateUpdateLoading: true})
     try{
         await api.post(UnitAPI.createUnit, get().unitPayload)
-        set({isLoading: false, unitPayload: initialUnitPayload})
+        set({isCreateUpdateLoading: false, unitPayload: initialUnitPayload})
     } catch (error) {
         console.log("Error Creating Unit")
-        set({isLoading: false})
+        set({isCreateUpdateLoading: false})
     }
   },
   fetchMinimalUnitList: async(subjectId: number | null) => {
@@ -86,7 +91,9 @@ export const useUnitStore = create<UnitState>((set, get) => ({
       unitListDetails: [],
       unitItem: null,
       unitPayload: initialUnitPayload,
-      isLoading: false,
+      isItemLoading: false,
+      isListLoading: false,
+      isCreateUpdateLoading: false,
     });
   },
 }));

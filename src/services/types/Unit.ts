@@ -36,7 +36,9 @@ export interface UnitState {
     unitItem: UnitDetail | null
     unitPayload: UnitPayload
     unitMinimalList: UnitMinimal[]
-    isLoading: boolean
+    isItemLoading: boolean;
+    isListLoading: boolean;
+    isCreateUpdateLoading: boolean;
 
     setPayload: (payloadData: UnitPayload) => void;
     resetPayload: () => void;

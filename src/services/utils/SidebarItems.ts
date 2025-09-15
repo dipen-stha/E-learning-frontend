@@ -109,6 +109,11 @@ export const navigationItems: NavItem[] = [
         href: "/admin/settings/security",
         icon: Shield,
       },
+      {
+        title: "Assessment Type",
+        href: "/admin/setup/assignement-types/",
+        icon: FileBarChart,
+      }
     ],
   },
 ]

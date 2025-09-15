@@ -69,6 +69,7 @@ export default function UnitsPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const fetchAllContents = useUnitContentStore((state) => state.fetchAllContents)
   const contentList = useUnitContentStore((state) => state.contentsList)
+  const isContentListLoading = useUnitContentStore((state) => state.isListLoading)
 
   const courses = [
     { id: 1, title: "React Fundamentals" },
@@ -254,7 +255,7 @@ export default function UnitsPage() {
           <Table>
             <TableHeader>
               <TableRow className="border-gray-200">
-                <TableHead>Unit</TableHead>
+                <TableHead className="w-[350px]">Unit</TableHead>
                 <TableHead>Course</TableHead>
                 <TableHead>Instructor</TableHead>
                 <TableHead>Type</TableHead>
@@ -264,7 +265,7 @@ export default function UnitsPage() {
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody>
+            <TableBody loading={isContentListLoading} rows={5} columns={6}>
               {contentList && contentList.map((content) => (
                 <TableRow key={content.id} className="border-gray-200">
                   <TableCell>

@@ -72,7 +72,9 @@ export interface CourseState {
   coursePayload: CoursePayload;
   courseItem: CourseDetail | null;
   categoryList: CategoryDetail[] | [];
-  isLoading: boolean;
+  isListLoading: boolean;
+  isItemLoading: boolean;
+  isCreateUpdateLoading: boolean;
 
   setCourseDetails: (userDetails: CourseDetail[]) => void;
   setCourseItem: (courseItem: CourseDetail) => void;
@@ -173,7 +175,9 @@ export interface UnitContentState {
   payload: UnitContentPayload;
   contentsList: UnitContentDetail[];
   contentItem: UnitContentDetail | null;
-  isLoading: boolean;
+  isItemLoading: boolean;
+  isListLoading: boolean;
+  isCreateUpdateLoading: boolean;
   setPayload: (data: UnitContentPayload) => void;
   createUnitContent: () => Promise<boolean>;
   updateContent: (contentId: number) => Promise<void>;

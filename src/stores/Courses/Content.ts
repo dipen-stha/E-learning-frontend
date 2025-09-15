@@ -21,7 +21,9 @@ const initialPayload = {
 
 const initialState = {
   payload: initialPayload,
-  isLoading: false,
+  isItemLoading: false,
+  isListLoading: false,
+  isCreateUpdateLoading: false,
   contentsList: [],
   contentItem: null,
 };
@@ -30,7 +32,7 @@ export const useUnitContentStore = create<UnitContentState>((set, get) => ({
   ...initialState,
   setPayload: (data: UnitContentPayload) => set({ payload: data }),
   createUnitContent: async () => {
-    set({ isLoading: true });
+    set({ isCreateUpdateLoading: true });
     const formData = new FormData();
     const payload = get().payload;
     formData.append("content", JSON.stringify(payload?.content));
@@ -41,14 +43,15 @@ export const useUnitContentStore = create<UnitContentState>((set, get) => ({
           "Content-Type": "multipart/form-data",
         },
       });
-      set({ isLoading: false });
+      set({ isCreateUpdateLoading: false });
       return true;
     } catch (error) {
-      set({ isLoading: false });
+      set({ isCreateUpdateLoading: false });
       return false;
     }
   },
   updateContent: async (contentId: number) => {
+    set({isCreateUpdateLoading: true})
     try {
       const formData = new FormData();
       const payload = get().payload;
@@ -60,28 +63,32 @@ export const useUnitContentStore = create<UnitContentState>((set, get) => ({
           "Content-Type": "multipart/form-data",
         },
       });
+      set({isCreateUpdateLoading: false})
     } catch (error) {
+      set({isCreateUpdateLoading: false})
       throw error;
     }
   },
   resetPayload: () => set({ payload: initialPayload }),
   fetchContentById: async (contentId: number) => {
+    set({isItemLoading: true})
     try {
       const response = await api.get(contentAPI.fetchContentById(contentId));
-      set({ contentItem: response.data });
+      set({ contentItem: response.data, isItemLoading: false });
     } catch (error) {
+      set({isItemLoading: true})
       throw error;
     }
   },
   fetchAllContents: async () => {
-    set({ isLoading: true });
+    set({ isListLoading: true });
     try {
       const response = await api.get(contentAPI.fetchAllContents);
       if (response.data) {
-        set({ contentsList: response.data, isLoading: false });
+        set({ contentsList: response.data, isListLoading: false });
       }
     } catch (error) {
-      set({ isLoading: false });
+      set({ isListLoading: false });
     }
   },
 }));
