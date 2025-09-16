@@ -19,8 +19,9 @@ import AuthLayout from "./components/layouts/AuthLayout";
 import UnitsPage from "./pages/Admin/Content/Units/Unit";
 import UnitContents from "./pages/Admin/Content/UnitContents/UnitContents";
 import CustomToaster from "./components/ui/Toast";
-import AssignmentsPage from "./pages/Admin/Assignments/Assignments";
+import AssignmentsPage from "./pages/Admin/Assessments/Assessment";
 import AssessmentType from "./pages/Admin/Settings/Setup/AssessmentType/AssessmentType";
+import QuestionPage from "./pages/Admin/Assessments/Question/Question";
 
 function App() {
   return (
@@ -136,7 +137,7 @@ function App() {
             </AdminProtectedRoute>
           }
         />
-        <Route path="/admin/content/assignments" element={
+        <Route path="/admin/assessments" element={
           <AdminProtectedRoute>
             <AdminLayout>
               <AssignmentsPage />
@@ -150,6 +151,14 @@ function App() {
             </AdminLayout>
           </AdminProtectedRoute>
         }/>
+        <Route path="/admin/assessments/questions" element={
+          <AdminProtectedRoute>
+            <AdminLayout>
+              <QuestionPage />
+            </AdminLayout>
+          </AdminProtectedRoute>
+        }
+          />
       </Routes>
     </div>
   );

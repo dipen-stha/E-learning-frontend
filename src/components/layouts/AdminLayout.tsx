@@ -27,7 +27,7 @@ export default function AdminLayout({
           onMobileToggle={handleMobileToggle}
         />
 
-        <div className={cn("flex-1 flex overflow-auto flex-col min-h-screen transition-all duration-300 ease-in-out", isCollapsed ? "ml-16" : "ml-64")}>
+        <div className={cn("flex-1 flex overflow-auto flex-col min-h-screen transition-all duration-300 ease-in-out sm:ml-0", isCollapsed ? "lg:ml-16" : "lg:ml-64")}>
           <AdminHeader isCollapsed={isCollapsed} onToggle={handleToggle} onMobileToggle={handleMobileToggle} />
           {/* Page Content */}
           <main className="flex-1 p-6 bg-gray-100/50">

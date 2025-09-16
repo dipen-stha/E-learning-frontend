@@ -6,6 +6,7 @@ import { ModalCompProps } from "@/services/types/Extras";
 import { AssessmentTypePayload } from "@/services/types/Setup";
 import { useUpdater } from "@/services/utils/storeUtils";
 import { useAssessmentTypeStore } from "@/stores/Setup/AssessmentType";
+import { useEffect } from "react";
 
 const CreateAssignmentType = ({
   onSubmit,
@@ -18,6 +19,8 @@ const CreateAssignmentType = ({
   const assessmentTypeCreate = useAssessmentTypeStore((state) => state.createAssessmentType)
   const assessmentTypePayload = useAssessmentTypeStore((state) => state.payload)
   const setPayload = useAssessmentTypeStore((state) => state.setPayload)
+  const fetchTypeById = useAssessmentTypeStore((state) => state.fetchAssessmentTypeById)
+  const assessmentTypeItem = useAssessmentTypeStore((state) => state.assessmentTypeItem)
 
   const {updateField, payload, reset} = useUpdater<AssessmentTypePayload>(assessmentTypePayload)
   const handleClose = () => {
@@ -38,7 +41,7 @@ const CreateAssignmentType = ({
 
   const modalActions = [
     {
-      title: "Create Assessment Type",
+      title: `${editId ? "Update Assessment Type" : "Create Assessment Type"}`,
       onAction: handleSubmit,
       variant: "primary",
     },
@@ -48,6 +51,20 @@ const CreateAssignmentType = ({
       variant: "danger",
     },
   ];
+
+  useEffect(() => {
+    if(editId && isEdit) {
+      fetchTypeById(editId)
+    }
+  }, [editId, isEdit])
+
+  useEffect(() => {
+    if(assessmentTypeItem) {
+      updateField("title", assessmentTypeItem.title),
+      updateField("description", assessmentTypeItem.description),
+      updateField("icon", assessmentTypeItem.icon)
+    }
+  }, [assessmentTypeItem])
 
   return (
     <CreateModal

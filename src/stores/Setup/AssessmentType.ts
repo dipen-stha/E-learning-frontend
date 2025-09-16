@@ -39,8 +39,29 @@ export const useAssessmentTypeStore = create<AssessmentTypeState>(
         throw error;
       }
     },
-    updateAssessmentType: async (typeId: number) => {},
-    fetchAssessmentTypeById: async (typeId: number) => {},
+    updateAssessmentType: async (typeId: number) => {
+      set({isCreateUpdateLoading: true})
+      try{
+        await api.patch(assessmentTypeAPI.updateAssessmentType(typeId), get().payload)
+        set({isCreateUpdateLoading: false})
+        toast.success("Assessment Type Updated Successfully")
+      } catch (error) {
+        set({isCreateUpdateLoading: false})
+        toast.error("There was an error updating this error")
+        throw error
+      }
+    },
+    fetchAssessmentTypeById: async (typeId: number) => {
+      set({isItemLoading: true})
+      try{
+        const response = await api.get(assessmentTypeAPI.fetchAssessmentTypeById(typeId))
+        set({assessmentTypeItem: response.data, isItemLoading: false})
+      } catch (error) {
+        set({isItemLoading: false})
+        toast.error("There was an error fetching this assessment")
+        throw error
+      }
+    },
     fetchAssessmentTypeList: async () => {
       set({ isListLoading: true });
       try {
