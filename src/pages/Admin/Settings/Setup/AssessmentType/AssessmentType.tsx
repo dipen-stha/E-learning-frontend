@@ -22,7 +22,6 @@ import {
   Plus,
   Search,
   Trash2,
-  Users,
 } from "lucide-react";
 import CreateAssignmentType from "./Create";
 import { useEffect, useState } from "react";

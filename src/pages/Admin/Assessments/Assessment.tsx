@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -10,8 +10,6 @@ import {
 } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { Badge } from "@/components/ui/Badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
 import {
   Table,
   TableBody,
@@ -35,102 +33,32 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/DropDown";
-import { CreateModal } from "@/components/Modal";
 import { CreateAssignmentForm } from "./Create";
 import {
   Search,
   Plus,
   User,
-  Calendar,
   Check,
   X,
   FileText,
   Upload,
+  MoreHorizontal,
 } from "lucide-react";
+import { useAssessmentStore } from "@/stores/Assessment/Assessment";
+import { Icon } from "@/components/ui/Icon";
 
 export default function AssignmentsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCourse, setSelectedCourse] = useState("all");
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isModalEdit, setIsModalEdit] = useState<boolean>(false);
+  const [editId, setEditId] = useState<number | null>(null);
 
-  const assignments = [
-    {
-      id: 1,
-      title: "React Component Architecture Essay",
-      type: "Essay",
-      course: "React Fundamentals",
-      instructor: "Sarah Miller",
-      instructorAvatar: "/diverse-students-studying.png",
-      dueDate: "2024-04-15",
-      status: "Active",
-      submissions: 23,
-      totalStudents: 30,
-      avgGrade: 85,
-      maxPoints: 100,
-      createdDate: "2024-03-01",
-    },
-    {
-      id: 2,
-      title: "JavaScript ES6 Quiz",
-      type: "Quiz",
-      course: "Advanced JavaScript",
-      instructor: "John Doe",
-      instructorAvatar: "/diverse-students-studying.png",
-      dueDate: "2024-04-20",
-      status: "Draft",
-      submissions: 0,
-      totalStudents: 25,
-      avgGrade: null,
-      maxPoints: 50,
-      createdDate: "2024-03-15",
-    },
-    {
-      id: 3,
-      title: "Portfolio Website Project",
-      type: "Project",
-      course: "UI/UX Design Principles",
-      instructor: "Emily Brown",
-      instructorAvatar: "/diverse-students-studying.png",
-      dueDate: "2024-04-10",
-      status: "Grading",
-      submissions: 18,
-      totalStudents: 20,
-      avgGrade: 92,
-      maxPoints: 150,
-      createdDate: "2024-02-20",
-    },
-    {
-      id: 4,
-      title: "Data Analysis Report",
-      type: "File Submission",
-      course: "Data Science Basics",
-      instructor: "David Wilson",
-      instructorAvatar: "/diverse-students-studying.png",
-      dueDate: "2024-03-30",
-      status: "Completed",
-      submissions: 22,
-      totalStudents: 22,
-      avgGrade: 88,
-      maxPoints: 100,
-      createdDate: "2024-02-15",
-    },
-  ];
+  const fetchAssessmentList = useAssessmentStore((state) => state.fetchAssessmentList)
+  const assessmentList = useAssessmentStore((state) => state.assessmentDetails)
+  const isListLoading = useAssessmentStore((state) => state.isListLoading)
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Active":
-        return "bg-green-100 text-green-800 border-green-200";
-      case "Draft":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "Grading":
-        return "bg-blue-100 text-blue-800 border-blue-200";
-      case "Completed":
-        return "bg-gray-100 text-gray-800 border-gray-200";
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
-    }
-  };
 
   const getTypeColor = (type: string) => {
     switch (type) {
@@ -147,15 +75,23 @@ export default function AssignmentsPage() {
     }
   };
 
-  const getSubmissionProgress = (submissions: number, total: number) => {
-    const percentage = (submissions / total) * 100;
-    return Math.round(percentage);
+
+  const handleAssessmentEdit = (id: number) => {
+    setIsModalEdit(true);
+    setEditId(id)
+    setIsCreateModalOpen(true);
+  }
+
+  const handleSubmitModal = async () => {
+    await fetchAssessmentList();
+    setIsCreateModalOpen(false);
+    setIsModalEdit(false);
+    setEditId(null)
   };
 
-  const handleCreateAssignment = (assignmentData: any) => {
-    console.log("Creating assignment:", assignmentData);
-    setIsCreateModalOpen(false);
-  };
+  useEffect(() => {
+    fetchAssessmentList();
+  }, [])
 
   return (
     <div className="space-y-6">
@@ -292,85 +228,96 @@ export default function AssignmentsPage() {
                 <TableHead className="text-gray-600">Assignment</TableHead>
                 <TableHead className="text-gray-600">Type</TableHead>
                 <TableHead className="text-gray-600">Course</TableHead>
-                <TableHead className="text-gray-600">Due Date</TableHead>
-                <TableHead className="text-gray-600">Status</TableHead>
-                <TableHead className="text-gray-600">Progress</TableHead>
-                <TableHead className="text-gray-600">Avg. Grade</TableHead>
+                <TableHead className="text-gray-600">Subject</TableHead>
+
+                {/* <TableHead className="text-gray-600">Due Date</TableHead> */}
+                {/* <TableHead className="text-gray-600">Status</TableHead> */}
+                {/* <TableHead className="text-gray-600">Progress</TableHead> */}
+                {/* <TableHead className="text-gray-600">Avg. Grade</TableHead> */}
                 <TableHead className="text-right text-gray-600">
                   Actions
                 </TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody>
-              {assignments.map((assignment) => (
-                <TableRow key={assignment.id} className="border-gray-200">
+            <TableBody loading={isListLoading} rows={5} columns={5}>
+              {assessmentList.map((assessment) => (
+                <TableRow key={assessment.id} className="border-gray-200">
                   <TableCell>
                     <div className="space-y-1">
                       <p className="text-sm font-medium text-gray-900">
-                        {assignment.title}
+                        {assessment.title}
                       </p>
                       <div className="flex items-center space-x-2 text-xs text-gray-600">
-                        <span>{assignment.maxPoints} points</span>
+                        <span>{assessment.max_points} points</span>
                         <span>•</span>
-                        <span>Created {assignment.createdDate}</span>
+                        <span>{assessment.pass_points}</span>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge
-                      variant="outline"
-                      className={getTypeColor(assignment.type)}
-                    >
-                      {assignment.type}
-                    </Badge>
+                    <div className="flex items-center gap-x-[5px]">
+                    <Icon
+                      name={assessment.assessment_type.icon}
+                      className={getTypeColor(assessment.assessment_type.title)}
+                    />
+                      {assessment.assessment_type.title}
+                    </div>
                   </TableCell>
                   <TableCell>
                     <div className="space-y-1">
                       <p className="text-sm text-gray-900">
-                        {assignment.course}
+                        {assessment.course.title}
                       </p>
-                      <div className="flex items-center space-x-2">
+                      {/* <div className="flex items-center space-x-2">
                         <Avatar className="h-5 w-5">
                           <AvatarImage
                             src={
-                              assignment.instructorAvatar || "/placeholder.svg"
+                              assessment.instructorAvatar || "/placeholder.svg"
                             }
                           />
                           <AvatarFallback className="text-xs">
-                            {assignment.instructor
+                            {assessment.instructor
                               .split(" ")
                               .map((n) => n[0])
                               .join("")}
                           </AvatarFallback>
                         </Avatar>
                         <span className="text-xs text-gray-600">
-                          {assignment.instructor}
+                          {assessment.instructor}
                         </span>
-                      </div>
+                      </div> */}
                     </div>
                   </TableCell>
                   <TableCell>
+                    <div className="space-y-1">
+                      <p className="text-sm text-gray-900">
+                        {assessment.subject.title}
+                      </p>
+
+                    </div>
+                  </TableCell>
+                  {/* <TableCell>
                     <div className="flex items-center space-x-2">
                       <Calendar className="h-4 w-4 text-gray-600" />
                       <span className="text-sm text-gray-900">
-                        {assignment.dueDate}
+                        {assessment.dueDate}
                       </span>
                     </div>
                   </TableCell>
                   <TableCell>
                     <Badge
                       variant="outline"
-                      className={getStatusColor(assignment.status)}
+                      className={getStatusColor(assessment.status)}
                     >
-                      {assignment.status}
+                      {assessment.status}
                     </Badge>
-                  </TableCell>
-                  <TableCell>
+                  </TableCell> */}
+                  {/* <TableCell>
                     <div className="space-y-1">
                       <div className="flex items-center space-x-2">
                         <User className="h-4 w-4 text-gray-600" />
                         <span className="text-sm text-gray-900">
-                          {assignment.submissions}/{assignment.totalStudents}
+                          {assessment.submissions}/{assessment.totalStudents}
                         </span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
@@ -378,23 +325,23 @@ export default function AssignmentsPage() {
                           className="bg-cyan-600 h-2 rounded-full"
                           style={{
                             width: `${getSubmissionProgress(
-                              assignment.submissions,
-                              assignment.totalStudents
+                              assessment.submissions,
+                              assessment.totalStudents
                             )}%`,
                           }}
                         />
                       </div>
                     </div>
-                  </TableCell>
-                  <TableCell>
-                    {assignment.avgGrade ? (
+                  </TableCell> */}
+                  {/* <TableCell>
+                    {assessment.avgGrade ? (
                       <div className="flex items-center space-x-2">
                         <span className="text-sm font-medium text-gray-900">
-                          {assignment.avgGrade}%
+                          {assessment.avgGrade}%
                         </span>
-                        {assignment.avgGrade >= 90 ? (
+                        {assessment.avgGrade >= 90 ? (
                           <Check className="h-4 w-4 text-green-600" />
-                        ) : assignment.avgGrade >= 70 ? (
+                        ) : assessment.avgGrade >= 70 ? (
                           <Plus className="h-4 w-4 text-yellow-600" />
                         ) : (
                           <X className="h-4 w-4 text-red-600" />
@@ -405,12 +352,12 @@ export default function AssignmentsPage() {
                         No grades yet
                       </span>
                     )}
-                  </TableCell>
+                  </TableCell> */}
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="h-8 w-8 p-0">
-                          <Plus className="h-4 w-4" />
+                          <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent
@@ -425,7 +372,7 @@ export default function AssignmentsPage() {
                           <FileText className="mr-2 h-4 w-4" />
                           View Details
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="text-gray-900">
+                        <DropdownMenuItem className="text-gray-900" onClick={() => handleAssessmentEdit(assessment.id)}>
                           <Upload className="mr-2 h-4 w-4" />
                           Edit Assignment
                         </DropdownMenuItem>
@@ -448,18 +395,13 @@ export default function AssignmentsPage() {
         </CardContent>
       </Card>
 
-      <CreateModal
-        isOpen={isCreateModalOpen}
-        actions={[]}
-        onClose={() => setIsCreateModalOpen(false)}
-        title="Create New Assignment"
-        width="3xl"
-      >
         <CreateAssignmentForm
-          onSubmit={handleCreateAssignment}
+          isOpen={isCreateModalOpen}
+          onSubmit={handleSubmitModal}
           onCancel={() => setIsCreateModalOpen(false)}
+          isEdit={isModalEdit}
+          editId={editId}
         />
-      </CreateModal>
     </div>
   );
 }

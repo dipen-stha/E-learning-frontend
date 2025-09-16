@@ -11,6 +11,7 @@ import {
   Cog,
   Shield,
   Video,
+  BadgeQuestionMark,
 } from "lucide-react"
 
 
@@ -67,12 +68,23 @@ export const navigationItems: NavItem[] = [
         href: "/admin/content/unit-contents",
         icon: Video,
       },
+    ],
+  },
+  {
+    title: "Assessments Management",
+    icon: BookOpen,
+    children: [
       {
-        title: "Assignments",
-        href: "/admin/content/assignments",
+        title: "Assessments",
+        href: "/admin/assessments",
         icon: FileBarChart,
       },
-    ],
+      {
+        title: "Questions",
+        href: "/admin/assessments/questions",
+        icon: BadgeQuestionMark
+      }
+    ]
   },
   {
     title: "Analytics & Reports",
