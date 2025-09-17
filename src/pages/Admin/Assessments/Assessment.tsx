@@ -46,6 +46,8 @@ import {
 } from "lucide-react";
 import { useAssessmentStore } from "@/stores/Assessment/Assessment";
 import { Icon } from "@/components/ui/Icon";
+import { Badge } from "@/components/ui/Badge";
+import Preview from "./Preview";
 
 export default function AssignmentsPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -54,6 +56,8 @@ export default function AssignmentsPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isModalEdit, setIsModalEdit] = useState<boolean>(false);
   const [editId, setEditId] = useState<number | null>(null);
+  const [isModalPreview, setIsmodalPreview] = useState<boolean>(false);
+  const [previewId, setPreviewId] = useState<number | null>(null);
 
   const fetchAssessmentList = useAssessmentStore((state) => state.fetchAssessmentList)
   const assessmentList = useAssessmentStore((state) => state.assessmentDetails)
@@ -62,9 +66,9 @@ export default function AssignmentsPage() {
 
   const getTypeColor = (type: string) => {
     switch (type) {
-      case "Essay":
+      case "Video":
         return "bg-purple-100 text-purple-800 border-purple-200";
-      case "Quiz":
+      case "Text":
         return "bg-blue-100 text-blue-800 border-blue-200";
       case "Project":
         return "bg-green-100 text-green-800 border-green-200";
@@ -88,6 +92,19 @@ export default function AssignmentsPage() {
     setIsModalEdit(false);
     setEditId(null)
   };
+
+  const handleModalClose = async() => {
+    setIsCreateModalOpen(false)
+    setIsModalEdit(false);
+    setEditId(null)
+    setPreviewId(null);
+    setIsmodalPreview(false);
+  }
+
+  const handlePreviewClick = (assessmentId: number) => {
+    setPreviewId(assessmentId);
+    setIsmodalPreview(true);
+  }
 
   useEffect(() => {
     fetchAssessmentList();
@@ -256,11 +273,14 @@ export default function AssignmentsPage() {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-x-[5px]">
+                      <Badge variant="outline" className="border-none">
+                        
                     <Icon
                       name={assessment.assessment_type.icon}
-                      className={getTypeColor(assessment.assessment_type.title)}
+                      className={getTypeColor(assessment.assessment_type.icon)}
                     />
                       {assessment.assessment_type.title}
+                      </Badge>
                     </div>
                   </TableCell>
                   <TableCell>
@@ -368,9 +388,9 @@ export default function AssignmentsPage() {
                           Actions
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator className="bg-gray-200" />
-                        <DropdownMenuItem className="text-gray-900">
+                        <DropdownMenuItem className="text-gray-900" onClick={() => handlePreviewClick(assessment.id)}>
                           <FileText className="mr-2 h-4 w-4" />
-                          View Details
+                          Preview Assessment
                         </DropdownMenuItem>
                         <DropdownMenuItem className="text-gray-900" onClick={() => handleAssessmentEdit(assessment.id)}>
                           <Upload className="mr-2 h-4 w-4" />
@@ -398,10 +418,11 @@ export default function AssignmentsPage() {
         <CreateAssignmentForm
           isOpen={isCreateModalOpen}
           onSubmit={handleSubmitModal}
-          onCancel={() => setIsCreateModalOpen(false)}
+          onCancel={handleModalClose}
           isEdit={isModalEdit}
           editId={editId}
         />
+        <Preview isOpen={isModalPreview} previewId={previewId} onCancel={handleModalClose}/>
     </div>
   );
 }

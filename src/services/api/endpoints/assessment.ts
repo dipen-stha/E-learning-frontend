@@ -11,5 +11,13 @@ export const assessmentAPI = {
     createAssessment: `${prefix}/create/`,
     updateAssessment: (id: number) => `${prefix}/${id}/update/`,
     fetchAssessmentById: (id: number) => `${prefix}/${id}/get/`,
-    fetchAssessmentList: `${prefix}/all/`
+    fetchAssessmentList: `${prefix}/all/`,
+    fetchAssessmentsBySubject: (id: number) =>`${prefix}/${id}/by_subject/`,
+}
+
+export const questionAPI = {
+    questionCreate: `${prefix}/question/create/`,
+    fetchQuestionList: `${prefix}/question/all/`,
+    updateQuestion: (questionId: number) => `${prefix}/question/${questionId}/update/`,
+    getQuestionById: (questionId: number) => `${prefix}/question/${questionId}/get/`
 }

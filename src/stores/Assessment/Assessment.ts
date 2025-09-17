@@ -21,12 +21,12 @@ const initialState = {
     isItemLoading: false,
     isListLoading: false,
     isCreateUpdateLoading: false,
-    assessmentPayload: initialPayload
+    assessmentPayload: initialPayload,
+    minimalAssessments: []
 }
 
 export const useAssessmentStore = create<AssessmentState>((set, get) => ({
     ...initialState,
-
     setPayload:(data: AssessmentPayload) => set({assessmentPayload: data}),
     createAssessment: async() => {
         set({isCreateUpdateLoading: true})
@@ -71,6 +71,15 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
         } catch (error) {
             set({isItemLoading: false})
             toast.error("Error fetching this assessment")
+            throw error
+        }
+    },
+    fetchAssessmentBySubject: async(subjectId: number) => {
+        try{
+            const response = await api.get(assessmentAPI.fetchAssessmentsBySubject(subjectId))
+            set({minimalAssessments: response.data})
+        } catch (error) {
+            toast.error("There was an error fetching list")
             throw error
         }
     }

@@ -11,29 +11,69 @@ import { Input } from "@/components/ui/Input";
 import {
   Table,
   TableBody,
+  TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/Table";
 import { CreateQuestion } from "./Create";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useQuestionStore } from "@/stores/Assessment/Question/Question";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/DropDown";
+import Preview from "./Preview";
 
 const QuestionPage = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
   const [isModalEdit, setIsModalEdit] = useState<boolean>(false);
   const [editId, setEditId] = useState<number | null>(null);
+  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState<boolean>(false); 
+  const [previewId, setPreviewId] = useState<number | null>(null);
+
+  const fetchQuestionList = useQuestionStore(
+    (state) => state.fetchAllQuestions
+  );
+  const questionList = useQuestionStore((state) => state.questionsList);
 
   const onCreate = () => {
-      setIsCreateModalOpen(true);
-  }
-
-  const handleCreate = () => {
-    setIsCreateModalOpen(false);
+    setIsCreateModalOpen(true);
   };
+
+  const handleSubmit = async () => {
+    setIsCreateModalOpen(false);
+    setIsModalEdit(false);
+    setEditId(null);
+    fetchQuestionList();
+  };
+
+  const handleQuestionEdit = (questionId: number) => {
+    setIsModalEdit(true);
+    setEditId(questionId);
+    setIsCreateModalOpen(true);
+  };
+
+  const handlePreviewClick = (previewId: number) => {
+    setPreviewId(previewId);
+    setIsPreviewModalOpen(true)
+  }
 
   const handleModalClose = () => {
     setIsCreateModalOpen(false);
-  }
+    setIsModalEdit(false);
+    setEditId(null);
+    setIsPreviewModalOpen(false);
+    setPreviewId(null);
+  };
+
+  useEffect(() => {
+    fetchQuestionList();
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -46,7 +86,10 @@ const QuestionPage = () => {
             Create, track, and grade questios of each assessments.
           </p>
         </div>
-        <Button className="bg-cyan-600 hover:bg-cyan-700 text-white" onClick={onCreate}>
+        <Button
+          className="bg-cyan-600 hover:bg-cyan-700 text-white"
+          onClick={onCreate}
+        >
           <Icon name="Plus" className="mr-2 h-4 w-4" />
           Create Question
         </Button>
@@ -115,22 +158,70 @@ const QuestionPage = () => {
               <TableRow className="border-gray-200">
                 <TableHead className="">Question</TableHead>
                 <TableHead className="">Assessment</TableHead>
+                <TableHead>Course</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              <TableRow></TableRow>
+              {questionList.map((question) => (
+                <TableRow key={question.id} className="border-gray-200">
+                  <TableCell>
+                    <p className="max-w-xs truncate">{question.question}</p>
+                  </TableCell>
+                  <TableCell>{question.assessment.title}</TableCell>
+                  <TableCell>{question.course.title}</TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <Icon name="MoreHorizontal" className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent
+                        align="end"
+                        className="bg-white border-gray-200"
+                      >
+                        <DropdownMenuLabel className="text-gray-900">
+                          Actions
+                        </DropdownMenuLabel>
+                        <DropdownMenuSeparator className="bg-gray-200" />
+                        <DropdownMenuItem className="text-gray-900" onClick={() => handlePreviewClick(question.id)}>
+                          <Icon name="FileText" className="mr-2 h-4 w-4" />
+                          Preview Question
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="text-gray-900"
+                          onClick={() => handleQuestionEdit(question.id)}
+                        >
+                          <Icon name="Upload" className="mr-2 h-4 w-4" />
+                          Edit Question
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="text-gray-900">
+                          <Icon name="User" className="mr-2 h-4 w-4" />
+                          View Submissions
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator className="bg-gray-200" />
+                        <DropdownMenuItem className="text-red-600">
+                          <Icon name="X" className="mr-2 h-4 w-4" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </CardContent>
       </Card>
       <CreateQuestion
         isOpen={isCreateModalOpen}
-        onSubmit={handleCreate}
+        onSubmit={handleSubmit}
         onCancel={handleModalClose}
         isEdit={isModalEdit}
         editId={editId}
       />
+      <Preview isOpen={isPreviewModalOpen} onCancel={handleModalClose}/>
     </div>
   );
 };

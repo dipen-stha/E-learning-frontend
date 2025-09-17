@@ -251,6 +251,16 @@ export default function UsersPage() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button>Filter By Roles</Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuLabel>
+                  Filter By Roles
+                </DropdownMenuLabel>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           <Table>

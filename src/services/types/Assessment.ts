@@ -25,6 +25,12 @@ export interface AssessmentPayload {
     order: number | string
 }
 
+export interface AssessmentMinimal {
+    id: number
+    title: string
+    subject?: SubjectMinimal
+}
+
 export interface AssessmentState {
     assessmentItem: AssessmentDetail | null
     assessmentDetails: AssessmentDetail[]
@@ -32,6 +38,7 @@ export interface AssessmentState {
     isListLoading: boolean;
     isCreateUpdateLoading: boolean;
     assessmentPayload: AssessmentPayload
+    minimalAssessments: AssessmentMinimal[]
 
     setPayload: (data: AssessmentPayload) => void;
 
@@ -39,6 +46,7 @@ export interface AssessmentState {
     updateAssessment: (assessmentId: number) => Promise<void>;
     fetchById: (assessmentId: number) => Promise<void>;
     fetchAssessmentList: () => Promise<void>;
+    fetchAssessmentBySubject: (subjectId: number) => Promise<void>;
 }
 
 export interface OptionDetail {
@@ -49,7 +57,8 @@ export interface OptionDetail {
 
 export interface QuestionDetail {
     id: number
-    question: string
+    question: string;
+    order: number;
     course: MinimalCourse;
     subject: SubjectMinimal;
     assessment: AssessmentDetail;
@@ -58,6 +67,7 @@ export interface QuestionDetail {
 
 export interface QuestionPayload{
     question: string;
+    order: number | string;
     course_id: number | null;
     subject_id: number | null;
     assessment_id: number | null;
