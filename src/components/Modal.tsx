@@ -86,7 +86,7 @@ export function CreateModal({
             exit="exit"
             layout
           >
-            <div className="bg-white rounded-lg shadow-xl w-full max-h-[90vh] border border-gray-200 flex flex-col">
+            <div className="bg-white rounded-lg shadow-xl max-w-4xl max-h-[90vh] border border-gray-200 flex flex-col">
               {/* Sticky Header */}
               <div className="flex justify-between items-center p-4 border-b border-gray-200 sticky top-0 bg-white z-10">
                 <h2 className="text-xl font-semibold text-gray-900">{title}</h2>

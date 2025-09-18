@@ -58,6 +58,7 @@ import {
 } from "lucide-react";
 import { useUnitContentStore } from "@/stores/Courses/Content";
 import { ContentType, getStatusColor, getTypeColor, mapChoice, Status } from "@/services/utils/choiceUtils";
+import { Preview } from "./Preview";
 
 export default function UnitsPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -65,6 +66,8 @@ export default function UnitsPage() {
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [isModalEdit, setIsModalEdit] = useState<boolean>(false);
   const [editId, setEditId] = useState<number | null>(null);
+  const [isModalPreview, setIsModalPreview] = useState<boolean>(false);
+  const [previewId, setPreviewId] = useState<number | null>(null);
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const fetchAllContents = useUnitContentStore((state) => state.fetchAllContents)
@@ -102,12 +105,19 @@ export default function UnitsPage() {
     setIsCreateModalOpen(false);
     setIsModalEdit(false);
     setEditId(null);
+    setIsModalPreview(false);
+    setPreviewId(null);
   };
 
   const handleContentEdit = (contentId: number) => {
     setIsCreateModalOpen(true);
     setIsModalEdit(true);
     setEditId(contentId);
+  }
+
+  const handleContentPreview = (contentId: number) => {
+    setIsModalPreview(true)
+    setPreviewId(contentId)
   }
 
   useEffect(() => {
@@ -361,7 +371,7 @@ export default function UnitsPage() {
                       <DropdownMenuContent align="end" className="border-gray-200">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleContentPreview(content.id)}>
                           <Eye className="mr-2 h-4 w-4" />
                           Preview Unit
                         </DropdownMenuItem>
@@ -405,6 +415,7 @@ export default function UnitsPage() {
         editId={editId}
         isEdit={isModalEdit}
       />
+      <Preview isOpen={isModalPreview} onCancel={handleModalClose} previewId={previewId}/>
     </div>
   );
 }
