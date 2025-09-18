@@ -1,9 +1,10 @@
 export interface ModalCompProps {
-  onSubmit: (data?: any | null, file?: any | null) => void;
+  onSubmit?: (data?: any | null, file?: any | null) => void;
   isOpen: boolean;
   onCancel: () => void;
   isEdit?: boolean;
   editId?: number | null;
+  previewId?: number | null;
 }
 
 export interface ModalActionProps {

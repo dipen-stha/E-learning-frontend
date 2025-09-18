@@ -57,7 +57,7 @@ export function CreateAssignmentForm({
       } else {
         await createAssessment();
       }
-      onSubmit();
+      onSubmit?.();
     } catch (error) {
       console.log("Error:", error);
       return;
