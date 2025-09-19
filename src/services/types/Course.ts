@@ -29,6 +29,8 @@ export interface CourseDetail {
   total_revenue?: number;
   status: string;
   is_enrolled: boolean;
+  requirements: string;
+  objectives: string
 }
 
 export interface SubjectDetail {
@@ -80,7 +82,7 @@ export interface CourseState {
   setCourseItem: (courseItem: CourseDetail) => void;
   setCoursePayload: (data: CoursePayload) => void;
 
-  fetchCourseDetails: () => void;
+  fetchCourseDetails: () => Promise<void>;
   fetchLatestCourses: () => Promise<void>;
   fetchCourseById: (course_id: number) => Promise<void>;
   createCourse: () => Promise<void>;

@@ -54,8 +54,8 @@ export function CreateCourseForm({
     } else {
       createCourse();
     }
-    await onSubmit();
-    // reset();
+    await onSubmit?.();
+    reset();
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -108,6 +108,8 @@ export function CreateCourseForm({
         price: courseItem.price,
         instructor_id: courseItem.instructor?.id,
         status: courseItem.status,
+        requirements: courseItem.requirements,
+        objectives: courseItem.objectives,
       },
     );
     updateField("file", courseItem.image_url)

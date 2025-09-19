@@ -113,6 +113,7 @@ export function CreateContentForm({
       createContent();
     }
     onSubmit?.();
+    reset();
   };
 
   useEffect(() => {

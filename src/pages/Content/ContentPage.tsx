@@ -129,7 +129,7 @@ export default function LessonContent() {
 
   const handleBackToCourse = () => {
     console.log("Navigate back to course");
-    navigate("/course-detail/2");
+    navigate(`/course-detail/${subjectItem?.course.id}`);
   };
 
   const handleUnitButtonClicked = async (unitId: number, contentId: number) => {
