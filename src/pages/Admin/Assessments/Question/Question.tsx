@@ -221,7 +221,8 @@ const QuestionPage = () => {
         isEdit={isModalEdit}
         editId={editId}
       />
-      <Preview isOpen={isPreviewModalOpen} onCancel={handleModalClose}/>
+      <Preview isOpen={isPreviewModalOpen} onCancel={handleModalClose} 
+        previewId={previewId}/>
     </div>
   );
 };
