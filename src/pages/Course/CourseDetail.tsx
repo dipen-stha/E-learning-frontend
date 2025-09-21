@@ -15,109 +15,15 @@ import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Progress } from "@/components/ui/Progress";
 import { Badge } from "@/components/ui/Badge";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useCourseStore } from "@/stores/Courses/Course";
 import { useUserCourseStore } from "@/stores/UserCourses/UserCourse";
 import { EnrollCourse } from "../Enrollment/Payment";
 import { useEnrollStore } from "@/stores/Courses/Enrollment";
-import { useStripe, useElements } from "@stripe/react-stripe-js";
 import { useUserStore } from "@/stores/User/User";
 import { useUserSubjectStore } from "@/stores/UserSubject/UserSubject";
-import { mapChoice, Status } from "@/services/utils/choiceUtils";
+import { Icon } from "@/components/ui/Icon";
 // Mock course data with detailed units
-const courseData = {
-  id: 1,
-  title: "JavaScript Fundamentals",
-  instructor: "John Smith",
-  instructorImage: "/placeholder.svg?height=60&width=60",
-  description:
-    "Master the fundamentals of JavaScript programming with hands-on projects and real-world examples. This comprehensive course covers everything from basic syntax to advanced concepts like closures and async programming.",
-  image: "/javascript-course-icon.png",
-  duration: "24 hours",
-  totalLessons: 24,
-  completedLessons: 18,
-  progress: 75,
-  rating: 4.8,
-  students: 2847,
-  price: "$79",
-  enrolled: true,
-  units: [
-    {
-      id: 1,
-      title: "Getting Started with JavaScript",
-      lessons: 4,
-      completedLessons: 4,
-      duration: "2 hours",
-      progress: 100,
-      topics: [
-        "Variables and Data Types",
-        "Basic Operators",
-        "Control Structures",
-        "Functions Basics",
-      ],
-    },
-    {
-      id: 2,
-      title: "Working with Arrays and Objects",
-      lessons: 5,
-      completedLessons: 5,
-      duration: "3 hours",
-      progress: 100,
-      topics: [
-        "Array Methods",
-        "Object Properties",
-        "Destructuring",
-        "Spread Operator",
-        "Rest Parameters",
-      ],
-    },
-    {
-      id: 3,
-      title: "DOM Manipulation",
-      lessons: 6,
-      completedLessons: 4,
-      duration: "4 hours",
-      progress: 67,
-      topics: [
-        "Selecting Elements",
-        "Event Listeners",
-        "Creating Elements",
-        "Styling with JS",
-        "Form Handling",
-        "Local Storage",
-      ],
-    },
-    {
-      id: 4,
-      title: "Asynchronous JavaScript",
-      lessons: 5,
-      completedLessons: 3,
-      duration: "3.5 hours",
-      progress: 60,
-      topics: [
-        "Callbacks",
-        "Promises",
-        "Async/Await",
-        "Fetch API",
-        "Error Handling",
-      ],
-    },
-    {
-      id: 5,
-      title: "Advanced Concepts",
-      lessons: 4,
-      completedLessons: 2,
-      duration: "3 hours",
-      progress: 50,
-      topics: ["Closures", "Prototypes", "Classes", "Modules"],
-    },
-  ],
-  nextLesson: {
-    title: "Event Delegation",
-    unit: "DOM Manipulation",
-    duration: "25 min",
-  },
-};
 
 export default function CourseDetails() {
   const [activeUnit, setActiveUnit] = useState<number | null>(null);
@@ -154,6 +60,8 @@ export default function CourseDetails() {
     ],
     popular: true,
   };
+
+  console.log(userCourseItem)
 
   const [selectedPlan, setSelectedPlan] = useState("full");
   const makePayment = useEnrollStore((state) => state.makePayment);
@@ -285,7 +193,7 @@ export default function CourseDetails() {
 
           <div className="flex flex-col lg:flex-row gap-8 border-gray-200">
             <div className="lg:w-2/3">
-              {userCourseEnrollmentItem && (
+              {userCourseItem && (
                 <div className="flex items-center gap-2 mb-3">
                   <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200">
                     In Progress
@@ -294,8 +202,8 @@ export default function CourseDetails() {
                     variant="outline"
                     className="border-amber-300 text-amber-700 bg-amber-50"
                   >
-                    {userCourseEnrollmentItem?.completed_subjects}/
-                    {userCourseEnrollmentItem?.total_subjects} Lessons
+                    {userCourseItem?.completed_subjects}/
+                    {userCourseItem?.total_subjects} Lessons
                   </Badge>
                 </div>
               )}
@@ -335,25 +243,25 @@ export default function CourseDetails() {
 
               {/* Overall Progress */}
               {userCourseEnrollmentItem ? (
-                <div className="bg-gradient-to-r from-white/80 to-rose-50/80 backdrop-blur-sm rounded-lg p-4 mb-6 border border-rose-200">
+                <div className="bg-gradient-to-r from-white/80 to-emerald-50/80 backdrop-blur-sm rounded-lg p-4 mb-6 border border-emerald-200">
                   <div className="flex items-center justify-between mb-2">
                     <span className="font-semibold text-gray-800">
                       Course Progress
                     </span>
                     <span className="text-2xl font-bold bg-gray-700 bg-clip-text text-transparent">
-                      {userCourseEnrollmentItem?.completion_percent || 0}%
+                      {userCourseItem?.completion_percent || 0}%
                     </span>
                   </div>
                   <Progress
-                    value={userCourseEnrollmentItem?.completion_percent || 0}
+                    value={userCourseItem?.completion_percent || 0}
                     className="h-3 mb-2"
                   />
                   <p className="text-sm text-gray-600">
                     Next:{" "}
                     <span className="text-emerald-600 font-medium">
-                      {userCourseEnrollmentItem?.next_subject}
+                      {userCourseItem?.next_subject}
                     </span>{" "}
-                    in {userCourseEnrollmentItem?.course.title}
+                    in {userCourseItem?.course.title}
                   </p>
                 </div>
               ) : (
@@ -569,13 +477,18 @@ export default function CourseDetails() {
                                 key={topicIndex}
                                 className="flex items-center gap-3 p-3 rounded-lg transition-all duration-200 hover:bg-rose-50/70 border border-rose-200/50"
                               >
-                                <Circle className="w-4 h-4 text-rose-400 flex-shrink-0" />
+                                {unit?.is_completed ? (
+                                  <Icon name="CircleCheckBig" className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                                ) : (
+                                  <Icon name="Circle" className="w-4 h-4 text-rose-400 flex-shrink-0" />
+                                )}
                                 <span className="text-sm text-gray-600">
                                   {`${unit}`}
                                 </span>
                               </div>
                             ))
-                          : subject.units.map((unit, topicIndex) => (
+                          : userCourseItem?.subjects.find(courseSubject => courseSubject.id == subject.id)?.units.map((unit, topicIndex) => (
+                            
                               <div
                                 key={topicIndex}
                                 className={`flex items-center gap-3 p-3 rounded-lg transition-all duration-200 ${
@@ -585,9 +498,9 @@ export default function CourseDetails() {
                                 }`}
                               >
                                 {unit?.is_completed ? (
-                                  <Circle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                                  <Icon name="CircleCheckBig" className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                                 ) : (
-                                  <Circle className="w-4 h-4 text-rose-400 flex-shrink-0" />
+                                  <Icon name="Circle" className="w-4 h-4 text-rose-400 flex-shrink-0" />
                                 )}
                                 <span className="text-sm text-gray-600">
                                   {`${unit.title}`}
@@ -619,7 +532,7 @@ export default function CourseDetails() {
                           )}
                           {compareSubjectStatus(subject.id) === 3 && (
                             <Button
-                              className="bg-gradient-to-r from-rose-300 to-violet-500"
+                              className="bg-gradient-to-r from-violet-500 to-violet-700"
                               onClick={() =>
                                 handleReviewContinueLesson(subject.id)
                               }
@@ -650,7 +563,7 @@ export default function CourseDetails() {
                     <BookOpen className="w-8 h-8 text-emerald-600" />
                   </div>
                   <div className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent mb-1">
-                    {courseData.completedLessons}
+                    19
                   </div>
                   <div className="text-sm text-emerald-700 font-medium">
                     Lessons Completed
