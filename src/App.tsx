@@ -22,6 +22,7 @@ import CustomToaster from "./components/ui/Toast";
 import AssignmentsPage from "./pages/Admin/Assessments/Assessment";
 import AssessmentType from "./pages/Admin/Settings/Setup/AssessmentType/AssessmentType";
 import QuestionPage from "./pages/Admin/Assessments/Question/Question";
+import { StreakTypePage } from "./pages/Admin/Settings/Setup/StreakType/StreakType";
 
 function App() {
   return (
@@ -158,6 +159,15 @@ function App() {
             </AdminLayout>
           </AdminProtectedRoute>
         }
+          />
+          <Route path="/admin/setup/streak-types/" element={
+            <AdminProtectedRoute>
+              <AdminLayout>
+                <StreakTypePage />
+              </AdminLayout>
+            </AdminProtectedRoute>
+          } 
+          
           />
       </Routes>
     </div>

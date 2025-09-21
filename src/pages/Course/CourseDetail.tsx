@@ -61,8 +61,6 @@ export default function CourseDetails() {
     popular: true,
   };
 
-  console.log(userCourseItem)
-
   const [selectedPlan, setSelectedPlan] = useState("full");
   const makePayment = useEnrollStore((state) => state.makePayment);
   const fetchUserEnrollmentByCourse = useEnrollStore(
@@ -81,6 +79,9 @@ export default function CourseDetails() {
   const createUserSubject = useUserSubjectStore(
     (state) => state.createUserSubject
   );
+  const fetchUserCourseStats = useUserCourseStore((state) => state.fetchUserCourseStats)
+  const userStats = useUserCourseStore((state) => state.userCourseStats)
+
 
   const handleBackToDashboard = () => {
     // This would handle navigation back to dashboard
@@ -165,6 +166,7 @@ export default function CourseDetails() {
         await fetchCourseById(Number(course_id));
         await fetchUserCourseByCourse(Number(course_id));
         await fetchCourseUserSubjectStatus(Number(course_id));
+        await fetchUserCourseStats(userDetail?.id as number);
       } catch (error: any) {
         if (error?.status === 404) {
           navigate("/dashboard");
@@ -287,17 +289,32 @@ export default function CourseDetails() {
                         alt={courseItem?.title}
                         className="w-full h-48 object-cover rounded-lg mb-4 border-2 border-indigo-100"
                       />
-                      <Button
-                        className="w-full bg-gradient-to-r from-emerald-500 to-cyan-600 hover:from-emerald-600 hover:to-cyan-700 mb-3 shadow-lg"
-                        onClick={() =>
-                          handleStartCourse(userCourseEnrollmentItem.is_started)
-                        }
-                      >
-                        <Play className="w-4 h-4 mr-2" />
-                        {userCourseEnrollmentItem.is_started
-                          ? "Continute Learning"
-                          : `Start Course`}
-                      </Button>
+                      {userCourseEnrollmentItem.is_started &&
+                      !userCourseEnrollmentItem.is_completed ? (
+                        <Button
+                          className="w-full bg-gradient-to-r from-emerald-500 to-cyan-600 hover:from-emerald-600 hover:to-cyan-700 mb-3 shadow-lg"
+                          onClick={() =>
+                            handleStartCourse(
+                              userCourseEnrollmentItem.is_started
+                            )
+                          }
+                        >
+                          <Icon name="CirclePlay" className="w-4 h-2 mr-2" />
+                          Continue Course
+                        </Button>
+                      ) : !userCourseEnrollmentItem.is_started &&
+                        !userCourseEnrollmentItem.is_completed ? (
+                        <Button className="w-full bg-gradient-to-r from-emerald-500 to-cyan-600 hover:from-emerald-600 hover:to-cyan-700 mb-3 shadow-lg"
+                        >
+                          <Icon name="CirclePlay" className="w-4 h-4 mr-2"/>
+                          Start Course
+                        </Button>
+                      ) : (
+                        <Button className="w-full bg-gradient-to-r from-emerald-500 to-cyan-600 hover:from-emerald-600 hover:to-cyan-700 mb-3 shadow-lg">
+                          <Icon name="CircleCheck" className="w-4 h-4 mr-2"/>
+                          Course Completed
+                        </Button>
+                      )}
                       <Button
                         variant="outline"
                         className="w-full bg-gray-200 border-rose-300 text-sky-600 hover:bg-rose-50"
@@ -478,35 +495,51 @@ export default function CourseDetails() {
                                 className="flex items-center gap-3 p-3 rounded-lg transition-all duration-200 hover:bg-rose-50/70 border border-rose-200/50"
                               >
                                 {unit?.is_completed ? (
-                                  <Icon name="CircleCheckBig" className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                                  <Icon
+                                    name="CircleCheckBig"
+                                    className="w-4 h-4 text-emerald-600 flex-shrink-0"
+                                  />
                                 ) : (
-                                  <Icon name="Circle" className="w-4 h-4 text-rose-400 flex-shrink-0" />
+                                  <Icon
+                                    name="Circle"
+                                    className="w-4 h-4 text-rose-400 flex-shrink-0"
+                                  />
                                 )}
                                 <span className="text-sm text-gray-600">
                                   {`${unit}`}
                                 </span>
                               </div>
                             ))
-                          : userCourseItem?.subjects.find(courseSubject => courseSubject.id == subject.id)?.units.map((unit, topicIndex) => (
-                            
-                              <div
-                                key={topicIndex}
-                                className={`flex items-center gap-3 p-3 rounded-lg transition-all duration-200 ${
-                                  unit?.is_completed
-                                    ? "hover:bg-emerald-50/70 border border-emerald-200/50"
-                                    : "hover:bg-rose-50/70 border border-rose-200/50"
-                                }`}
-                              >
-                                {unit?.is_completed ? (
-                                  <Icon name="CircleCheckBig" className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                                ) : (
-                                  <Icon name="Circle" className="w-4 h-4 text-rose-400 flex-shrink-0" />
-                                )}
-                                <span className="text-sm text-gray-600">
-                                  {`${unit.title}`}
-                                </span>
-                              </div>
-                            ))}
+                          : userCourseItem?.subjects
+                              .find(
+                                (courseSubject) =>
+                                  courseSubject.id == subject.id
+                              )
+                              ?.units.map((unit, topicIndex) => (
+                                <div
+                                  key={topicIndex}
+                                  className={`flex items-center gap-3 p-3 rounded-lg transition-all duration-200 ${
+                                    unit?.is_completed
+                                      ? "hover:bg-emerald-50/70 border border-emerald-200/50"
+                                      : "hover:bg-rose-50/70 border border-rose-200/50"
+                                  }`}
+                                >
+                                  {unit?.is_completed ? (
+                                    <Icon
+                                      name="CircleCheckBig"
+                                      className="w-4 h-4 text-emerald-600 flex-shrink-0"
+                                    />
+                                  ) : (
+                                    <Icon
+                                      name="Circle"
+                                      className="w-4 h-4 text-rose-400 flex-shrink-0"
+                                    />
+                                  )}
+                                  <span className="text-sm text-gray-600">
+                                    {`${unit.title}`}
+                                  </span>
+                                </div>
+                              ))}
                       </div>
                       {isEnrolledToCourse && (
                         <div className="mt-4 pt-4 border-t border-indigo-100">
@@ -563,7 +596,7 @@ export default function CourseDetails() {
                     <BookOpen className="w-8 h-8 text-emerald-600" />
                   </div>
                   <div className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent mb-1">
-                    19
+                    {userStats?.completed_courses}
                   </div>
                   <div className="text-sm text-emerald-700 font-medium">
                     Lessons Completed
@@ -577,7 +610,7 @@ export default function CourseDetails() {
                     <Clock className="w-8 h-8 text-amber-600" />
                   </div>
                   <div className="text-2xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent mb-1">
-                    18h
+                    {Math.round(userStats?.hours_learned ?? 0 / 60) * 100 / 100}
                   </div>
                   <div className="text-sm text-amber-700 font-medium">
                     Time Invested
@@ -591,7 +624,7 @@ export default function CourseDetails() {
                     <Award className="w-8 h-8 text-rose-600" />
                   </div>
                   <div className="text-2xl font-bold bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent mb-1">
-                    3
+                    {userStats?.subject_completed}
                   </div>
                   <div className="text-sm text-rose-700 font-medium">
                     Units Completed

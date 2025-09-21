@@ -40,7 +40,7 @@ export function CreateSubjectForm({
     } else{
       await createSubject()
     }
-    onSubmit();
+    onSubmit?.();
   };
 
   const handleClose = () => {

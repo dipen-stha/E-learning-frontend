@@ -12,6 +12,7 @@ import {
   Shield,
   Video,
   BadgeQuestionMark,
+  Flame,
 } from "lucide-react"
 
 
@@ -125,6 +126,11 @@ export const navigationItems: NavItem[] = [
         title: "Assessment Type",
         href: "/admin/setup/assignement-types/",
         icon: FileBarChart,
+      },
+      {
+        title: "Streak Type",
+        href: "/admin/setup/streak-types/",
+        icon: Flame
       }
     ],
   },

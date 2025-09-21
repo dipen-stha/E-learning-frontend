@@ -47,7 +47,7 @@ export function CreateUserForm({
     } else {
       createUser();
     }
-    await onSubmit();
+    await onSubmit?.();
   };
 
   const handleClose = () => {
