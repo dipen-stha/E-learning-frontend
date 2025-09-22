@@ -18,6 +18,7 @@ import { useUserCourseStore } from "@/stores/UserCourses/UserCourse";
 import { useCourseStore } from "@/stores/Courses/Course";
 import { Link, useNavigate } from "react-router";
 import { useEnrollStore } from "@/stores/Courses/Enrollment";
+import { Icon } from "@/components/ui/Icon";
 
 // Mock data for courses
 
@@ -31,15 +32,23 @@ const achievements = [
 export default function Dashboard() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const { userDetail } = useUserStore();
-  const {
-    fetchUserCourseStats,
-    userCourseStats,
-  } = useUserCourseStore();
+  const { fetchUserCourseStats, userCourseStats } = useUserCourseStore();
   const { fetchLatestCourses, courseDetails } = useCourseStore();
-  const enrolledCourses = useEnrollStore(state => state.userCourseEnrollmentsList);
-  const fetchEnrolledCourses = useEnrollStore(state => state.fetchUserEnrollments)
-  const fetchUpcomingCourse = useUserCourseStore(state => state.fetchUpcomingCourse)
-  const upcomingSubjects = useUserCourseStore(state => state.upcomingSubjects)
+  const createUserCourse = useUserCourseStore(
+    (state) => state.createUserCourse
+  );
+  const enrolledCourses = useEnrollStore(
+    (state) => state.userCourseEnrollmentsList
+  );
+  const fetchEnrolledCourses = useEnrollStore(
+    (state) => state.fetchUserEnrollments
+  );
+  const fetchUpcomingCourse = useUserCourseStore(
+    (state) => state.fetchUpcomingCourse
+  );
+  const upcomingSubjects = useUserCourseStore(
+    (state) => state.upcomingSubjects
+  );
   const userName = userDetail?.profile.name;
   const userId = userDetail?.id;
   const navigate = useNavigate();
@@ -54,10 +63,28 @@ export default function Dashboard() {
     );
   };
 
-  const handleContinueLearning = (courseId: number) => {
-      const subjectId = upcomingSubjects.find((item) => item.course_id === courseId)?.subject.id
-      navigate(`/subject/${subjectId}/contents/`)
-  }
+  const handleLearning = async (
+    courseId: number,
+    is_started: boolean = false,
+    is_completed: boolean = false
+  ) => {
+    if (is_started && !is_completed) {
+      const subjectId = upcomingSubjects.find(
+        (item) => item.course_id === courseId
+      )?.subject.id;
+      navigate(`/subject/${subjectId}/contents/`);
+      return;
+    } else if (!is_started && !is_completed) {
+      const subjectId = upcomingSubjects.find(
+        (item) => item.course_id === courseId
+      )?.subject.id;
+      await createUserCourse(userDetail?.id as number, courseId)
+      navigate(`/subject/${subjectId}/contents/`);
+      return;
+    } else {
+      navigate(`/course-detail/${courseId}/`);
+    }
+  };
 
   useEffect(() => {
     if (userId) {
@@ -70,7 +97,6 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-violet-100 to-cyan-100">
-
       <header className="bg-white/80 backdrop-blur-sm border-b border-violet-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
@@ -142,9 +168,9 @@ export default function Dashboard() {
                           </div>
                           <div className="flex items-center gap-4">
                             <Link to={`/course-detail/${course.id}`}>
-                            <Button className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-700 hover:to-cyan-700">
-                              {`Enroll Now - $${course.price}`}
-                            </Button>
+                              <Button className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-700 hover:to-cyan-700">
+                                {`Enroll Now - $${course.price}`}
+                              </Button>
                             </Link>
                             <Button
                               // variant="link"
@@ -248,13 +274,58 @@ export default function Dashboard() {
                         </div>
                       </div>
                       <p className="text-sm text-gray-500 mb-4">
-                        Next: {(upcomingSubjects.find((item) => item.course_id === userCourse.course.id))?.subject.title}
+                        Next:{" "}
+                        {
+                          upcomingSubjects.find(
+                            (item) => item.course_id === userCourse.course.id
+                          )?.subject.title
+                        }
                       </p>
                     </div>
-                    <Button className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-700 hover:to-cyan-700" onClick={() => handleContinueLearning(userCourse.course.id as number)}>
-                      <Play className="w-4 h-4 mr-2" />
-                      Continue
-                    </Button>
+
+                    {userCourse.is_completed ? (
+                      <Button
+                        className="bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-700 hover:to-cyan-700"
+                        onClick={() =>
+                          handleLearning(
+                            userCourse.course.id as number,
+                            userCourse.is_started,
+                            userCourse.is_completed
+                          )
+                        }
+                      >
+                        <Icon name="RotateCcw" className="w-4 h-4 mr-2" />
+                        Review
+                      </Button>
+                    ) : !userCourse.is_completed && userCourse.is_started ? (
+                      <Button
+                        className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-500 hover:to-emerald-800:"
+                        onClick={() =>
+                          handleLearning(
+                            userCourse.course.id as number,
+                            userCourse.is_started,
+                            userCourse.is_completed
+                          )
+                        }
+                      >
+                        <Icon name="StepForward" className="w-4 h-4 mr-2" />
+                        Continue
+                      </Button>
+                    ) : (
+                      <Button
+                        className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-500 hover:to-emerald-800"
+                        onClick={() =>
+                          handleLearning(
+                            userCourse.course.id as number,
+                            userCourse.is_started,
+                            userCourse.is_completed
+                          )
+                        }
+                      >
+                        <Icon name="CirclePlay" className="w-4 h-4 mr-2" />
+                        Start
+                      </Button>
+                    )}
                   </div>
                 </CardContent>
               </Card>

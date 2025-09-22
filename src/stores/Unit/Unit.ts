@@ -2,6 +2,7 @@ import { create } from "zustand";
 import api from "@/services/api/interceptor";
 import { UnitAPI } from "@/services/api/endpoints/courses";
 import { UnitState, UnitPayload } from "@/services/types/Unit";
+import toast from "react-hot-toast";
 
 const initialUnitPayload: UnitPayload = {
   title: "",
@@ -36,6 +37,7 @@ export const useUnitStore = create<UnitState>((set, get) => ({
       set({ isListLoading: false });
     } catch {
       console.log("There was an error");
+      toast.error("There was an error")
       set({ isListLoading: false });
     }
   },
@@ -49,6 +51,7 @@ export const useUnitStore = create<UnitState>((set, get) => ({
       set({isItemLoading: false})
     } catch (error) {
       set({isItemLoading: false})
+      toast.error("There was an error")
       throw error
     }
   },
@@ -57,8 +60,10 @@ export const useUnitStore = create<UnitState>((set, get) => ({
     try{
         await api.post(UnitAPI.createUnit, get().unitPayload)
         set({isCreateUpdateLoading: false, unitPayload: initialUnitPayload})
+        toast.success("Unit Created Successfully")
     } catch (error) {
         console.log("Error Creating Unit")
+        toast.error("There was an error creating")
         set({isCreateUpdateLoading: false})
     }
   },
@@ -82,7 +87,9 @@ export const useUnitStore = create<UnitState>((set, get) => ({
     try{
       const payload = get().unitPayload
       await api.patch(UnitAPI.updateUnit(unitId), payload)
+      toast.success("Unit udpated successfully")
     } catch (error){
+      toast.error("There was an error updating the unit")
       throw error
     }
   },

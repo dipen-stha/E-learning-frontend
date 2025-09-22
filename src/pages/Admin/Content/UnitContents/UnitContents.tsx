@@ -98,7 +98,7 @@ export default function UnitsPage() {
       setIsModalEdit(false);
       setEditId(null);
       setIsCreateModalOpen(false);
-      fetchAllContents();
+      await fetchAllContents();
   };
 
   const handleModalClose = () => {

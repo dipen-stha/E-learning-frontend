@@ -62,13 +62,13 @@ export const useUserCourseStore = create<UserCourseState>((set, get) => ({
     }
   },
   
-  createUserCourse: (userId, courseId) => {
+  createUserCourse: async (userId, courseId) => {
     try{
         const payload = {
             user_id: userId,
             course_id: courseId
         }
-        api.post(UserCourseAPI.create, payload)
+        await api.post(UserCourseAPI.create, payload)
     } catch (error) {
         console.log(error)
     }

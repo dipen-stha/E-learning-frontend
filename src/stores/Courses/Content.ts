@@ -1,6 +1,7 @@
 import { contentAPI } from "@/services/api/endpoints/courses";
 import api from "@/services/api/interceptor";
 import { UnitContentPayload, UnitContentState } from "@/services/types/Course";
+import toast from "react-hot-toast";
 import { create } from "zustand";
 
 const initialPayload = {
@@ -43,9 +44,11 @@ export const useUnitContentStore = create<UnitContentState>((set, get) => ({
           "Content-Type": "multipart/form-data",
         },
       });
+      toast.success("Content Created Successfully")
       set({ isCreateUpdateLoading: false });
       return true;
     } catch (error) {
+      toast.error("There was an error creating content.")
       set({ isCreateUpdateLoading: false });
       return false;
     }
@@ -64,7 +67,9 @@ export const useUnitContentStore = create<UnitContentState>((set, get) => ({
         },
       });
       set({isCreateUpdateLoading: false})
+      toast.success("Toast updated successfully")
     } catch (error) {
+      toast.error("There was an error udpating the content")
       set({isCreateUpdateLoading: false})
       throw error;
     }
@@ -77,6 +82,7 @@ export const useUnitContentStore = create<UnitContentState>((set, get) => ({
       set({ contentItem: response.data, isItemLoading: false });
     } catch (error) {
       set({isItemLoading: true})
+      toast.error("Error fetching")
       throw error;
     }
   },
@@ -88,7 +94,9 @@ export const useUnitContentStore = create<UnitContentState>((set, get) => ({
         set({ contentsList: response.data, isListLoading: false });
       }
     } catch (error) {
+      toast.error("Error fetching")
       set({ isListLoading: false });
+      throw error
     }
   },
 }));

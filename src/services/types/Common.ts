@@ -15,8 +15,10 @@ export interface UserCourseDetail {
 }
 
 export interface UserCourseStats {
-    completed_courses: number,
+    completed_courses: number
     courses_enrolled: number
+    hours_learned: number
+    subject_completed: number
 }
 
 
@@ -40,7 +42,7 @@ export interface UserCourseState {
     upcomingSubjects: UpcomingSubjects[]
 
 
-    createUserCourse: (userId: number, courseId:number) => void;
+    createUserCourse: (userId: number, courseId:number) => Promise<void>;
     fetchUserCourseStats: (userId: number) => Promise<void>;
     fetchUserCourseDetails: (userId: number) => Promise<void>;
     fetchUserCourseByCourse: (courseId: number) => Promise<void>;

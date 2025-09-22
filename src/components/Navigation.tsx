@@ -58,14 +58,14 @@ export default function Navigation() {
                 >
                   <Avatar className="h-10 w-10 border-2 border-violet-200">
                     <AvatarImage
-                      src="/placeholder.svg?height=40&width=40"
-                      alt={userName}
+                      src={userDetail?.profile.avatar}
+                      alt={userDetail?.username}
                     />
                     <AvatarFallback className="bg-gradient-to-r from-violet-100 to-cyan-100 text-violet-700">
-                      {/* {userName
+                      {userDetail?.username
                         .split(" ")
                         .map((n) => n[0])
-                        .join("")} */}
+                        .join("")}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
@@ -76,8 +76,8 @@ export default function Navigation() {
               >
                 <div className="flex items-center justify-start gap-2 p-2">
                   <div className="flex flex-col space-y-1 leading-none">
-                    <p className="font-medium text-gray-900">{userName}</p>
-                    <p className="text-xs text-gray-500">{userEmail}</p>
+                    <p className="font-medium text-gray-900">{userDetail?.username}</p>
+                    <p className="text-xs text-gray-500">{userDetail?.email}</p>
                   </div>
                 </div>
                 <DropdownMenuSeparator className="bg-violet-200" />

@@ -40,7 +40,8 @@ export function CreateUnitForm({
     } else {
       createUnit()
     }
-    onSubmit();
+    onSubmit?.();
+    reset();
   };
 
   const handleCourseChange = (course: any) => {
