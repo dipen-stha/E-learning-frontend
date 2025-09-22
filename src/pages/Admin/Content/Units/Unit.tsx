@@ -70,6 +70,8 @@ export default function UnitContents() {
   // const fetchSubjectsByCourse = useUnitStore(state => state.fetchSubjectsByCourse)
   const isUnitLoading = useUnitStore((state) => state.isListLoading);
   const resetPayload = useUnitStore((state) => state.resetPayload);
+  const paginationData = useUnitStore((state) => state.paginationData)
+
   const courseMinimal = useCourseStore((state) => state.courseMinimal);
   const fetchCourseMinimal = useCourseStore((state) => state.fetchMinimal);
   const fetchSubjectMinimal = useSubjectStore(
@@ -267,7 +269,13 @@ export default function UnitContents() {
             </DropdownMenu>
           </div>
 
-          <Table>
+          <Table
+            pagination={{
+              initialPage: paginationData?.current_page as number,
+              totalPages: paginationData?.total_pages as number,
+              apiFunction: fetchAllUnits
+            }}
+          >
             <TableHeader>
               <TableRow className="border-gray-200">
                 <TableHead className="w-[350px]">Unit</TableHead>

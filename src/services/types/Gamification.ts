@@ -23,6 +23,30 @@ export interface UserStreakDetail {
 }
 
 
+export interface AchievementsDetail {
+    id: number
+    title: string
+    icon: string
+    description: string
+    is_expirable: boolean
+    is_active: boolean
+}
+
+export interface AchievementsPayload {
+    title: string
+    icon: string
+    description: string
+    is_expirable: boolean
+    is_active: boolean
+}
+
+
+export interface AllUserAchivementes {
+    streak: number
+    achievements: []
+}
+
+
 export interface StreakTypeState {
     isListLoading: boolean
     isItemLoading: boolean
@@ -38,4 +62,29 @@ export interface StreakTypeState {
     fetchStreakTypeList: () => Promise<void>;
     fetchStreakTypeById: (streakTypeId: number) => Promise<void>;
     removeStreakType: (streakTypeId: number) => Promise<void>;
+}
+
+export interface UserGamificationState {
+    isItemLoading: boolean
+    isListLoading: boolean
+    isCreateUpdateLoading: boolean
+    userAchievements: AllUserAchivementes | null
+    userStreakCreateUpdate: () => Promise<void>;
+    fetchAllUserAchievements: () => Promise<void>;
+}
+
+export interface AchievementsState {
+    isItemLoading: boolean
+    isListLoading: boolean
+    isCreateUpdateLoading: boolean
+    achievementPayload: AchievementsPayload
+    achievementList: AchievementsDetail[]
+    achievementItem: AchievementsDetail | null
+
+    setPayload: (data: AchievementsPayload) => void;
+
+    fetchAchievementList: () => Promise<void>;
+    fetchAchievementById: (achievementId: number) => Promise<void>;
+    createAchievement: () => Promise<void>;
+    updateAchievement: (achievementId: number) => Promise<void>;
 }

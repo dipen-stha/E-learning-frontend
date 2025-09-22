@@ -3,6 +3,7 @@ import api from "@/services/api/interceptor";
 import { UnitAPI } from "@/services/api/endpoints/courses";
 import { UnitState, UnitPayload } from "@/services/types/Unit";
 import toast from "react-hot-toast";
+import { PaginationArgs } from "@/services/types/Extras";
 
 const initialUnitPayload: UnitPayload = {
   title: "",
@@ -22,18 +23,25 @@ const initialState = {
   isItemLoading: false,
   isListLoading: false,
   isCreateUpdateLoading: false,
-  unitMinimalList: []
+  unitMinimalList: [],
+  paginationData: null,
 };
 
 export const useUnitStore = create<UnitState>((set, get) => ({
   ...initialState,
   setPayload: (data: UnitPayload) => set({ unitPayload: data }),
   resetPayload: () => set({unitPayload: initialUnitPayload}),
-  fetchAllUnits: async () => {
+  fetchAllUnits: async (paginationProps?: PaginationArgs) => {
     set({ isListLoading: true });
     try {
-      const response = await api.get(UnitAPI.fetchAllUnits);
-      set({ unitListDetails: response.data });
+      const response = await api.get(UnitAPI.fetchAllUnits, {
+        params: {
+          offset: paginationProps?.offset ?? 0,
+          limit: paginationProps?.limit ?? 10,
+          page: paginationProps?.page ?? 10,
+        }
+      });
+      set({ unitListDetails: response.data.data, paginationData: {total_pages: response.data.total_pages, current_page: response.data.current_page} });
       set({ isListLoading: false });
     } catch {
       console.log("There was an error");

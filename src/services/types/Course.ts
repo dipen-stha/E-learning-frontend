@@ -1,3 +1,4 @@
+import { PaginationArgs, PaginationData } from "./Extras";
 import { SubjectMinimal } from "./Subject";
 import { UnitMinimal } from "./Unit";
 import { Profile } from "./user";
@@ -180,10 +181,11 @@ export interface UnitContentState {
   isItemLoading: boolean;
   isListLoading: boolean;
   isCreateUpdateLoading: boolean;
+  paginationData: PaginationData | null;
   setPayload: (data: UnitContentPayload) => void;
   createUnitContent: () => Promise<boolean>;
   updateContent: (contentId: number) => Promise<void>;
-  fetchAllContents: () => Promise<void>;
+  fetchAllContents: (pagination?: PaginationArgs) => Promise<void>;
   fetchContentById: (contentId: number) => Promise<void>;
   resetPayload: () => void;
 }

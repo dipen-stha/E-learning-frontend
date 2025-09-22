@@ -13,6 +13,8 @@ import {
   Video,
   BadgeQuestionMark,
   Flame,
+  Blocks,
+  SquareStar,
 } from "lucide-react"
 
 
@@ -122,6 +124,12 @@ export const navigationItems: NavItem[] = [
         href: "/admin/settings/security",
         icon: Shield,
       },
+    ],
+  },
+  {
+      title: "Setup",
+      icon: Blocks,
+      children: [
       {
         title: "Assessment Type",
         href: "/admin/setup/assignement-types/",
@@ -131,7 +139,12 @@ export const navigationItems: NavItem[] = [
         title: "Streak Type",
         href: "/admin/setup/streak-types/",
         icon: Flame
+      },
+      {
+        title: "Achievements",
+        href: "/admin/setup/achievements/",
+        icon: SquareStar
       }
-    ],
-  },
+      ]
+  }
 ]

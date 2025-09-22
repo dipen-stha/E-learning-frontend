@@ -6,7 +6,6 @@ import {
   Clock,
   Award,
   TrendingUp,
-  Play,
   Star,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -19,6 +18,7 @@ import { useCourseStore } from "@/stores/Courses/Course";
 import { Link, useNavigate } from "react-router";
 import { useEnrollStore } from "@/stores/Courses/Enrollment";
 import { Icon } from "@/components/ui/Icon";
+import { useUserGamificationStore } from "@/stores/Gamification/UserGamification";
 
 // Mock data for courses
 
@@ -49,6 +49,9 @@ export default function Dashboard() {
   const upcomingSubjects = useUserCourseStore(
     (state) => state.upcomingSubjects
   );
+  const fetchAllUserAchievements = useUserGamificationStore((state) => state.fetchAllUserAchievements)
+  const userAchievements = useUserGamificationStore((state) => state.userAchievements)
+
   const userName = userDetail?.profile.name;
   const userId = userDetail?.id;
   const navigate = useNavigate();
@@ -90,6 +93,7 @@ export default function Dashboard() {
     if (userId) {
       fetchUserCourseStats(userId);
     }
+    fetchAllUserAchievements();
     fetchUpcomingCourse();
     fetchLatestCourses();
     fetchEnrolledCourses();
@@ -113,7 +117,7 @@ export default function Dashboard() {
                 variant="secondary"
                 className="bg-violet-100 text-violet-700"
               >
-                <TrendingUp className="w-4 h-4 mr-1" />7 day streak
+                <TrendingUp className="w-4 h-4 mr-1" />{`${userAchievements?.streak ?? 0} day Streak`}
               </Badge>
             </div>
           </div>
@@ -273,14 +277,14 @@ export default function Dashboard() {
                           </div>
                         </div>
                       </div>
-                      <p className="text-sm text-gray-500 mb-4">
+                      {!userCourse.is_completed && <p className="text-sm text-gray-500 mb-4">
                         Next:{" "}
                         {
                           upcomingSubjects.find(
                             (item) => item.course_id === userCourse.course.id
                           )?.subject.title
                         }
-                      </p>
+                      </p>}
                     </div>
 
                     {userCourse.is_completed ? (
@@ -352,7 +356,7 @@ export default function Dashboard() {
                 </div>
                 <div className="text-center p-4 bg-gradient-to-br from-cyan-50 to-violet-50 rounded-lg">
                   <div className="text-2xl font-bold bg-gradient-to-r from-cyan-600 to-violet-600 bg-clip-text text-transparent">
-                    47h
+                    {userCourseStats?.hours_learned}
                   </div>
                   <div className="text-sm text-gray-600">Hours Learned</div>
                 </div>
@@ -364,7 +368,7 @@ export default function Dashboard() {
                 </div>
                 <div className="text-center p-4 bg-gradient-to-br from-cyan-50 to-violet-50 rounded-lg">
                   <div className="text-2xl font-bold bg-gradient-to-r from-cyan-600 to-violet-600 bg-clip-text text-transparent">
-                    7
+                    {userAchievements?.streak}
                   </div>
                   <div className="text-sm text-gray-600">Day Streak</div>
                 </div>

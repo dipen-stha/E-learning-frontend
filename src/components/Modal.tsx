@@ -12,14 +12,14 @@ export function CreateModal({
   width,
 }: CreateModalProps) {
   const widthClasses = {
-    "sm": "min-w-sm",
-    "md": "min-w-md",
-    "lg": "min-w-lg",
-    "xl": "min-w-xl",
-    "2xl": "min-w-2xl",
-    "3xl": "min-w-3xl",
-    "4xl": "min-w-4xl",
-    "full": "min-w-full mx-4",
+    "sm": "w-sm",
+    "md": "w-md",
+    "lg": "w-lg",
+    "xl": "w-xl",
+    "2xl": "w-2xl",
+    "3xl": "w-3xl",
+    "4xl": "w-4xl",
+    "full": "w-full mx-4",
   };
 
   const modalVariants: Variants = {
@@ -86,7 +86,7 @@ export function CreateModal({
             exit="exit"
             layout
           >
-            <div className="bg-white rounded-lg shadow-xl max-w-4xl max-h-[90vh] border border-gray-200 flex flex-col">
+            <div className="bg-white rounded-lg shadow-xl max-h-[90vh] border border-gray-200 flex flex-col">
               {/* Sticky Header */}
               <div className="flex justify-between items-center p-4 border-b border-gray-200 sticky top-0 bg-white z-10">
                 <h2 className="text-xl font-semibold text-gray-900">{title}</h2>

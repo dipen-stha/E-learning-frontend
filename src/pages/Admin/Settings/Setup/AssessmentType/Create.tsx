@@ -36,7 +36,7 @@ const CreateAssignmentType = ({
         await assessmentTypeCreate()
     }
     reset();
-    onSubmit();
+    onSubmit?.();
   };
 
   const modalActions = [
