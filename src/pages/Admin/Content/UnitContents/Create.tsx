@@ -56,13 +56,12 @@ export function CreateContentForm({
   );
   const contentItem = useUnitContentStore((state) => state.contentItem);
 
-  const initialPayload = contentPayload;
-
   const { payload, updateField, reset } =
-    useUpdater<UnitContentPayload>(initialPayload);
+    useUpdater<UnitContentPayload>(contentPayload);
 
   const handleModalClose = () => {
     reset();
+    console.log(payload)
     onCancel();
   };
 
@@ -110,10 +109,10 @@ export function CreateContentForm({
     if(editId && isEdit) {
       await updateContent(editId)
     } else {
-      createContent();
+      await createContent();
     }
-    onSubmit?.();
     reset();
+    onSubmit?.();
   };
 
   useEffect(() => {

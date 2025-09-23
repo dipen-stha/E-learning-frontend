@@ -19,18 +19,19 @@ import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Progress } from "@/components/ui/Progress";
 import { Badge } from "@/components/ui/Badge";
-import Navigation from "@/components/Navigation";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSubjectStore } from "@/stores/Subjects/Subjects";
-import { ContentDetail } from "@/services/types/Content";
 import { ContentType, mapChoice } from "@/services/utils/choiceUtils";
 import { useUserSubjectStore } from "@/stores/UserSubject/UserSubject";
 import { useUserUnitStore } from "@/stores/UserUnit/UserUnit";
 import { useUserContentStore } from "@/stores/UserContent/UserContent";
+import { ContentTypeRender } from "./ContentType";
+import { useUserGamificationStore } from "@/stores/Gamification/UserGamification";
 
 export default function LessonContent() {
   const [currentPage, setCurrentPage] = useState(0); // 0 for header page, 1 for content page
   const [activeSection, setActiveSection] = useState(1);
+  const [focusedContentId, setFocusedContentId] = useState<number | null>(null);
   const mainContainerRef = useRef<HTMLDivElement>(null);
   const contentRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -53,7 +54,6 @@ export default function LessonContent() {
   const userContentCreate = useUserContentStore(
     (state) => state.userContentCreate
   );
-  const updatePayload = useUserContentStore((state) => state.updatePayload);
   const updateUserContentStatus = useUserContentStore(
     (state) => state.updateUserContentStatus
   );
@@ -63,69 +63,8 @@ export default function LessonContent() {
   const resetPayload = useUserContentStore((state) => state.resetPayload);
 
   const userUnitStatus = useUserUnitStore((state) => state.userUnitStatus);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [focusedContentId, setFocusedContentId] = useState<number | null>(null);
-  const togglePlay = (canPlay: boolean) => {
-    if (!canPlay) return;
-    if (videoRef.current) {
-      if (isVideoPlaying) {
-        videoRef.current.pause();
-      } else {
-        videoRef.current.play();
-      }
-      setIsVideoPlaying(!isVideoPlaying);
-    }
-  };
 
-  const toggleMute = () => {
-    if (videoRef.current) {
-      videoRef.current.muted = !isMuted;
-      setIsMuted(!isMuted);
-    }
-  };
-
-  useEffect(() => {
-    let frameId: number;
-    const updatetime = () => {
-      if (videoRef.current) {
-        setCurrentTime(videoRef.current.currentTime);
-        frameId = requestAnimationFrame(updatetime);
-      }
-    };
-
-    if (isVideoPlaying) {
-      frameId = requestAnimationFrame(updatetime);
-    }
-    return () => cancelAnimationFrame(frameId);
-  }, [isVideoPlaying]);
-
-  const handleLoadedMetadata = () => {
-    if (videoRef.current) setDuration(videoRef.current.duration);
-  };
-
-  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (videoRef.current) {
-      videoRef.current.currentTime = Number(e.target.value);
-      setCurrentTime(Number(e.target.value));
-    }
-  };
-
-  const jumpTo = (time: number) => {
-    if (videoRef.current) {
-      videoRef.current.currentTime = time;
-      setCurrentTime(time);
-    }
-  };
-
-  const formatTime = (time: number) => {
-    const minutes = Math.floor(time / 60);
-    const seconds = Math.floor(time % 60);
-    return `${minutes}: ${seconds.toString().padStart(2, "0")}`;
-  };
+  const createUpdateUserStreak = useUserGamificationStore((state) => state.userStreakCreateUpdate)
 
   const handleBackToCourse = () => {
     console.log("Navigate back to course");
@@ -150,6 +89,7 @@ export default function LessonContent() {
       };
       setUserContentUpdatePayload(payload);
       await updateUserContentStatus();
+      await createUpdateUserStreak();
       resetPayload();
       await fetchUserUnitBySubject(Number(subject_id));
       await fetchUserSubjectStats(Number(subject_id));
@@ -176,7 +116,6 @@ export default function LessonContent() {
       const status = unit.contents?.find(
         (content) => content.content_id === contentId
       )?.status;
-      console.log(unitId, contentId, status);
       return status ?? "NOT_STARTED";
     }
     return "NOT_STARTED";
@@ -287,134 +226,6 @@ export default function LessonContent() {
         top: elementTop,
         behavior: "smooth",
       });
-    }
-  };
-
-  const renderContent = (content: ContentDetail, contentFocused: boolean) => {
-    // let contentFocused  =  status === "NOT_STARTED" || status === "IN_PROGRESS" ? false : true
-    switch (content.content_type) {
-      case "VIDEO":
-        // const handleVideoEnded = () => {
-        //   setIsVideoPlaying(false)
-        // }
-        return (
-          <div className="space-y-4">
-            <div className="relative bg-gray-900 rounded-lg overflow-hidden group">
-              <video
-                ref={videoRef}
-                src={content.file_url as string}
-                className="w-full h-64 object-cover"
-                muted={isMuted}
-                onEnded={() => {
-                  setIsVideoPlaying(false);
-                  setCurrentTime(0);
-                  if (videoRef.current) videoRef.current.currentTime = 0;
-                }}
-                onLoadedMetadata={handleLoadedMetadata}
-              />
-
-              {/* Play/Pause button */}
-              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <Button
-                  size="lg"
-                  className="bg-white/90 hover:bg-white text-gray-900 rounded-full w-16 h-16"
-                  disabled={!contentFocused}
-                  onClick={() => togglePlay(contentFocused)}
-                >
-                  {isVideoPlaying ? (
-                    <Pause className="w-6 h-6" />
-                  ) : (
-                    <Play className="w-6 h-6" />
-                  )}
-                </Button>
-              </div>
-
-              {/* Mute button */}
-              <div className="absolute bottom-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  className="bg-black/50 hover:bg-black/70 text-white"
-                  disabled={!contentFocused}
-                  onClick={toggleMute}
-                >
-                  {isMuted ? (
-                    <VolumeX className="w-4 h-4" />
-                  ) : (
-                    <Volume2 className="w-4 h-4" />
-                  )}
-                </Button>
-              </div>
-            </div>
-            {/* Progress Bar */}
-            <div className=" bottom-0 left-0 right-0 px-4 pb-2 flex items-center gap-2 text-gray-500 text-sm">
-              <span>{formatTime(currentTime)}</span>
-              <input
-                type="range"
-                min="0"
-                max={duration}
-                value={currentTime}
-                onChange={handleSeek}
-                className="flex-1 accent-regal-blue"
-                disabled={!contentFocused}
-              />
-              <span>{formatTime(duration)}</span>
-            </div>
-            <div className="space-y-2">
-              <h4 className="font-semibold">Timestamps</h4>
-              <ul className="space-y-1">
-                {content.video_time_stamps?.map((ts, i) => (
-                  <li key={i}>
-                    <button
-                      className="text-blue-600 hover:underline"
-                      onClick={() => jumpTo(ts.time_stamp as number)}
-                    >
-                      {formatTime(ts.time_stamp as number)} - {ts.title}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            {/* Description */}
-            <p className="text-gray-600">{content.description}</p>
-          </div>
-        );
-
-      case "text":
-        return (
-          <div className="prose max-w-none">
-            <div className="whitespace-pre-line text-gray-700 leading-relaxed">
-              {content.description}
-            </div>
-          </div>
-        );
-
-      case "code":
-        return (
-          <div className="space-y-4">
-            <p className="text-gray-600">{content.description}</p>
-            <div className="bg-gray-900 rounded-lg p-4 overflow-x-auto">
-              <pre className="text-green-400 text-sm">
-                <code>{content.description}</code>
-              </pre>
-            </div>
-          </div>
-        );
-
-      case "image":
-        return (
-          <div className="space-y-4">
-            <img
-              src={content.file_url || "/placeholder.svg"}
-              alt={content.title}
-              className="w-full rounded-lg border border-violet-200"
-            />
-            <p className="text-gray-600">{content.description}</p>
-          </div>
-        );
-
-      default:
-        return <div>Content type not supported</div>;
     }
   };
 
@@ -731,7 +542,7 @@ export default function LessonContent() {
                                   </div>
                                 </CardHeader>
                                 <CardContent className="space-y-6">
-                                  {renderContent(content, isFocused)}
+                                  <ContentTypeRender content={content} contentFocused={isFocused} />
                                 </CardContent>
                               </Card>
                             );

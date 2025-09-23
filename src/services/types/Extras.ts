@@ -28,3 +28,15 @@ export interface NavItem {
   icon: React.ComponentType<{ className?: string }>;
   children?: NavItem[];
 }
+
+
+export interface PaginationArgs{
+  limit: number
+  offset: number
+  page: number
+}
+
+export interface PaginationData {
+  current_page: number
+  total_pages: number
+}

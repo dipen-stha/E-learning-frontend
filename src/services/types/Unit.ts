@@ -1,5 +1,6 @@
 import { ContentDetail } from "./Content"
 import { CourseDetail, SubjectDetail } from "./Course"
+import { PaginationArgs, PaginationData } from "./Extras"
 
 export interface UnitDetail {
     id: number
@@ -39,11 +40,12 @@ export interface UnitState {
     isItemLoading: boolean;
     isListLoading: boolean;
     isCreateUpdateLoading: boolean;
+    paginationData: PaginationData | null;
 
     setPayload: (payloadData: UnitPayload) => void;
     resetPayload: () => void;
 
-    fetchAllUnits: () => Promise<void>;
+    fetchAllUnits: (pagination?: PaginationArgs) => Promise<void>;
     fetchMinimalUnitList: (subjectId: number | null) => Promise<void>;
     createUnit: () => Promise<void>;
     editUnit: (unitId: number) => Promise<void>;

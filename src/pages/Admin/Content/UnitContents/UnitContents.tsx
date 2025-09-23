@@ -57,7 +57,13 @@ import {
   Image,
 } from "lucide-react";
 import { useUnitContentStore } from "@/stores/Courses/Content";
-import { ContentType, getStatusColor, getTypeColor, mapChoice, Status } from "@/services/utils/choiceUtils";
+import {
+  ContentType,
+  getStatusColor,
+  getTypeColor,
+  mapChoice,
+  Status,
+} from "@/services/utils/choiceUtils";
 import { Preview } from "./Preview";
 
 export default function UnitsPage() {
@@ -70,9 +76,14 @@ export default function UnitsPage() {
   const [previewId, setPreviewId] = useState<number | null>(null);
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const fetchAllContents = useUnitContentStore((state) => state.fetchAllContents)
-  const contentList = useUnitContentStore((state) => state.contentsList)
-  const isContentListLoading = useUnitContentStore((state) => state.isListLoading)
+  const fetchAllContents = useUnitContentStore(
+    (state) => state.fetchAllContents
+  );
+  const contentList = useUnitContentStore((state) => state.contentsList);
+  const isContentListLoading = useUnitContentStore(
+    (state) => state.isListLoading
+  );
+  const paginationData = useUnitContentStore((state) => state.paginationData)
 
   const courses = [
     { id: 1, title: "React Fundamentals" },
@@ -95,10 +106,10 @@ export default function UnitsPage() {
 
   const handleModalSubmit = async () => {
     // Here you would typically make an API call to create the unit
-      setIsModalEdit(false);
-      setEditId(null);
-      setIsCreateModalOpen(false);
-      await fetchAllContents();
+    setIsModalEdit(false);
+    setEditId(null);
+    setIsCreateModalOpen(false);
+    await fetchAllContents();
   };
 
   const handleModalClose = () => {
@@ -113,26 +124,26 @@ export default function UnitsPage() {
     setIsCreateModalOpen(true);
     setIsModalEdit(true);
     setEditId(contentId);
-  }
+  };
 
   const handleContentPreview = (contentId: number) => {
-    setIsModalPreview(true)
-    setPreviewId(contentId)
-  }
+    setIsModalPreview(true);
+    setPreviewId(contentId);
+  };
 
   useEffect(() => {
     fetchAllContents();
-  }, [])
+  }, []);
 
   return (
     <div className="space-y-6">
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Contents Management</h1>
-          <p className="text-gray-600 mt-1">
-            Manage Units Contents
-          </p>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Contents Management
+          </h1>
+          <p className="text-gray-600 mt-1">Manage Units Contents</p>
         </div>
         <div className="flex space-x-2">
           <Button variant="outline">
@@ -262,7 +273,13 @@ export default function UnitsPage() {
             </DropdownMenu>
           </div>
 
-          <Table>
+          <Table
+            pagination={{
+              initialPage: paginationData?.current_page as number,
+              totalPages: paginationData?.total_pages as number,
+              apiFunction: fetchAllContents
+            }}
+          >
             <TableHeader>
               <TableRow className="border-gray-200">
                 <TableHead className="w-[350px]">Unit</TableHead>
@@ -276,77 +293,80 @@ export default function UnitsPage() {
               </TableRow>
             </TableHeader>
             <TableBody loading={isContentListLoading} rows={5} columns={6}>
-              {contentList && contentList.map((content) => (
-                <TableRow key={content.id} className="border-gray-200">
-                  <TableCell>
-                    <div className="flex items-center space-x-3">
-                      <div className="flex items-center justify-center w-8 h-8 bg-gray-100 rounded-full text-sm font-medium text-gray-600">
-                        {content.order}
+              {contentList &&
+                contentList.map((content) => (
+                  <TableRow key={content.id} className="border-gray-200">
+                    <TableCell>
+                      <div className="flex items-center space-x-3">
+                        <div className="flex items-center justify-center w-8 h-8 bg-gray-100 rounded-full text-sm font-medium text-gray-600">
+                          {content.order}
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-sm font-medium text-gray-900">
+                            {content.title}
+                          </p>
+                          <p className="text-xs text-gray-600 max-w-xs truncate">
+                            {content.description}
+                          </p>
+                          {content.completion_time && (
+                            <div className="flex items-center text-xs text-gray-600">
+                              <Clock className="mr-1 h-3 w-3" />
+                              {content.completion_time} minutes
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      <div className="space-y-1">
-                        <p className="text-sm font-medium text-gray-900">
-                          {content.title}
-                        </p>
-                        <p className="text-xs text-gray-600 max-w-xs truncate">
-                          {content.description}
-                        </p>
-                        {content.completion_time && (
-                          <div className="flex items-center text-xs text-gray-600">
-                            <Clock className="mr-1 h-3 w-3" />
-                            {content.completion_time} minutes
-                          </div>
-                        )}
+                    </TableCell>
+                    <TableCell>
+                      <p className="text-sm font-medium text-gray-900">
+                        {content.course.title}
+                      </p>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center space-x-2">
+                        <Avatar className="h-6 w-6">
+                          <AvatarImage
+                            src={
+                              content.instructor?.avatar || "/placeholder.svg"
+                            }
+                          />
+                          <AvatarFallback>
+                            {content.instructor.name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="text-sm text-gray-900">
+                          {content.instructor.name}
+                        </span>
                       </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <p className="text-sm font-medium text-gray-900">
-                      {content.course.title}
-                    </p>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center space-x-2">
-                      <Avatar className="h-6 w-6">
-                        <AvatarImage
-                          src={content.instructor?.avatar || "/placeholder.svg"}
-                        />
-                        <AvatarFallback>
-                          {content.instructor.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="text-sm text-gray-900">
-                        {content.instructor.name}
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center space-x-2">
-                      {getTypeIcon(content.content_type)}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center space-x-2">
+                        {getTypeIcon(content.content_type)}
+                        <Badge
+                          variant="secondary"
+                          className={getTypeColor(content.content_type)}
+                        >
+                          {mapChoice(content.content_type, ContentType)}
+                        </Badge>
+                      </div>
+                    </TableCell>
+                    <TableCell>
                       <Badge
                         variant="secondary"
-                        className={getTypeColor(content.content_type)}
+                        className={getStatusColor(content.status)}
                       >
-                        {mapChoice(content.content_type, ContentType)}
+                        {mapChoice(content.status, Status)}
                       </Badge>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      variant="secondary"
-                      className={getStatusColor(content.status)}
-                    >
-                      {mapChoice(content.status, Status)}
-                    </Badge>
-                  </TableCell>
-                  {/* <TableCell>
+                    </TableCell>
+                    {/* <TableCell>
                     <p className="text-sm font-medium">
                       {content.students.toLocaleString()}
                     </p>
                   </TableCell> */}
-                  {/* <TableCell>
+                    {/* <TableCell>
                     {content.completionRate > 0 ? (
                       <div className="space-y-1">
                         <div className="flex items-center justify-between text-xs">
@@ -361,49 +381,56 @@ export default function UnitsPage() {
                       <span className="text-sm text-gray-400">No data</span>
                     )}
                   </TableCell> */}
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="border-gray-200">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => handleContentPreview(content.id)}>
-                          <Eye className="mr-2 h-4 w-4" />
-                          Preview Unit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleContentEdit(content.id)}>
-                          <Edit className="mr-2 h-4 w-4" />
-                          Edit Unit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Users className="mr-2 h-4 w-4" />
-                          View Analytics
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        {content.status === "Published" ? (
-                          <DropdownMenuItem>
-                            <Pause className="mr-2 h-4 w-4" />
-                            Unpublish
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent
+                          align="end"
+                          className="border-gray-200"
+                        >
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onClick={() => handleContentPreview(content.id)}
+                          >
+                            <Eye className="mr-2 h-4 w-4" />
+                            Preview Unit
                           </DropdownMenuItem>
-                        ) : (
-                          <DropdownMenuItem>
-                            <Play className="mr-2 h-4 w-4" />
-                            Publish
+                          <DropdownMenuItem
+                            onClick={() => handleContentEdit(content.id)}
+                          >
+                            <Edit className="mr-2 h-4 w-4" />
+                            Edit Unit
                           </DropdownMenuItem>
-                        )}
-                        <DropdownMenuItem className="text-red-600">
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Delete Unit
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
+                          <DropdownMenuItem>
+                            <Users className="mr-2 h-4 w-4" />
+                            View Analytics
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          {content.status === "Published" ? (
+                            <DropdownMenuItem>
+                              <Pause className="mr-2 h-4 w-4" />
+                              Unpublish
+                            </DropdownMenuItem>
+                          ) : (
+                            <DropdownMenuItem>
+                              <Play className="mr-2 h-4 w-4" />
+                              Publish
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuItem className="text-red-600">
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete Unit
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
         </CardContent>
@@ -415,7 +442,11 @@ export default function UnitsPage() {
         editId={editId}
         isEdit={isModalEdit}
       />
-      <Preview isOpen={isModalPreview} onCancel={handleModalClose} previewId={previewId}/>
+      <Preview
+        isOpen={isModalPreview}
+        onCancel={handleModalClose}
+        previewId={previewId}
+      />
     </div>
   );
 }

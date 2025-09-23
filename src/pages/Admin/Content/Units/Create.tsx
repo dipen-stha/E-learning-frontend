@@ -33,12 +33,12 @@ export function CreateUnitForm({
   const { payload, updateField, reset } =
     useUpdater<UnitPayload>(unitPayload);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setUnitPayload(payload);
     if(editId && isEdit){
-      editUnit(editId)
+      await editUnit(editId)
     } else {
-      createUnit()
+      await createUnit()
     }
     onSubmit?.();
     reset();

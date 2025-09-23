@@ -117,7 +117,7 @@ export const StreakTypePage = () => {
             <TableBody loading={isListLoading} rows={5} columns={4}>
               {streakTypeList &&
                 streakTypeList.map((type) => (
-                  <TableRow>
+                  <TableRow className="border-gray-200" key={type.id}>
                     <TableCell>{type.title}</TableCell>
                     <TableCell>{type.description}</TableCell>
                     <TableCell>
@@ -134,7 +134,7 @@ export const StreakTypePage = () => {
                     </TableCell>
                     <TableCell className="text-center">
                       <DropdownMenu>
-                        <DropdownMenuTrigger>
+                        <DropdownMenuTrigger asChild>
                           <Button variant="ghost" className="h-8 w-8 p-0">
                             <Icon
                               name="MoreHorizontal"
