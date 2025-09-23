@@ -22,81 +22,90 @@ export const useSubjectStore = create<SubjectState>((set, get) => ({
   isItemLoading: false,
   isListLoading: false,
   isCreateUpdateLoading: false,
+  paginationData: null,
 
   setSubjectPayload: (data: Partial<SubjectPayload>) =>
     set((state) => ({ subjectPayload: { ...state.subjectPayload, ...data } })),
-  resetSubjectPayload: () => set({subjectPayload: initialPayload}),
+  resetSubjectPayload: () => set({ subjectPayload: initialPayload }),
 
   createSubject: async () => {
-    set({isCreateUpdateLoading: true})
+    set({ isCreateUpdateLoading: true });
     const payload = get().subjectPayload;
     if (!payload) return;
 
     try {
       const response = await api.post(subjectAPI.createSubject, payload);
 
-      set({isCreateUpdateLoading: false})
+      set({ isCreateUpdateLoading: false });
       return response.data;
     } catch (err) {
       console.error("Create subject failed:", err);
-      set({isCreateUpdateLoading: false})
+      set({ isCreateUpdateLoading: false });
       throw err;
     }
   },
   updateSubject: async (subjectId: number) => {
-    set({isCreateUpdateLoading: true})
-    try{
-      await api.patch(subjectAPI.updateSubject(subjectId), get().subjectPayload)
-      set({isCreateUpdateLoading: false})
-    } catch (error){
-      set({isCreateUpdateLoading: false})
+    set({ isCreateUpdateLoading: true });
+    try {
+      await api.patch(
+        subjectAPI.updateSubject(subjectId),
+        get().subjectPayload
+      );
+      set({ isCreateUpdateLoading: false });
+    } catch (error) {
+      set({ isCreateUpdateLoading: false });
     }
   },
   fetchSubjects: async () => {
-    set({isListLoading: true})
+    set({ isListLoading: true });
     try {
       const response = await api.get(subjectAPI.fetchSubjects);
 
-      set({ subjectDetailList: response.data, isListLoading: false});
+      set({
+        subjectDetailList: response.data.data ?? response.data,
+        isListLoading: false,
+        paginationData: {
+          total_pages: response.data.total_pages,
+          current_page: response.data.current_page,
+        },
+      });
       return response.data;
     } catch (err) {
-      set({isListLoading: false})
+      set({ isListLoading: false });
       console.error("Fetch subjects failed:", err);
       throw err;
     }
   },
 
-
   fetchSubjectsByCourse: async (courseId: number) => {
-    set({isListLoading: true})
+    set({ isListLoading: true });
     try {
-      const response = await api.get(subjectAPI.fetchSubjectsByCourse(courseId));
-      set({ subjectDetailList: response.data, isListLoading: false});
+      const response = await api.get(
+        subjectAPI.fetchSubjectsByCourse(courseId)
+      );
+      set({ subjectDetailList: response.data, isListLoading: false });
       return response.data;
     } catch (err) {
-      set({isListLoading: false})
+      set({ isListLoading: false });
       console.error("Fetch subjects by course failed:", err);
       throw err;
     }
   },
-  fetchSubjectMinimal: async(courseId: number) => {
-    try{
-      const response = await api.get(subjectAPI.fetchSubjectMinimal(courseId))
-      if(response.data){
-        set({subjectMinimalList: response.data})
+  fetchSubjectMinimal: async (courseId: number) => {
+    try {
+      const response = await api.get(subjectAPI.fetchSubjectMinimal(courseId));
+      if (response.data) {
+        set({ subjectMinimalList: response.data });
       }
-
-    } catch (error){
-
-    }
+    } catch (error) {}
   },
-  fetchSubjectById: async(subjectId) => {
-    set({isItemLoading: true})
-    try{
-      const response = await api.get(subjectAPI.fetchSubjectById(subjectId))
-      set({subjectItem: response.data, isItemLoading: false})
+  fetchSubjectById: async (subjectId) => {
+    set({ isItemLoading: true });
+    try {
+      const response = await api.get(subjectAPI.fetchSubjectById(subjectId));
+      set({ subjectItem: response.data, isItemLoading: false });
     } catch {
-      set({isItemLoading: false})
+      set({ isItemLoading: false });
     }
   },
 

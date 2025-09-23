@@ -34,6 +34,7 @@ const initialState = {
   coursePayload: initialCoursePayload,
   categoryList: [],
   courseMinimal: [],
+  paginationData: null,
 };
 
 export const useCourseStore = create<CourseState>((set, get) => ({
@@ -50,8 +51,15 @@ export const useCourseStore = create<CourseState>((set, get) => ({
     set({ isListLoading: true });
     try {
       const response = await api.get(courseAPI.fetchAll);
-      if (response.data) set({ courseDetails: response.data });
-      set({isListLoading: false})
+      if (response.data)
+        set({
+          courseDetails: response.data.data ?? response.data,
+          paginationData: {
+            total_pages: response.data.total_pages,
+            current_page: response.data.current_page,
+          },
+        });
+      set({ isListLoading: false });
     } catch (error) {
       set({ isListLoading: false });
       throw error;
@@ -71,7 +79,8 @@ export const useCourseStore = create<CourseState>((set, get) => ({
     set({ isItemLoading: true });
     try {
       const response = await api.get(courseAPI.fetchById(courseId));
-      if (response.data) set({ courseItem: response.data, isItemLoading: false });
+      if (response.data)
+        set({ courseItem: response.data, isItemLoading: false });
     } catch (error) {
       set({ isItemLoading: false });
       throw error;
@@ -89,12 +98,12 @@ export const useCourseStore = create<CourseState>((set, get) => ({
       const response = await api.post(courseAPI.createCourse, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      set({isCreateUpdateLoading: false})
-      toast.success("Course created successfully")
+      set({ isCreateUpdateLoading: false });
+      toast.success("Course created successfully");
       return response.data;
     } catch (error) {
       set({ isCreateUpdateLoading: false });
-      toast.error("Error creating course")
+      toast.error("Error creating course");
       console.error("Failed to create course:", error);
       throw error;
     }
@@ -103,20 +112,20 @@ export const useCourseStore = create<CourseState>((set, get) => ({
     set({ isCreateUpdateLoading: true });
     const formData = new FormData();
     const payload = get().coursePayload;
-    const file = payload.file
+    const file = payload.file;
     formData.append("course", JSON.stringify(payload?.course));
-    if(file && file instanceof File) formData.append("file", file)
+    if (file && file instanceof File) formData.append("file", file);
     try {
       await api.patch(courseAPI.updateCourse(courseId), formData, {
         headers: {
-          "Content-Type": "multipart/form-data"
-        }
+          "Content-Type": "multipart/form-data",
+        },
       });
       set({ isCreateUpdateLoading: false });
-      toast.success("Course updated successfully")
+      toast.success("Course updated successfully");
     } catch (error) {
       set({ isCreateUpdateLoading: false });
-      toast.error("Error updating course")
+      toast.error("Error updating course");
     }
   },
 

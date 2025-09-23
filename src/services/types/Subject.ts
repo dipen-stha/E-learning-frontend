@@ -1,4 +1,5 @@
 import { MinimalCourse } from "./Course"
+import { PaginationData } from "./Extras"
 import { UnitDetail } from "./Unit"
 import { UserMinimal } from "./user"
 
@@ -40,6 +41,7 @@ export interface SubjectState {
     isListLoading: boolean;
     isCreateUpdateLoading: boolean;
     subjectMinimalList: SubjectMinimal[],
+    paginationData: PaginationData | null;
 
     setSubjectPayload: (data: SubjectPayload) => void;
 

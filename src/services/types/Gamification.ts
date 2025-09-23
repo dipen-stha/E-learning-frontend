@@ -28,6 +28,8 @@ export interface AchievementsDetail {
     title: string
     icon: string
     description: string
+    rule_type: string
+    threshold: number
     is_expirable: boolean
     is_active: boolean
 }
@@ -36,6 +38,8 @@ export interface AchievementsPayload {
     title: string
     icon: string
     description: string
+    rule_type: string
+    threshold: number | string
     is_expirable: boolean
     is_active: boolean
 }
@@ -69,8 +73,10 @@ export interface UserGamificationState {
     isListLoading: boolean
     isCreateUpdateLoading: boolean
     userAchievements: AllUserAchivementes | null
+
     userStreakCreateUpdate: () => Promise<void>;
     fetchAllUserAchievements: () => Promise<void>;
+    checkAndCreateUserAchievements: () => Promise<void>;
 }
 
 export interface AchievementsState {

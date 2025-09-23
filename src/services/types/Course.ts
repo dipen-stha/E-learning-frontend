@@ -78,6 +78,7 @@ export interface CourseState {
   isListLoading: boolean;
   isItemLoading: boolean;
   isCreateUpdateLoading: boolean;
+  paginationData: PaginationData | null;
 
   setCourseDetails: (userDetails: CourseDetail[]) => void;
   setCourseItem: (courseItem: CourseDetail) => void;

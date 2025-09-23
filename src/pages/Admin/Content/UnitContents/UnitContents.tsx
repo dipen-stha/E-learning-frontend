@@ -20,7 +20,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/Table";
-import { Progress } from "@/components/ui/Progress";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -65,6 +64,7 @@ import {
   Status,
 } from "@/services/utils/choiceUtils";
 import { Preview } from "./Preview";
+import { Icon } from "@/components/ui/Icon";
 
 export default function UnitsPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -99,6 +99,8 @@ export default function UnitsPage() {
         return <Video className="h-4 w-4 text-blue-600" />;
       case "PDF":
         return <FileText className="h-4 w-4 text-purple-600" />;
+        case "TEXT":
+        return <Icon name="Type" className="w-4 h-4" />
       default:
         return <Image className="h-4 w-4 text-gray-600" />;
     }

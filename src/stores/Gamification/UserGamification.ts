@@ -34,5 +34,8 @@ export const useUserGamificationStore = create<UserGamificationState>((set, get)
             toast.error("Error fetching user achievements")
             throw error
         }
+    },
+    checkAndCreateUserAchievements: async() => {
+        
     }
 }))

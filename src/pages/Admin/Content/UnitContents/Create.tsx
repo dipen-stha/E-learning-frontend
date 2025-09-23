@@ -17,7 +17,6 @@ import { useUnitStore } from "@/stores/Unit/Unit";
 import { useUpdater } from "@/services/utils/storeUtils";
 import {
   ContentVideoTimeStamps,
-  UnitContentData,
   UnitContentPayload,
 } from "@/services/types/Course";
 import { useUnitContentStore } from "@/stores/Courses/Content";
@@ -61,7 +60,6 @@ export function CreateContentForm({
 
   const handleModalClose = () => {
     reset();
-    console.log(payload)
     onCancel();
   };
 
@@ -149,7 +147,7 @@ export function CreateContentForm({
   const modalActions = [
     {
       title: `${isEdit ? "Update Content": "Create Content"}`,
-      onAction: handleSubmit,
+      onAction:  handleSubmit,
       variant: "primary",
     },
     {

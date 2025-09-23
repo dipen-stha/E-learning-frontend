@@ -9,8 +9,6 @@ import { useEffect } from "react";
 const Preview = ({
   isOpen,
   onCancel,
-  editId,
-  isEdit,
   previewId,
 }: ModalCompProps) => {
   const fetchQuestionById = useQuestionStore(
@@ -25,7 +23,6 @@ const Preview = ({
       variant: "primary",
     },
   ];
-  console.log(previewId);
   useEffect(() => {
     if (previewId) {
       fetchQuestionById(previewId);
