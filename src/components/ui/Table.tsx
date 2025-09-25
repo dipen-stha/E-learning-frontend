@@ -3,7 +3,6 @@ import { cn } from "@/lib/utils";
 import Skeleton from "react-loading-skeleton";
 import { Button } from "./Button";
 import { Input } from "./Input";
-import api from "@/services/api/interceptor";
 import { PaginationArgs } from "@/services/types/Extras";
 
 interface TableBodyProps extends React.ComponentProps<"tbody"> {
@@ -24,7 +23,6 @@ interface TableProps extends React.ComponentProps<"table"> {
 }
 
 function Table({ className, pagination, ...props }: TableProps) {
-  console.log(pagination)
   return (
     <div data-slot="table-container" className="relative w-full overflow-x-auto">
       <table
@@ -40,7 +38,6 @@ function Table({ className, pagination, ...props }: TableProps) {
 function TablePagination({ totalPages, initialPage = 1, maxVisible = 10, apiFunction }: PaginationProps) {
   const [currentPage, setCurrentPage] = React.useState(initialPage)
   const [inputValue, setInputValue] = React.useState("")
-  console.log(totalPages, initialPage)
 
   const goToPage = async (page: number) => {
     if (page === currentPage) return

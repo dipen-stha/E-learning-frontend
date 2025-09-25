@@ -40,6 +40,7 @@ export function CreateSubjectForm({
     } else{
       await createSubject()
     }
+    reset();
     onSubmit?.();
   };
 

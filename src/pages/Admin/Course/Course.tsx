@@ -57,7 +57,8 @@ export default function CoursesPage() {
   );
   const courseDetails = useCourseStore((state) => state.courseDetails);
   const reset = useCourseStore((state) => state.reset);
-  const isCourseListLoading = useCourseStore((state => state.isListLoading))
+  const isCourseListLoading = useCourseStore((state) => state.isListLoading);
+  const paginationData = useCourseStore((state) => state.paginationData);
 
   const getCategoryColor = (category: string) => {
     switch (category) {
@@ -76,7 +77,6 @@ export default function CoursesPage() {
 
   const handleCreateCourse = async () => {
     try {
-
       await fetchCourseDetails();
       setEditId(null);
       setIsModalEdit(false);
@@ -87,16 +87,16 @@ export default function CoursesPage() {
   };
 
   const handleCourseEdit = (courseId: number) => {
-    setIsCreateModalOpen(true)
+    setIsCreateModalOpen(true);
     setIsModalEdit(true);
     setEditId(courseId);
-  }
+  };
 
   const handleModalClose = () => {
-    setIsCreateModalOpen(false)
-    setIsCreateModalOpen(false)
+    setIsCreateModalOpen(false);
+    setIsCreateModalOpen(false);
     setEditId(null);
-  }
+  };
 
   useEffect(() => {
     fetchCourseDetails();
@@ -253,12 +253,23 @@ export default function CoursesPage() {
             </DropdownMenu>
           </div>
 
-          <Table>
+          <Table
+            pagination={{
+              initialPage: paginationData?.current_page as number,
+              totalPages: paginationData?.total_pages as number,
+            }}
+          >
             <TableHeader>
               <TableRow className="border-gray-300">
-                <TableHead className="text-gray-800 w-[300px]">Course</TableHead>
-                <TableHead className="text-gray-800 w-[250px]">Instructor</TableHead>
-                <TableHead className="text-gray-800 w-[300px]">Category</TableHead>
+                <TableHead className="text-gray-800 w-[300px]">
+                  Course
+                </TableHead>
+                <TableHead className="text-gray-800 w-[250px]">
+                  Instructor
+                </TableHead>
+                <TableHead className="text-gray-800 w-[300px]">
+                  Category
+                </TableHead>
                 <TableHead className="text-gray-800">Status</TableHead>
                 <TableHead className="text-gray-800">Students</TableHead>
                 <TableHead className="text-gray-800">Rating</TableHead>
@@ -363,14 +374,19 @@ export default function CoursesPage() {
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="border-gray-200 bg-white">
+                      <DropdownMenuContent
+                        align="end"
+                        className="border-gray-200 bg-white"
+                      >
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem>
                           <Eye className="mr-2 h-4 w-4" />
                           View Course
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleCourseEdit(course.id)}>
+                        <DropdownMenuItem
+                          onClick={() => handleCourseEdit(course.id)}
+                        >
                           <Edit className="mr-2 h-4 w-4" />
                           Edit Course
                         </DropdownMenuItem>
@@ -404,13 +420,13 @@ export default function CoursesPage() {
         </CardContent>
       </Card>
 
-        <CreateCourseForm
-          isOpen={isCreateModalOpen}
-          onSubmit={handleCreateCourse}
-          onCancel={handleModalClose}
-          editId={editId}
-          isEdit={isModalEdit}
-        />
+      <CreateCourseForm
+        isOpen={isCreateModalOpen}
+        onSubmit={handleCreateCourse}
+        onCancel={handleModalClose}
+        editId={editId}
+        isEdit={isModalEdit}
+      />
     </div>
   );
 }

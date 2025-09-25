@@ -80,14 +80,12 @@ export const useUnitStore = create<UnitState>((set, get) => ({
     if(subjectId){
       apiUrl = UnitAPI.minimalUnitBySubject(subjectId)
     }
-    console.log(apiUrl)
     try{
       const response = await api.get(apiUrl)
       if(response.data){
         set({unitMinimalList: response.data})
       }
     } catch(error){
-      console.log(error)
       throw error
     }
   },

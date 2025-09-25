@@ -1,14 +1,10 @@
-import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
-import { CreditCard, Shield, Lock } from "lucide-react";
+import { Lock } from "lucide-react";
 import { CreateModal } from "@/components/Modal";
 import { ModalCompProps } from "@/services/types/Extras";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useCourseStore } from "@/stores/Courses/Course";
-import { useEnrollStore } from "@/stores/Courses/Enrollment";
-import { CardElement } from "@stripe/react-stripe-js";
-import { useUserStore } from "@/stores/User/User";
 
 interface EnrollProps extends ModalCompProps {
   courseId: number;
@@ -22,18 +18,12 @@ export const EnrollCourse = ({
 }: EnrollProps) => {
   const fetchCourse = useCourseStore((state) => state.fetchCourseById);
   const courseItem = useCourseStore((state) => state.courseItem);
-  const setEnrollPayload = useEnrollStore((state) => state.setPayload);
-  const enrollPayload = useEnrollStore((state) => state.enrollmentPayload);
-  const [payload, setPayload] = useState(enrollPayload);
-
   const handleFormSubmit = () => {
-    onSubmit();
+    onSubmit?.();
   };
 
   useEffect(() => {
-    console.log(courseId)
     fetchCourse(courseId);
-
   }, []);
 
   return (

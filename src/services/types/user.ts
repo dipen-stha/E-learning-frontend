@@ -1,7 +1,7 @@
 export interface LoginDetails {
   username: string;
   password: string;
-  remember: boolean | undefined;
+  should_remember: boolean;
 }
 
 export interface AuthState {

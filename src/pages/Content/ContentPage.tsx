@@ -1,10 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import {
   ArrowLeft,
-  Play,
-  Pause,
-  Volume2,
-  VolumeX,
   FileText,
   ImageIcon,
   Video,
@@ -31,7 +27,6 @@ import { useUserGamificationStore } from "@/stores/Gamification/UserGamification
 export default function LessonContent() {
   const [currentPage, setCurrentPage] = useState(0); // 0 for header page, 1 for content page
   const [activeSection, setActiveSection] = useState(1);
-  const [focusedContentId, setFocusedContentId] = useState<number | null>(null);
   const mainContainerRef = useRef<HTMLDivElement>(null);
   const contentRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -67,9 +62,12 @@ export default function LessonContent() {
   const createUpdateUserStreak = useUserGamificationStore((state) => state.userStreakCreateUpdate)
 
   const handleBackToCourse = () => {
-    console.log("Navigate back to course");
     navigate(`/course-detail/${subjectItem?.course.id}`);
   };
+
+  const handleClickToNextSubject = () => {
+
+  }
 
   const handleUnitButtonClicked = async (unitId: number, contentId: number) => {
     let status = checkuserContentStatus(unitId, contentId);
@@ -77,7 +75,6 @@ export default function LessonContent() {
     } else if (status === "NOT_STARTED") {
       try {
         await userContentCreate(contentId);
-        setFocusedContentId(contentId);
         await fetchUserUnitBySubject(Number(subject_id));
       } catch {
         console.log("Error starting the unit");
@@ -88,11 +85,12 @@ export default function LessonContent() {
         status: "COMPLETED",
       };
       setUserContentUpdatePayload(payload);
-      await updateUserContentStatus();
+      const is_course_completed = await updateUserContentStatus();
       await createUpdateUserStreak();
       resetPayload();
       await fetchUserUnitBySubject(Number(subject_id));
       await fetchUserSubjectStats(Number(subject_id));
+      if(is_course_completed) return
     }
   };
 
@@ -561,7 +559,7 @@ export default function LessonContent() {
                         Back to Course
                       </Button>
                       <Button
-                        onClick={() => console.log("Next lesson")}
+                        onClick={handleClickToNextSubject}
                         className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-700 hover:to-cyan-700"
                       >
                         Next Lesson

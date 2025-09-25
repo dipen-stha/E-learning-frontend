@@ -63,11 +63,13 @@ export default function SubjectsPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
   const [isModalEdit, setIsModalEdit] = useState<boolean>(false);
+
   const fetchSubjects = useSubjectStore((state) => state.fetchSubjects);
   const subjectDetailList = useSubjectStore((state) => state.subjectDetailList);
   const fetchSubjectsByCourse = useSubjectStore(
     (state) => state.fetchSubjectsByCourse
   );
+  const paginationData = useSubjectStore((state) => state.paginationData);
   const isSubjectsLoading = useSubjectStore((state) => state.isListLoading);
   const resetSubjectPayload = useSubjectStore(
     (state) => state.resetSubjectPayload
@@ -81,7 +83,6 @@ export default function SubjectsPage() {
     fetchSubjectsByCourse(Number(courseId));
   };
 
-
   const handleCreateSubject = async () => {
     try {
       // await createSubject();
@@ -91,10 +92,10 @@ export default function SubjectsPage() {
   };
 
   const handleSubjectEdit = (subjectId: number) => {
-    setEditId(subjectId)
-    setIsModalEdit(true)
-    setIsCreateModalOpen(true)
-}
+    setEditId(subjectId);
+    setIsModalEdit(true);
+    setIsCreateModalOpen(true);
+  };
 
   const handleModalClose = () => {
     resetSubjectPayload();
@@ -257,7 +258,12 @@ export default function SubjectsPage() {
             </DropdownMenu>
           </div>
 
-          <Table>
+          <Table
+            pagination={{
+              initialPage: paginationData?.current_page as number,
+              totalPages: paginationData?.total_pages as number,
+            }}
+          >
             <TableHeader>
               <TableRow className="border-gray-200 w-[300px]">
                 <TableHead className="min-w-[250px]">Subject</TableHead>
@@ -270,68 +276,66 @@ export default function SubjectsPage() {
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
-              <TableBody loading={isSubjectsLoading} rows={5} columns={5}>
-                {subjectDetailList &&
-                  subjectDetailList?.map((subject) => (
-                    <TableRow key={subject.id} className="border-gray-200">
-                      <TableCell>
-                        <div className="flex items-center space-x-3">
-                          <div className="flex items-center justify-center w-8 h-8 bg-gray-100 rounded-full text-sm font-medium text-gray-600">
-                            {subject.order}
-                          </div>
-                          <div className="space-y-1">
-                            <p className="text-sm font-medium text-gray-900">
-                              {subject.title}
-                            </p>
-                            <p className="text-xs text-gray-600 max-w-xs truncate">
-                              {subject.description}
-                            </p>
-                            {subject.completion_time && (
-                              <div className="flex items-center text-xs text-gray-600">
-                                <Clock className="mr-1 h-3 w-3" />
-                                {subject.completion_time} minutes
-                              </div>
-                            )}
-                          </div>
+            <TableBody loading={isSubjectsLoading} rows={5} columns={5}>
+              {subjectDetailList &&
+                subjectDetailList?.map((subject) => (
+                  <TableRow key={subject.id} className="border-gray-200">
+                    <TableCell>
+                      <div className="flex items-center space-x-3">
+                        <div className="flex items-center justify-center w-8 h-8 bg-gray-100 rounded-full text-sm font-medium text-gray-600">
+                          {subject.order}
                         </div>
-                      </TableCell>
-                      <TableCell>
-                        <p className="text-sm font-medium text-gray-900">
-                          {subject.course?.title}
-                        </p>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-2">
-                          <Avatar className="h-6 w-6">
-                            <AvatarImage
-                              src={
-                                subject.instructor?.name || "/placeholder.svg"
-                              }
-                            />
-                            <AvatarFallback>
-                              {subject.instructor?.name
-                                .split(" ")
-                                .map((n) => n[0])
-                                .join("")}
-                            </AvatarFallback>
-                          </Avatar>
-                          <span className="text-sm text-gray-900">
-                            {subject.instructor?.name}
-                          </span>
+                        <div className="space-y-1">
+                          <p className="text-sm font-medium text-gray-900">
+                            {subject.title}
+                          </p>
+                          <p className="text-xs text-gray-600 max-w-xs truncate">
+                            {subject.description}
+                          </p>
+                          {subject.completion_time && (
+                            <div className="flex items-center text-xs text-gray-600">
+                              <Clock className="mr-1 h-3 w-3" />
+                              {subject.completion_time} minutes
+                            </div>
+                          )}
                         </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant="secondary"
-                          className={getStatusColor(subject.status)}
-                        >
-                          {mapStatus(subject.status)}
-                        </Badge>
-                      </TableCell>
-                      {/* <TableCell>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <p className="text-sm font-medium text-gray-900">
+                        {subject.course?.title}
+                      </p>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center space-x-2">
+                        <Avatar className="h-6 w-6">
+                          <AvatarImage
+                            src={subject.instructor?.name || "/placeholder.svg"}
+                          />
+                          <AvatarFallback>
+                            {subject.instructor?.name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="text-sm text-gray-900">
+                          {subject.instructor?.name}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant="secondary"
+                        className={getStatusColor(subject.status)}
+                      >
+                        {mapStatus(subject.status)}
+                      </Badge>
+                    </TableCell>
+                    {/* <TableCell>
                     <p className="text-sm font-medium">{subject.student_count.toLocaleString()}</p>
                   </TableCell> */}
-                      {/* <TableCell>
+                    {/* <TableCell>
                     {subject.completionRate > 0 ? (
                       <div className="space-y-1">
                         <div className="flex items-center justify-between text-xs">
@@ -343,53 +347,55 @@ export default function SubjectsPage() {
                       <span className="text-sm text-gray-400">No data</span>
                     )}
                   </TableCell> */}
-                      <TableCell className="text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent
-                            align="end"
-                            className="bg-white border-gray-200"
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent
+                          align="end"
+                          className="bg-white border-gray-200"
+                        >
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem>
+                            <Eye className="mr-2 h-4 w-4" />
+                            Preview Subject
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleSubjectEdit(subject.id)}
                           >
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
+                            <Edit className="mr-2 h-4 w-4" />
+                            Edit Subject
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <Users className="mr-2 h-4 w-4" />
+                            View Analytics
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          {subject.status === "Published" ? (
                             <DropdownMenuItem>
-                              <Eye className="mr-2 h-4 w-4" />
-                              Preview Subject
+                              <Pause className="mr-2 h-4 w-4" />
+                              Unpublish
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleSubjectEdit(subject.id)}>
-                              <Edit className="mr-2 h-4 w-4" />
-                              Edit Subject
-                            </DropdownMenuItem>
+                          ) : (
                             <DropdownMenuItem>
-                              <Users className="mr-2 h-4 w-4" />
-                              View Analytics
+                              <Play className="mr-2 h-4 w-4" />
+                              Publish
                             </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            {subject.status === "Published" ? (
-                              <DropdownMenuItem>
-                                <Pause className="mr-2 h-4 w-4" />
-                                Unpublish
-                              </DropdownMenuItem>
-                            ) : (
-                              <DropdownMenuItem>
-                                <Play className="mr-2 h-4 w-4" />
-                                Publish
-                              </DropdownMenuItem>
-                            )}
-                            <DropdownMenuItem className="text-red-600">
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Delete Subject
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-              </TableBody>
+                          )}
+                          <DropdownMenuItem className="text-red-600">
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete Subject
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+            </TableBody>
           </Table>
         </CardContent>
       </Card>

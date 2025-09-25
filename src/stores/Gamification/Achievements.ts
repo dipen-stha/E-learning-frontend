@@ -9,6 +9,8 @@ const intialPayload = {
     title: "",
     description: "",
     icon: "",
+    rule_type: "",
+    threshold: "",
     is_expirable: false,
     is_active: true
 }

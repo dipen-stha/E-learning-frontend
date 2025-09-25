@@ -63,7 +63,7 @@ export const StreakTypePage = () => {
   };
 
   const handleDeleteClick = (typeId: number) => {
-
+    
   }
 
   useEffect(() => {
@@ -119,7 +119,13 @@ export const StreakTypePage = () => {
                 streakTypeList.map((type) => (
                   <TableRow className="border-gray-200" key={type.id}>
                     <TableCell>{type.title}</TableCell>
-                    <TableCell>{type.description}</TableCell>
+                    <TableCell>
+                      <div className="w-[350px]">
+                        <div className="truncate">
+                        {type.description}
+                        </div>
+                        </div>
+                      </TableCell>
                     <TableCell>
                       <div>
                         {type.is_active ? (

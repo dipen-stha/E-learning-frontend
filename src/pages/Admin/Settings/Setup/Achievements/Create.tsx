@@ -2,9 +2,11 @@ import { CreateModal } from "@/components/Modal";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
+import { MultiSelect } from "@/components/ui/MultiSelect";
 import { Textarea } from "@/components/ui/Textarea";
 import { ModalCompProps } from "@/services/types/Extras";
 import { AchievementsPayload } from "@/services/types/Gamification";
+import { AchievementRuleSet } from "@/services/utils/choiceUtils";
 import { useUpdater } from "@/services/utils/storeUtils";
 import { useAchievementsStore } from "@/stores/Gamification/Achievements";
 import { useEffect } from "react";
@@ -43,8 +45,8 @@ export const Create = ({
     } else {
       await createAchievement();
     }
-    onSubmit?.();
     reset();
+    onSubmit?.();
   };
 
   const handleClose = () => {
@@ -78,6 +80,8 @@ export const Create = ({
       updateField("description", achievementItem.description);
       updateField("is_expirable", achievementItem.is_expirable);
       updateField("is_active", achievementItem.is_active);
+      updateField("rule_type", achievementItem.rule_type);
+      updateField("threshold", achievementItem.threshold);
     }
   }, [achievementItem]);
 
@@ -121,6 +125,28 @@ export const Create = ({
             rows={4}
             value={payload.description}
             onChange={(e) => updateField("description", e.target.value)}
+          />
+        </div>
+        <div>
+          <Label htmlFor="rule_type">Rule Type</Label>
+          <MultiSelect
+            options={AchievementRuleSet}
+            getOptionLabel={(option) => option.label}
+            getOptionValue={(option) => option.value}
+            value={payload.rule_type}
+            onValueChange={(value: any) =>
+              updateField("rule_type", value.value)
+            }
+          />
+        </div>
+        <div>
+          <Label htmlFor="threshold">Threshold</Label>
+          <Input
+            type="number"
+            id="ruleThreshold"
+            name="threshold"
+            value={payload.threshold}
+            onChange={(e) => updateField("threshold", e.target.value)}
           />
         </div>
         <div>

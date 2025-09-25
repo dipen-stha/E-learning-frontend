@@ -49,8 +49,12 @@ export default function Dashboard() {
   const upcomingSubjects = useUserCourseStore(
     (state) => state.upcomingSubjects
   );
-  const fetchAllUserAchievements = useUserGamificationStore((state) => state.fetchAllUserAchievements)
-  const userAchievements = useUserGamificationStore((state) => state.userAchievements)
+  const fetchAllUserAchievements = useUserGamificationStore(
+    (state) => state.fetchAllUserAchievements
+  );
+  const userAchievements = useUserGamificationStore(
+    (state) => state.userAchievements
+  );
 
   const userName = userDetail?.profile.name;
   const userId = userDetail?.id;
@@ -81,12 +85,19 @@ export default function Dashboard() {
       const subjectId = upcomingSubjects.find(
         (item) => item.course_id === courseId
       )?.subject.id;
-      await createUserCourse(userDetail?.id as number, courseId)
+      await createUserCourse(userDetail?.id as number, courseId);
       navigate(`/subject/${subjectId}/contents/`);
       return;
     } else {
       navigate(`/course-detail/${courseId}/`);
     }
+  };
+
+  const streakColor = (streak: number) => {
+    if (streak === 0) return "text-gray-900";
+    else if (streak >= 50) return "text-rose-700";
+    else if (streak >= 100) return "text-red-800";
+    else return "text-orange-600";
   };
 
   useEffect(() => {
@@ -115,9 +126,12 @@ export default function Dashboard() {
             <div className="flex items-center gap-4">
               <Badge
                 variant="secondary"
-                className="bg-violet-100 text-violet-700"
+                className={`bg-violet-100 ${streakColor(
+                  userAchievements?.streak as number
+                )}`}
               >
-                <TrendingUp className="w-4 h-4 mr-1" />{`${userAchievements?.streak ?? 0} day Streak`}
+                <Icon name="Flame" className="w-4 h-4 mr-1" />
+                {`${userAchievements?.streak ?? 0} day Streak`}
               </Badge>
             </div>
           </div>
@@ -133,7 +147,7 @@ export default function Dashboard() {
           <div className="relative">
             <Card className="overflow-hidden bg-white/90 backdrop-blur-sm border-violet-200">
               <CardContent className="p-0">
-                <div className="relative h-80 flex items-center">
+                <div className="relative h-80 flex items-center px-4">
                   <div
                     className="flex transition-transform duration-500 ease-in-out w-full"
                     style={{ transform: `translateX(-${currentSlide * 100}%)` }}
@@ -198,17 +212,23 @@ export default function Dashboard() {
                   {/* Navigation Buttons */}
                   <Button
                     size="icon"
-                    className="absolute left-4 bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-700 hover:to-cyan-700 text-white shadow-lg cursor-pointer"
+                    className="absolute top-1/2 left-1 -translate-y-1/2 
+                    bg-white hover:scale-125 hover:bg-gray-200
+                    border border-violet-300 shadow-lg 
+                    rounded-full text-violet-600 hover:text-violet-800 "
                     onClick={prevSlide}
                   >
-                    <ChevronLeft className="w-4 h-4" />
+                    <ChevronLeft className="w-5 h-5" />
                   </Button>
                   <Button
                     size="icon"
-                    className="absolute right-4 bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-700 hover:to-cyan-700 text-white shadow-lg cursor-pointer"
+                    className="absolute top-1/2 right-1 -translate-y-1/2 
+                    bg-white hover:scale-125 hover:bg-gray-200
+                    border border-violet-300 shadow-lg 
+                    rounded-full text-violet-600 hover:text-violet-800"
                     onClick={nextSlide}
                   >
-                    <ChevronRight className="w-4 h-4" />
+                    <ChevronRight className="w-5 h-5" />
                   </Button>
                 </div>
               </CardContent>
@@ -277,14 +297,16 @@ export default function Dashboard() {
                           </div>
                         </div>
                       </div>
-                      {!userCourse.is_completed && <p className="text-sm text-gray-500 mb-4">
-                        Next:{" "}
-                        {
-                          upcomingSubjects.find(
-                            (item) => item.course_id === userCourse.course.id
-                          )?.subject.title
-                        }
-                      </p>}
+                      {!userCourse.is_completed && (
+                        <p className="text-sm text-gray-500 mb-4">
+                          Next:{" "}
+                          {
+                            upcomingSubjects.find(
+                              (item) => item.course_id === userCourse.course.id
+                            )?.subject.title
+                          }
+                        </p>
+                      )}
                     </div>
 
                     {userCourse.is_completed ? (

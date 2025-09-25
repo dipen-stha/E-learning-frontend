@@ -47,8 +47,6 @@ export const Achievements = () => {
 
   const handleCreate = () => {
     setIsCreateModalOpen(true);
-    setEditId(null);
-    setIsModalEdit(false);
   };
 
   const handleEdit = (achievementId: number) => {
@@ -59,6 +57,8 @@ export const Achievements = () => {
 
   const handleClose = () => {
     setIsCreateModalOpen(false);
+    setEditId(null);
+    setIsModalEdit(false);
   };
 
   useEffect(() => {

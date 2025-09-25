@@ -117,5 +117,5 @@ export interface UserContentState {
     resetPayload: () => void;
 
     userContentCreate: (content_id: number) => Promise<void>
-    updateUserContentStatus: () => Promise<void>;
+    updateUserContentStatus: () => Promise<boolean>;
 }

@@ -1,6 +1,6 @@
 import type React from "react";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
@@ -45,7 +45,6 @@ export function CreateCourseForm({
     useUpdater<CoursePayload>(initialPayload);
 
   const handleSubmit = async () => {
-    console.log(payload)
     await setCoursePayload(payload);
     if (isEdit && editId) {
       try {

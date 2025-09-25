@@ -16,22 +16,19 @@ import { Checkbox } from "@/components/ui/Checkbox";
 import { useAuthStore } from "@/stores/User/Auth";
 import { useNavigate } from "react-router-dom";
 import { useUserStore } from "@/stores/User/User";
+import { useUpdater } from "@/services/utils/storeUtils";
+import { LoginDetails } from "@/services/types/user";
 
 const LoginPage: React.FC = () => {
   const { loginDetails, setLoginDetails, login } = useAuthStore();
   const { fetchSelf, isAuthenticated } = useUserStore();
-  const [loginPayload, setLoginPaylod] = useState(loginDetails);
   const navigate = useNavigate();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    const updatedDetails = { ...loginPayload, [name]: value };
-    setLoginPaylod(updatedDetails);
-    setLoginDetails(updatedDetails);
-  };
+  const {updateField, payload, reset} = useUpdater<LoginDetails>(loginDetails)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoginDetails(payload);
     const loggedIn = await login();
     if (loggedIn) {
       fetchSelf();
@@ -63,8 +60,8 @@ const LoginPage: React.FC = () => {
                 name="username"
                 type="text"
                 placeholder="Enter your Username"
-                value={loginPayload.username}
-                onChange={handleChange}
+                value={payload.username}
+                onChange={(e) => updateField("username", e.target.value)}
                 className="border-gray-200 focus:border-cyan-400 focus:ring-cyan-400"
                 required
               />
@@ -74,12 +71,13 @@ const LoginPage: React.FC = () => {
                 Password
               </Label>
               <Input
-                id="password"
+                id="authPassword"
                 name="password"
                 type="password"
+                autoComplete="password"
                 placeholder="Enter your password"
-                value={loginPayload.password}
-                onChange={handleChange}
+                value={payload.password}
+                onChange={(e) => updateField("password", e.target.value)}
                 className="border-gray-200 focus:border-cyan-400 focus:ring-cyan-400"
                 required
               />
@@ -88,8 +86,8 @@ const LoginPage: React.FC = () => {
               <Checkbox
                 id="remember"
                 name="remember"
-                checked={loginPayload.remember}
-                onChange={handleChange}
+                checked={payload.should_remember}
+                onChange={(e) => updateField("should_remember", e.target.checked)}
                 label="Remember me"
               />
               <Link

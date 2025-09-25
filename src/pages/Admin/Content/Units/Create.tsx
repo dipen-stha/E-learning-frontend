@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import { Textarea } from "@/components/ui/Textarea";
@@ -11,7 +11,6 @@ import { ModalCompProps } from "@/services/types/Extras";
 import { UnitPayload } from "@/services/types/Unit";
 import { useUnitStore } from "@/stores/Unit/Unit";
 import { CreateModal } from "@/components/Modal";
-import { MinimalCourse } from "@/services/types/Course";
 
 export function CreateUnitForm({
   onSubmit,

@@ -146,7 +146,6 @@ export default function CourseDetails() {
 
   const compareSubjectStatus = (subjectId: number) => {
     let subject = userSubjectStatus.find((item) => item.id === subjectId);
-    console.log(subject);
     if (subject) {
       if (subject.status === "NOT_STARTED") return 1;
       if (subject.status === "IN_PROGRESS") return 2;

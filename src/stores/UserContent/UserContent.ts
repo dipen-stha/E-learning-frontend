@@ -33,7 +33,8 @@ export const useUserContentStore = create<UserContentState>((set, get) => ({
   },
   updateUserContentStatus: async () => {
     try {
-      await api.patch(userContentAPI.updateStatus, get().updatePayload);
+      const response = await api.patch(userContentAPI.updateStatus, get().updatePayload);
+      return response.data.completed
     } catch (error) {
       console.log(error);
       throw error;

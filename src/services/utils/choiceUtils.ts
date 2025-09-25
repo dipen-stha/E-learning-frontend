@@ -12,6 +12,14 @@
     {value: "GPAY", label: "Gpay"}
   ]
 
+  export const AchievementRuleSet = [
+    {value: "COURSE", label: "Course"},
+    {value: "SUBJECT", label: "Subject"},
+    {value: "UNIT", label: "Unit"},
+    {value: "STREAK", label: "Streak"},
+    {value: "ENROLLMENT", label: "Enrollment"}
+  ]
+
   export const ContentType = [
     {value: "VIDEO", label: "Video", icon: "Video"},
     {value: "TEXT", label: "Text", icon: "File"},

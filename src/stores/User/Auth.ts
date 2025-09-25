@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 
 
 export const useAuthStore = create<AuthState>((set, get) => ({
-    loginDetails: {username: "", password: "", remember: false},
+    loginDetails: {username: "", password: "", should_remember: false},
     hasError: false,
     accessToken: localStorage.getItem("access") || null,
     refreshToken: localStorage.getItem("refresh") || null,
@@ -72,7 +72,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         try{
             localStorage.removeItem("access")
             localStorage.removeItem("refresh")
-            set({accessToken: null, refreshToken: null, loginDetails: {username: "", password: "", remember: false}})
+            set({accessToken: null, refreshToken: null, loginDetails: {username: "", password: "", should_remember: false}})
             toast.success("Logged Out")
         } catch (e) {
             console.log("There was an error logging out")
