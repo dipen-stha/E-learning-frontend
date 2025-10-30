@@ -295,7 +295,7 @@ export default function SubjectsPage() {
                           {subject.completion_time && (
                             <div className="flex items-center text-xs text-gray-600">
                               <Clock className="mr-1 h-3 w-3" />
-                              {subject.completion_time} minutes
+                              {subject.completion_time} hours
                             </div>
                           )}
                         </div>

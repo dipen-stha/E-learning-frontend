@@ -85,10 +85,10 @@ export default function UsersPage() {
 
   const handleModalSubmit = async () => {
     try {
-      await fetchStudents();
       setIsCreateModalOpen(false);
       setIsModalEdit(false);
       setEditId(null);
+      await fetchStudents();
     } catch {
       console.log("error");
     }

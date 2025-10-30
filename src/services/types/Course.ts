@@ -190,3 +190,7 @@ export interface UnitContentState {
   fetchContentById: (contentId: number) => Promise<void>;
   resetPayload: () => void;
 }
+
+export interface CategoryPayload {
+  title: string
+}

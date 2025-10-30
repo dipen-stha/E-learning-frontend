@@ -77,10 +77,10 @@ export default function CoursesPage() {
 
   const handleCreateCourse = async () => {
     try {
-      await fetchCourseDetails();
       setEditId(null);
       setIsModalEdit(false);
       setIsCreateModalOpen(false);
+      await fetchCourseDetails();
     } catch (error) {
       // setIsCreateModalOpen(true);
     }
@@ -288,7 +288,7 @@ export default function CoursesPage() {
                       <div className="flex items-center space-x-4 text-xs text-gray-800">
                         <span className="flex items-center">
                           <Clock className="mr-1 h-3 w-3" />
-                          {course.completion_time} minutes
+                          {course.completion_time} hours
                         </span>
                         <span>{course.subjects.length} lessons</span>
                         <span>${course.price}</span>

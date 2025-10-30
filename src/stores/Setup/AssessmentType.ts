@@ -2,7 +2,6 @@ import { create } from "zustand";
 import {
   AssessmentTypeState,
   AssessmentTypePayload,
-  AssessmentTypeDetail,
 } from "@/services/types/Setup";
 import api from "@/services/api/interceptor";
 import { assessmentTypeAPI } from "@/services/api/endpoints/assessment";

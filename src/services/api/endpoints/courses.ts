@@ -1,4 +1,6 @@
 const prefix = "/courses"
+
+
 export const courseAPI = {
     fetchLatestCourses: `${prefix}/get/latest-courses/`,
     fetchAll: `${prefix}/get/all/`,
@@ -6,7 +8,8 @@ export const courseAPI = {
     createCourse: `${prefix}/create/`,
     updateCourse: (courseId: number) =>  `${prefix}/${courseId}/update/`,
     fetchCategoryList: `${prefix}/category/get/`,
-    minimalFetch: `${prefix}/get/minimal/`
+    minimalFetch: `${prefix}/get/minimal/`,
+    createCourseCategory: `${prefix}/category/create/`
 }
 
 export const subjectAPI = {

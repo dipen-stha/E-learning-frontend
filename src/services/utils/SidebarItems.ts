@@ -144,6 +144,11 @@ export const navigationItems: NavItem[] = [
         title: "Achievements",
         href: "/admin/setup/achievements/",
         icon: SquareStar
+      },
+      {
+        title: "Categories",
+        href: "/admin/setup/categories/",
+        icon: BarChart3
       }
       ]
   }

@@ -24,6 +24,7 @@ import AssessmentType from "./pages/Admin/Settings/Setup/AssessmentType/Assessme
 import QuestionPage from "./pages/Admin/Assessments/Question/Question";
 import { StreakTypePage } from "./pages/Admin/Settings/Setup/StreakType/StreakType";
 import { Achievements } from "./pages/Admin/Settings/Setup/Achievements/Achievements";
+import Categories from "./pages/Admin/Settings/Setup/Categories/Categories";
 
 function App() {
   return (
@@ -176,6 +177,12 @@ function App() {
               </AdminLayout>
             </AdminProtectedRoute>
           } />
+          <Route path="/admin/setup/categories/" element ={
+            <AdminLayout>
+              <Categories />
+            </AdminLayout>
+          } 
+          />
       </Routes>
     </div>
   );
