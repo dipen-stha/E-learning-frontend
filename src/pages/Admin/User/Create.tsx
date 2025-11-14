@@ -19,6 +19,8 @@ import { CreateModal } from "../../../components/Modal";
 import { useUpdater } from "@/services/utils/storeUtils";
 import { UserPayload } from "@/services/types/user";
 import { useEffect } from "react";
+import { MultiSelect } from "@/components/ui/MultiSelect";
+import { UserRoleType } from "@/services/utils/choiceUtils";
 
 export function CreateUserForm({
   onSubmit,
@@ -38,12 +40,10 @@ export function CreateUserForm({
   const handleSubmit = async () => {
     setUserPayload(payload);
     if (isEdit && editId) {
-      try{
+      try {
         updateUser(editId as number);
         reset();
-      } catch (error) {
-        
-      }
+      } catch (error) {}
     } else {
       createUser();
     }
@@ -51,9 +51,9 @@ export function CreateUserForm({
   };
 
   const handleClose = () => {
-    reset()
+    reset();
     onCancel();
-  }
+  };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -81,20 +81,21 @@ export function CreateUserForm({
   }, [isEdit, editId]);
 
   useEffect(() => {
-    if (userItem){
+    if (userItem) {
       updateField("user", {
-      name: userItem.profile.name || "",
-      gender: userItem.profile.gender || "",
-      username: userItem.username || "",
-      dob: userItem.profile.dob || "",
-      is_active: userItem.is_active ?? true,
-      email: userItem.email || "",
-      password: "",
-      confirm_password: "",
-      })
-      updateField("avatar", userItem.profile.avatar)
+        name: userItem.profile.name || "",
+        gender: userItem.profile.gender || "",
+        username: userItem.username || "",
+        dob: userItem.profile.dob || "",
+        is_active: userItem.is_active ?? true,
+        email: userItem.email || "",
+        password: "",
+        confirm_password: "",
+        role: "",
+      });
+      updateField("avatar", userItem.profile.avatar);
     }
-  }, [userItem])
+  }, [userItem]);
 
   return (
     <CreateModal
@@ -215,7 +216,21 @@ export function CreateUserForm({
             </SelectContent>
           </Select>
         </div>
-
+        <div className="space-y-2">
+          <Label
+            htmlFor="userRole"
+            className="text-sm font-medium text-gray-700"
+          >
+            Role *
+          </Label>
+          <MultiSelect 
+          options={UserRoleType}
+          getOptionLabel={(value) => value.label}
+          getOptionValue={(value) => value.value}
+          value={payload.user.role}
+          onValueChange={(value: any) => updateField("user.role", value.value)}
+          />
+        </div>
         <div className="space-y-2">
           <Label
             htmlFor="password"

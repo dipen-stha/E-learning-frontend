@@ -27,6 +27,12 @@
     {value: "IMAGE", label: "Image", icon: "Picture"} 
   ]
 
+  export const UserRoleType = [
+    {value: "ADMIN", label: "Admin"},
+    {value: "STUDENT", label: "Student"},
+    {value: "TUTOR", label: "Tutor"}
+  ]
+
   export const mapStatus = (data: string) => {
     return Status.find(item => item.value === data)?.label
   }

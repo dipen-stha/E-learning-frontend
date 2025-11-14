@@ -17,6 +17,7 @@ const initialPayload = {
     gender: "",
     dob: new Date(),
     is_active: true,
+    role: ""
   },
   avatar: null,
 };

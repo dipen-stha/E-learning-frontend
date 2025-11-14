@@ -59,6 +59,7 @@ export interface UserDataPayload{
   gender: string
   dob: Date
   is_active: boolean
+  role: string
 }
 
 export interface UserStats {
